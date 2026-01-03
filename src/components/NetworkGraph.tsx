@@ -1,37 +1,24 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import axios from "axios";
 import {
-  Search,
-  RotateCcw,
-  Settings2,
-  Zap,
-  Sliders,
-  Maximize2,
-  Minimize2,
-  Activity,
-  Shield,
-  Cpu,
-  Share2,
-  X,
-  MapPin,
-  User,
-  Info,
-  List,
-  AlertCircle,
-} from "lucide-react";
+  LoadingScreen,
+} from "./network-graph/LoadingScreen";
+import { ErrorScreen } from "./network-graph/ErrorScreen";
+import { Controls } from "./network-graph/Controls";
+import { SettingsPanel } from "./network-graph/SettingsPanel";
+import { NodeDetails } from "./network-graph/NodeDetails";
+import type { GraphData, GraphNode } from "./network-graph/types";
 
 const NetworkGraph: React.FC = () => {
-  const [rawData, setRawData] = useState<{ nodes: any[]; edges: any[] } | null>(
-    null
-  );
+  const [rawData, setRawData] = useState<GraphData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [ForceGraph2D, setForceGraph2D] = useState<any>(null);
 
   // UI & Physics State
-  const [selectedNode, setSelectedNode] = useState<any | null>(null);
+  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [hoverNode, setHoverNode] = useState<any | null>(null);
+  const [hoverNode, setHoverNode] = useState<GraphNode | null>(null);
   const [showPorts, setShowPorts] = useState(true);
   const [showNodeLabels, setShowNodeLabels] = useState(true);
   const [showPortLabels, setShowPortLabels] = useState(true);
@@ -264,331 +251,50 @@ const NetworkGraph: React.FC = () => {
     }
   };
 
-  if (loading || !ForceGraph2D)
-    return (
-      <div className="flex flex-col items-center justify-center h-screen bg-[#050505]">
-        <div className="flex flex-col items-center gap-4">
-          <Activity className="w-8 h-8 text-[#0ea5e9] animate-pulse" />
-          <div className="space-y-1 text-center font-mono">
-            <h2 className="text-[#0ea5e9] font-bold tracking-[0.3em] text-xs uppercase">
-              System.Initialize()
-            </h2>
-            <p className="text-[#0ea5e9]/40 text-[9px] uppercase tracking-tighter">
-              Fetching topology from endpoint...
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-
-  if (error)
-    return (
-      <div className="flex flex-col items-center justify-center h-screen bg-[#050505]">
-        <div className="bg-[#f43f5e]/5 p-8 border border-[#f43f5e]/20 flex flex-col items-center shadow-[0_0_30px_rgba(244,63,94,0.1)]">
-          <AlertCircle className="w-10 h-10 text-[#f43f5e] mb-4" />
-          <h2 className="text-[#f43f5e] font-bold text-sm uppercase tracking-widest mb-2 font-mono">
-            CRITICAL_FAILURE
-          </h2>
-          <p className="text-[#f43f5e]/60 font-mono text-xs mb-6 text-center max-w-sm">
-            {error}
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-6 py-2 bg-[#f43f5e] text-black font-mono text-xs font-bold hover:bg-[#f43f5e]/80 transition-all uppercase tracking-tighter"
-          >
-            Reconnect.System()
-          </button>
-        </div>
-      </div>
-    );
+  if (loading || !ForceGraph2D) return <LoadingScreen />;
+  if (error) return <ErrorScreen error={error} />;
 
   return (
     <div
       ref={containerRef}
-      className="relative flex flex-col w-full h-screen overflow-hidden bg-[#050505] transition-all font-mono"
+      className="relative flex flex-col w-full h-screen overflow-hidden bg-black transition-all font-mono"
     >
-      {/* HUD Superior Overlay Title */}
-      <div className="absolute top-6 left-6 z-40 pointer-events-none flex flex-col gap-1">
-        <div className="flex items-center gap-3">
-          <div className="w-1 h-4 bg-[#0ea5e9] shadow-[0_0_10px_#0ea5e9]" />
-          <h1 className="text-xl font-bold text-[#0ea5e9] tracking-widest uppercase drop-shadow-[0_0_5px_rgba(14,165,233,0.5)]">
-            Topology.View
-          </h1>
-        </div>
-      </div>
-      {/* HUD Superior Controls */}
-      <div className="absolute top-6 inset-x-0 z-30 flex justify-center items-start pointer-events-none font-mono">
-        <div className="flex flex-col gap-3 pointer-events-auto w-full max-w-2xl items-center">
-          <div className="flex items-center gap-2 bg-[#050505]/90 border border-[#0ea5e9]/30 p-1.5 shadow-[0_0_15px_rgba(14,165,233,0.1)] w-full backdrop-blur-sm">
-            <div className="relative flex-1">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0ea5e9] text-xs font-bold leading-none">
-                {">"}
-              </span>
-              <input
-                type="text"
-                placeholder="search_query..."
-                className="w-full pl-8 pr-4 py-2 bg-transparent border-none rounded-none text-xs text-[#0ea5e9] placeholder:text-[#0ea5e9]/30 focus:ring-0 uppercase"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <button
-              onClick={toggleFullscreen}
-              className="p-2 hover:bg-[#0ea5e9]/10 text-[#0ea5e9]/60 hover:text-[#0ea5e9] transition-colors border-l border-[#0ea5e9]/20"
-            >
-              {isFullscreen ? (
-                <Minimize2 className="w-4 h-4" />
-              ) : (
-                <Maximize2 className="w-4 h-4" />
-              )}
-            </button>
-          </div>
+      <Controls
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        isFullscreen={isFullscreen}
+        toggleFullscreen={toggleFullscreen}
+        showSettings={showSettings}
+        setShowSettings={setShowSettings}
+        onResetZoom={() => {
+          setSelectedNode(null);
+          setSearchQuery("");
+          fgRef.current.zoomToFit(400);
+        }}
+      />
 
-          {showSettings && (
-            <div className="bg-[#050505]/95 border border-[#0ea5e9]/30 p-4 shadow-[0_0_20px_rgba(14,165,233,0.15)] space-y-5 animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-md fixed top-16 right-4">
-              <div className="flex items-center justify-between border-b border-[#0ea5e9]/20 pb-2">
-                <span className="text-[9px] font-bold text-[#0ea5e9]/50 uppercase tracking-[0.2em]">
-                  sys.config
-                </span>
-                <Settings2 className="w-3 h-3 text-[#0ea5e9]" />
-              </div>
+      {showSettings && (
+        <SettingsPanel
+          showNodeLabels={showNodeLabels}
+          setShowNodeLabels={setShowNodeLabels}
+          showPortLabels={showPortLabels}
+          setShowPortLabels={setShowPortLabels}
+          showPorts={showPorts}
+          setShowPorts={setShowPorts}
+          showParticles={showParticles}
+          setShowParticles={setShowParticles}
+          forceStrength={forceStrength}
+          setForceStrength={setForceStrength}
+          linkDistance={linkDistance}
+          setLinkDistance={setLinkDistance}
+        />
+      )}
 
-              <div className="grid grid-cols-2 gap-x-6 gap-y-3 w-[400px] ">
-                {[
-                  {
-                    label: "Labels.Node",
-                    value: showNodeLabels,
-                    set: setShowNodeLabels,
-                  },
-                  {
-                    label: "Labels.Port",
-                    value: showPortLabels,
-                    set: setShowPortLabels,
-                  },
-                  {
-                    label: "Visual.Ports",
-                    value: showPorts,
-                    set: setShowPorts,
-                  },
-                  {
-                    label: "Visual.Flow",
-                    value: showParticles,
-                    set: setShowParticles,
-                  },
-                ].map((cfg) => (
-                  <label
-                    key={cfg.label}
-                    className="flex items-center justify-between cursor-pointer group"
-                  >
-                    <span className="text-[10px] text-[#0ea5e9]/60 group-hover:text-[#0ea5e9] transition-colors">
-                      {cfg.label}
-                    </span>
-                    <div
-                      className={`w-3 h-3 border border-[#0ea5e9]/40 transition-all ${
-                        cfg.value
-                          ? "bg-[#0ea5e9] shadow-[0_0_5px_#0ea5e9]"
-                          : "bg-transparent"
-                      }`}
-                    ></div>
-                    <input
-                      type="checkbox"
-                      className="hidden"
-                      checked={cfg.value}
-                      onChange={() => cfg.set(!cfg.value)}
-                    />
-                  </label>
-                ))}
-              </div>
-
-              <div className="space-y-4 pt-2">
-                {[
-                  {
-                    label: "Phys.Repulsion",
-                    value: forceStrength,
-                    min: -1000,
-                    max: -50,
-                    step: 50,
-                    set: (v: string) => setForceStrength(parseInt(v)),
-                  },
-                  {
-                    label: "Phys.Distance",
-                    value: linkDistance,
-                    min: 30,
-                    max: 350,
-                    step: 10,
-                    set: (v: string) => setLinkDistance(parseInt(v)),
-                  },
-                ].map((slider) => (
-                  <div key={slider.label} className="space-y-1.5">
-                    <div className="flex justify-between items-center text-[9px] uppercase">
-                      <span className="text-[#0ea5e9]/40">{slider.label}</span>
-                      <span className="text-[#0ea5e9] font-bold">
-                        {slider.value}
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min={slider.min}
-                      max={slider.max}
-                      step={slider.step}
-                      value={slider.value}
-                      onChange={(e) => slider.set(e.target.value)}
-                      className="w-full h-0.5 bg-[#0ea5e9]/20 appearance-none cursor-pointer accent-[#0ea5e9]"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="flex gap-2 pointer-events-auto fixed top-4 right-4">
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className={`p-2 border transition-all ${
-              showSettings
-                ? "bg-[#0ea5e9] text-black border-[#0ea5e9] shadow-[0_0_10px_#0ea5e9]"
-                : "bg-black border-[#0ea5e9]/20 text-[#0ea5e9]/60 hover:border-[#0ea5e9] hover:text-[#0ea5e9]"
-            }`}
-          >
-            <Settings2 className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => {
-              setSelectedNode(null);
-              setSearchQuery("");
-              fgRef.current.zoomToFit(400);
-            }}
-            className="p-2 bg-black border border-[#0ea5e9]/20 text-[#0ea5e9]/60 hover:border-[#0ea5e9] hover:text-[#0ea5e9] transition-all"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-
-      {/* Info Panel Lateral (Ahora Modal Centrada) */}
       {selectedNode && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="relative w-full max-w-4xl max-h-[85vh] bg-[#050505]/95 border border-[#10b981]/30 shadow-[0_0_50px_rgba(16,185,129,0.2)] flex flex-col font-mono text-[#e2e8f0] overflow-hidden">
-            <div className="p-8 border-b border-[#10b981]/20 bg-[#10b981]/5">
-              <div className="flex justify-between items-start mb-6">
-                <span className="px-3 py-1 border border-[#10b981]/40 text-[#10b981] text-[10px] font-bold uppercase tracking-[0.3em] shadow-[0_0_10px_rgba(16,185,129,0.2)]">
-                  {selectedNode.type}
-                </span>
-                <button
-                  onClick={() => setSelectedNode(null)}
-                  className="p-2 hover:bg-[#10b981]/10 text-[#10b981]/40 hover:text-[#10b981] transition-colors border border-[#10b981]/10"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              <h3 className="text-3xl font-bold text-[#10b981] leading-tight mb-2 truncate drop-shadow-[0_0_10px_rgba(16,185,129,0.5)] tracking-tighter">
-                {selectedNode.label}
-              </h3>
-              {selectedNode.ip && (
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse" />
-                  <p className="text-xs text-[#10b981]/60 tracking-[0.4em] uppercase font-bold">
-                    {selectedNode.ip}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar bg-black/20">
-              {selectedNode.details?.system && (
-                <div className="space-y-4">
-                  <h4 className="text-[10px] font-bold text-[#10b981]/50 uppercase tracking-[0.4em] flex items-center gap-3">
-                    <div className="w-1.5 h-4 bg-[#10b981]" />{" "}
-                    system_information
-                  </h4>
-                  <div className="bg-[#10b981]/5 p-6 border border-[#10b981]/10 space-y-4 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-2 opacity-5">
-                      <Shield className="w-20 h-20 text-[#10b981]" />
-                    </div>
-                    <p className="text-[13px] text-[#10b981]/80 leading-relaxed font-medium italic relative z-10">
-                      "{selectedNode.details.system.sysDescr}"
-                    </p>
-                    <div className="flex flex-wrap gap-6 items-center pt-2 relative z-10">
-                      <div className="flex items-center gap-3 text-[#10b981]/60 text-xs">
-                        <MapPin className="w-4 h-4" />
-                        <span className="uppercase tracking-widest border-b border-[#10b981]/20">
-                          {selectedNode.details.system.sysLocation ||
-                            "NOT_DEFINED"}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3 text-[#10b981]/60 text-xs">
-                        <User className="w-4 h-4" />
-                        <span className="uppercase tracking-widest border-b border-[#10b981]/20">
-                          {selectedNode.details.system.sysContact ||
-                            "UNKNOWN_ADMIN"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {selectedNode.details?.interfaces && (
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between border-b border-[#10b981]/10 pb-2">
-                    <h4 className="text-[10px] font-bold text-[#10b981]/50 uppercase tracking-[0.4em] flex items-center gap-3">
-                      <div className="w-1.5 h-4 bg-[#10b981]" />{" "}
-                      interface_matrix
-                    </h4>
-                    <span className="text-[10px] text-[#10b981]/40 tracking-widest font-bold">
-                      COUNT: {selectedNode.details.interfaces.length}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {selectedNode.details.interfaces.map(
-                      (iface: any, i: number) => (
-                        <div
-                          key={i}
-                          className="p-4 border border-[#10b981]/10 bg-black/40 hover:bg-[#10b981]/5 hover:border-[#10b981]/30 transition-all group flex items-start justify-between"
-                        >
-                          <div className="flex flex-col gap-1 pr-4 min-w-0">
-                            <span className="text-xs font-bold text-[#10b981] group-hover:drop-shadow-[0_0_5px_rgba(16,185,129,0.3)]">
-                              {iface.ifName}
-                            </span>
-                            <span className="text-[9px] text-[#10b981]/40 truncate uppercase tracking-tighter">
-                              {iface.ifDescr}
-                            </span>
-                            {iface.ifSpeed && (
-                              <span className="text-[8px] text-[#10b981]/30 mt-1 font-bold">
-                                SPEED: {(iface.ifSpeed / 1000000).toFixed(1)}{" "}
-                                Mbps
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex flex-col items-end gap-2 shrink-0">
-                            <div
-                              className={`px-1.5 py-0.5 text-[8px] font-bold border ${
-                                iface.ifAdminStatus === 1
-                                  ? "bg-[#10b981]/10 border-[#10b981]/30 text-[#10b981]"
-                                  : "bg-[#f43f5e]/10 border-[#f43f5e]/30 text-[#f43f5e]"
-                              }`}
-                            >
-                              {iface.ifAdminStatus === 1 ? "ACTIVE" : "DOWN"}
-                            </div>
-                            <div
-                              className={`w-1.5 h-1.5 rounded-full ${
-                                iface.ifAdminStatus === 1
-                                  ? "bg-[#10b981] shadow-[0_0_8px_#10b981]"
-                                  : "bg-[#f43f5e] opacity-30"
-                              }`}
-                            />
-                          </div>
-                        </div>
-                      )
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <NodeDetails
+          node={selectedNode}
+          onClose={() => setSelectedNode(null)}
+        />
       )}
 
       {/* Graph Area */}
@@ -606,14 +312,14 @@ const NetworkGraph: React.FC = () => {
         linkDirectionalParticleWidth={2}
         linkCurvature={0.1}
         linkColor={
-          (l) =>
+          (l: any) =>
             hoverNode &&
             (getID(l.source) === getID(hoverNode) ||
               getID(l.target) === getID(hoverNode))
               ? "#22d3ee" // Cyan glowing link on hover
-              : "#1e293b" // Dark slate for default links
+              : "#334155" // Slate-700 (darker) for default links
         }
-        nodeCanvasObject={(node: any, ctx, globalScale) => {
+        nodeCanvasObject={(node: any, ctx: any, globalScale: number) => {
           if (!node || node.x === undefined || node.y === undefined) return;
 
           const isSelected = selectedNode && getID(selectedNode) === node.id;
