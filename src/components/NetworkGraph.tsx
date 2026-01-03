@@ -231,226 +231,194 @@ const NetworkGraph: React.FC = () => {
 
   if (loading || !ForceGraph2D)
     return (
-      <div className="flex flex-col items-center justify-center h-[800px] bg-slate-950 rounded-[2.5rem] border border-slate-800 shadow-2xl">
-        <Activity className="w-12 h-12 text-blue-500 animate-spin mb-6" />
-        <h2 className="text-white font-bold tracking-widest text-lg uppercase">
-          Sincronizando Sistema
-        </h2>
-        <p className="text-slate-500 font-mono text-[10px] uppercase mt-2 animate-pulse tracking-tighter">
-          Consultando API de topología física...
-        </p>
+      <div className="flex flex-col items-center justify-center h-screen bg-black">
+        <div className="flex flex-col items-center gap-4">
+          <Activity className="w-8 h-8 text-white animate-pulse" />
+          <div className="space-y-1 text-center font-mono">
+            <h2 className="text-white font-bold tracking-[0.3em] text-xs uppercase">
+              System.Initialize()
+            </h2>
+            <p className="text-white/40 text-[9px] uppercase tracking-tighter">
+              Fetching topology from endpoint...
+            </p>
+          </div>
+        </div>
       </div>
     );
 
   if (error)
     return (
-      <div className="flex flex-col items-center justify-center h-[800px] bg-slate-950 rounded-[2.5rem] border border-red-900/30">
-        <AlertCircle className="w-16 h-16 text-red-500 mb-6" />
-        <h2 className="text-red-500 font-black text-xl uppercase tracking-tighter">
-          Fallo de Comunicación
-        </h2>
-        <p className="text-slate-400 font-mono text-sm mt-2">{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="mt-8 px-6 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-full font-bold text-xs hover:bg-red-500 hover:text-white transition-all"
-        >
-          Reintentar Conexión
-        </button>
+      <div className="flex flex-col items-center justify-center h-screen bg-black">
+        <div className="bg-white/5 p-8 border border-white/10 flex flex-col items-center">
+          <AlertCircle className="w-10 h-10 text-white mb-4" />
+          <h2 className="text-white font-bold text-sm uppercase tracking-widest mb-2 font-mono">
+            CRITICAL_FAILURE
+          </h2>
+          <p className="text-white/60 font-mono text-xs mb-6 text-center max-w-sm">
+            {error}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-white text-black font-mono text-xs font-bold hover:bg-white/80 transition-all uppercase tracking-tighter"
+          >
+            Reconnect.System()
+          </button>
+        </div>
       </div>
     );
 
   return (
     <div
       ref={containerRef}
-      className={`relative flex flex-col w-full overflow-hidden bg-slate-950 transition-all ${
-        isFullscreen
-          ? "h-screen"
-          : "h-[850px] rounded-[2.5rem] border border-slate-800 shadow-2xl ring-1 ring-white/5"
-      }`}
+      className="relative flex flex-col w-full h-screen overflow-hidden bg-black transition-all font-mono"
     >
-      {/* HUD Superior */}
-      <div className="absolute top-8 left-8 right-8 z-30 flex justify-between items-start pointer-events-none">
-        <div className="flex flex-col gap-4 pointer-events-auto w-full max-w-lg">
-          <div className="flex items-center gap-3 bg-slate-900/90 backdrop-blur-2xl border border-white/10 p-2 rounded-2xl shadow-2xl ring-1 ring-white/5">
+      {/* HUD Superior Overlay Title */}
+      <div className="absolute top-6 left-6 z-40 pointer-events-none flex flex-col gap-1">
+        <div className="flex items-center gap-3">
+          <div className="w-1 h-4 bg-white" />
+          <h1 className="text-xl font-bold text-white tracking-widest uppercase">
+            Topology.View
+          </h1>
+        </div>
+        <div className="flex items-center gap-2 pl-4">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-40"></span>
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
+          </span>
+          <span className="text-white/30 text-[9px] uppercase tracking-[0.3em]">
+            SNMP_V3_MONITOR // SINC_OK
+          </span>
+        </div>
+      </div>
+      {/* HUD Superior Controls */}
+      <div className="absolute top-6 right-6 left-6 z-30 flex justify-end items-start pointer-events-none font-mono">
+        <div className="flex flex-col gap-3 pointer-events-auto w-full max-w-md items-end">
+          <div className="flex items-center gap-2 bg-black border border-white/20 p-1.5 shadow-xl w-full">
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-xs font-bold leading-none">
+                {">"}
+              </span>
               <input
                 type="text"
-                placeholder="Buscar por Nombre, IP, Descripción, Interfaz..."
-                className="w-full pl-12 pr-4 py-3 bg-slate-800/50 border-none rounded-xl text-sm text-slate-200 focus:ring-1 focus:ring-blue-500/50"
+                placeholder="search_query..."
+                className="w-full pl-8 pr-4 py-2 bg-transparent border-none rounded-none text-xs text-white placeholder:text-white/20 focus:ring-0"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             <button
               onClick={toggleFullscreen}
-              className="p-3 hover:bg-white/10 rounded-xl text-slate-400 transition-colors"
+              className="p-2 hover:bg-white/10 text-white/60 transition-colors border-l border-white/10"
             >
               {isFullscreen ? (
-                <Minimize2 className="w-5 h-5" />
+                <Minimize2 className="w-4 h-4" />
               ) : (
-                <Maximize2 className="w-5 h-5" />
+                <Maximize2 className="w-4 h-4" />
               )}
             </button>
           </div>
 
           {showSettings && (
-            <div className="bg-slate-900/95 backdrop-blur-2xl border border-white/10 p-6 rounded-3xl shadow-2xl space-y-6 animate-in slide-in-from-top-4 ring-1 ring-white/5">
-              <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
-                  Configuración de Visibilidad
+            <div className="bg-black border border-white/20 p-4 shadow-2xl space-y-5 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                <span className="text-[9px] font-bold text-white/50 uppercase tracking-[0.2em]">
+                  sys.config
                 </span>
-                <Settings2 className="w-4 h-4 text-blue-500" />
+                <Settings2 className="w-3 h-3 text-white" />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white/5 rounded-xl transition-all">
-                  <div
-                    className={`w-8 h-4 rounded-full relative transition-colors ${
-                      showNodeLabels ? "bg-blue-600" : "bg-slate-700"
-                    }`}
+              <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                {[
+                  {
+                    label: "Labels.Node",
+                    value: showNodeLabels,
+                    set: setShowNodeLabels,
+                  },
+                  {
+                    label: "Labels.Port",
+                    value: showPortLabels,
+                    set: setShowPortLabels,
+                  },
+                  {
+                    label: "Visual.Ports",
+                    value: showPorts,
+                    set: setShowPorts,
+                  },
+                  {
+                    label: "Visual.Flow",
+                    value: showParticles,
+                    set: setShowParticles,
+                  },
+                ].map((cfg) => (
+                  <label
+                    key={cfg.label}
+                    className="flex items-center justify-between cursor-pointer group"
                   >
+                    <span className="text-[10px] text-white/60 group-hover:text-white transition-colors">
+                      {cfg.label}
+                    </span>
                     <input
                       type="checkbox"
-                      className="sr-only"
-                      checked={showNodeLabels}
-                      onChange={() => setShowNodeLabels(!showNodeLabels)}
+                      className="appearance-none w-3 h-3 border border-white/40 checked:bg-white transition-all cursor-pointer"
+                      checked={cfg.value}
+                      onChange={() => cfg.set(!cfg.value)}
                     />
-                    <div
-                      className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform ${
-                        showNodeLabels ? "translate-x-4.5" : "translate-x-0.5"
-                      }`}
-                    />
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-300 uppercase">
-                    Nodos
-                  </span>
-                </label>
-
-                <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white/5 rounded-xl transition-all">
-                  <div
-                    className={`w-8 h-4 rounded-full relative transition-colors ${
-                      showPortLabels ? "bg-blue-600" : "bg-slate-700"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      className="sr-only"
-                      checked={showPortLabels}
-                      onChange={() => setShowPortLabels(!showPortLabels)}
-                    />
-                    <div
-                      className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform ${
-                        showPortLabels ? "translate-x-4.5" : "translate-x-0.5"
-                      }`}
-                    />
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-300 uppercase">
-                    Ptos
-                  </span>
-                </label>
-
-                <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white/5 rounded-xl transition-all">
-                  <div
-                    className={`w-8 h-4 rounded-full relative transition-colors ${
-                      showPorts ? "bg-blue-600" : "bg-slate-700"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      className="sr-only"
-                      checked={showPorts}
-                      onChange={() => setShowPorts(!showPorts)}
-                    />
-                    <div
-                      className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform ${
-                        showPorts ? "translate-x-4.5" : "translate-x-0.5"
-                      }`}
-                    />
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-300 uppercase">
-                    Rombos
-                  </span>
-                </label>
-
-                <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white/5 rounded-xl transition-all">
-                  <div
-                    className={`w-8 h-4 rounded-full relative transition-colors ${
-                      showParticles ? "bg-blue-600" : "bg-slate-700"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      className="sr-only"
-                      checked={showParticles}
-                      onChange={() => setShowParticles(!showParticles)}
-                    />
-                    <div
-                      className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform ${
-                        showParticles ? "translate-x-4.5" : "translate-x-0.5"
-                      }`}
-                    />
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-300 uppercase">
-                    Flujo
-                  </span>
-                </label>
+                  </label>
+                ))}
               </div>
 
-              <div className="space-y-4 pt-4 border-t border-white/5">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[10px] text-slate-400 uppercase font-bold">
-                      Repulsión Global
-                    </span>
-                    <span className="text-xs font-mono text-blue-400">
-                      {forceStrength}
-                    </span>
+              <div className="space-y-4 pt-2">
+                {[
+                  {
+                    label: "Phys.Repulsion",
+                    value: forceStrength,
+                    min: -1000,
+                    max: -50,
+                    step: 50,
+                    set: (v: string) => setForceStrength(parseInt(v)),
+                  },
+                  {
+                    label: "Phys.Distance",
+                    value: linkDistance,
+                    min: 30,
+                    max: 350,
+                    step: 10,
+                    set: (v: string) => setLinkDistance(parseInt(v)),
+                  },
+                ].map((slider) => (
+                  <div key={slider.label} className="space-y-1.5">
+                    <div className="flex justify-between items-center text-[9px] uppercase">
+                      <span className="text-white/40">{slider.label}</span>
+                      <span className="text-white font-bold">
+                        {slider.value}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min={slider.min}
+                      max={slider.max}
+                      step={slider.step}
+                      value={slider.value}
+                      onChange={(e) => slider.set(e.target.value)}
+                      className="w-full h-0.5 bg-white/10 appearance-none cursor-pointer accent-white"
+                    />
                   </div>
-                  <input
-                    type="range"
-                    min="-1000"
-                    max="-50"
-                    step="50"
-                    value={forceStrength}
-                    onChange={(e) => setForceStrength(parseInt(e.target.value))}
-                    className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                  />
-                </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[10px] text-slate-400 uppercase font-bold">
-                      Tensión de Enlaces
-                    </span>
-                    <span className="text-xs font-mono text-blue-400">
-                      {linkDistance}px
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min="30"
-                    max="350"
-                    step="10"
-                    value={linkDistance}
-                    onChange={(e) => setLinkDistance(parseInt(e.target.value))}
-                    className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                  />
-                </div>
+                ))}
               </div>
             </div>
           )}
         </div>
 
-        <div className="flex gap-3 pointer-events-auto">
+        <div className="flex gap-2 pointer-events-auto">
           <button
             onClick={() => setShowSettings(!showSettings)}
-            className={`p-4 rounded-2xl border transition-all ${
+            className={`p-2 border transition-all ${
               showSettings
-                ? "bg-blue-600 border-blue-400 text-white"
-                : "bg-slate-900/90 border-white/10 text-slate-400 hover:bg-slate-800"
+                ? "bg-white text-black border-white"
+                : "bg-black border-white/20 text-white/60 hover:border-white hover:text-white"
             }`}
           >
-            <Settings2 className="w-5 h-5" />
+            <Settings2 className="w-4 h-4" />
           </button>
           <button
             onClick={() => {
@@ -458,52 +426,52 @@ const NetworkGraph: React.FC = () => {
               setSearchQuery("");
               fgRef.current.zoomToFit(400);
             }}
-            className="p-4 bg-slate-900/90 border border-white/10 backdrop-blur-xl text-slate-400 hover:bg-slate-800 rounded-2xl transition-all"
+            className="p-2 bg-black border border-white/20 text-white/60 hover:border-white hover:text-white transition-all"
           >
-            <RotateCcw className="w-5 h-5" />
+            <RotateCcw className="w-4 h-4" />
           </button>
         </div>
       </div>
 
       {/* Info Panel Lateral */}
       {selectedNode && (
-        <div className="absolute right-8 top-28 bottom-8 z-30 w-96 bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col animate-in slide-in-from-right-12 duration-500 ring-1 ring-white/10">
-          <div className="p-8 border-b border-white/5 bg-blue-500/5">
+        <div className="absolute right-6 top-6 bottom-6 z-30 w-[400px] bg-black border border-white/20 shadow-2xl flex flex-col animate-in slide-in-from-right-4 duration-300 font-mono text-white">
+          <div className="p-6 border-b border-white/10">
             <div className="flex justify-between items-start mb-6">
-              <span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[9px] font-black uppercase tracking-wider">
+              <span className="px-2 py-0.5 border border-white/40 text-white/60 text-[8px] font-bold uppercase tracking-widest">
                 {selectedNode.type}
               </span>
               <button
                 onClick={() => setSelectedNode(null)}
-                className="p-2 hover:bg-white/10 rounded-full text-slate-500 transition-colors"
+                className="p-1 hover:bg-white/10 text-white/40 hover:text-white transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
-            <h3 className="text-2xl font-black text-white leading-none mb-2">
+            <h3 className="text-lg font-bold text-white leading-tight mb-1 truncate">
               {selectedNode.label}
             </h3>
             {selectedNode.ip && (
-              <p className="text-xs font-mono text-blue-500/80 tracking-widest">
+              <p className="text-[10px] text-white/40 tracking-widest uppercase">
                 {selectedNode.ip}
               </p>
             )}
           </div>
 
-          <div className="flex-1 overflow-y-auto p-8 space-y-8">
+          <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
             {selectedNode.details?.system && (
-              <div className="space-y-4">
-                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                  Especificaciones
+              <div className="space-y-3">
+                <h4 className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] flex items-center gap-2">
+                  <div className="w-1 h-3 bg-white" /> system_desc
                 </h4>
-                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 space-y-3">
-                  <p className="text-xs text-slate-400 leading-relaxed italic">
+                <div className="bg-white/[0.02] p-4 border border-white/5 space-y-3">
+                  <p className="text-[11px] text-white/70 leading-relaxed italic">
                     "{selectedNode.details.system.sysDescr}"
                   </p>
-                  <div className="flex items-center gap-3 text-slate-300">
-                    <MapPin className="w-3.5 h-3.5 text-blue-500" />
-                    <span className="text-xs">
-                      {selectedNode.details.system.sysLocation || "N/A"}
+                  <div className="flex items-center gap-3 text-white/50 text-[10px]">
+                    <MapPin className="w-3 h-3" />
+                    <span>
+                      {selectedNode.details.system.sysLocation || "NOT_DEFINED"}
                     </span>
                   </div>
                 </div>
@@ -511,27 +479,35 @@ const NetworkGraph: React.FC = () => {
             )}
             {selectedNode.details?.interfaces && (
               <div className="space-y-4">
-                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                  Puertos Detectados ({selectedNode.details.interfaces.length})
+                <h4 className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] flex items-center gap-2">
+                  <div className="w-1 h-3 bg-white" /> if_table (
+                  {selectedNode.details.interfaces.length})
                 </h4>
-                <div className="space-y-2">
-                  {selectedNode.details.interfaces
-                    .slice(0, 8)
-                    .map((iface: any, i: number) => (
+                <div className="divide-y divide-white/5 border-t border-white/5">
+                  {selectedNode.details.interfaces.map(
+                    (iface: any, i: number) => (
                       <div
                         key={i}
-                        className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5"
+                        className="py-3 flex items-center justify-between group hover:bg-white/[0.02] transition-colors"
                       >
                         <div className="flex flex-col">
-                          <span className="text-xs font-bold text-white">
+                          <span className="text-[11px] font-bold text-white/80 group-hover:text-white">
                             {iface.ifName}
                           </span>
-                          <span className="text-[9px] text-slate-500 truncate max-w-[150px]">
+                          <span className="text-[9px] text-white/30 truncate max-w-[250px]">
                             {iface.ifDescr}
                           </span>
                         </div>
+                        <div
+                          className={`w-1 h-1 ${
+                            iface.ifAdminStatus === 1
+                              ? "bg-white"
+                              : "bg-white/10"
+                          }`}
+                        />
                       </div>
-                    ))}
+                    )
+                  )}
                 </div>
               </div>
             )}
@@ -543,22 +519,22 @@ const NetworkGraph: React.FC = () => {
       <ForceGraph2D
         ref={fgRef}
         graphData={processedData}
-        nodeRelSize={7}
-        backgroundColor="#020617"
+        nodeRelSize={6}
+        backgroundColor="#000000"
         onNodeClick={setSelectedNode}
         onNodeHover={setHoverNode}
-        linkDirectionalParticles={showParticles ? 4 : 0}
-        linkDirectionalParticleSpeed={0.006}
-        linkCurvature={0.15}
+        linkDirectionalParticles={showParticles ? 3 : 0}
+        linkDirectionalParticleSpeed={0.004}
+        linkDirectionalParticleWidth={2}
+        linkCurvature={0.1}
         linkColor={(l) =>
           hoverNode &&
           (getID(l.source) === getID(hoverNode) ||
             getID(l.target) === getID(hoverNode))
-            ? "#3b82f6"
-            : "#1e293b"
+            ? "#ffffff"
+            : "#222222"
         }
         nodeCanvasObject={(node: any, ctx, globalScale) => {
-          // Protección crítica: evita crash si el nodo aún no tiene coordenadas
           if (!node || node.x === undefined || node.y === undefined) return;
 
           const isSelected = selectedNode && getID(selectedNode) === node.id;
@@ -567,63 +543,77 @@ const NetworkGraph: React.FC = () => {
             (node.id === getID(hoverNode) ||
               node.parentId === getID(hoverNode));
           const isPort = node.type === "port";
-          const size = isPort ? 3.5 : 7.5;
+          const size = isPort ? 2.5 : 5.5;
           const safeScale = Math.max(0.1, globalScale);
 
           ctx.save();
           if (isPort) {
             ctx.translate(node.x, node.y);
             ctx.rotate(Math.PI / 4);
-            ctx.fillStyle = isHovered ? "#f59e0b" : "#fbbf24";
+            ctx.fillStyle = isHovered || isSelected ? "#ffffff" : "#444444";
             ctx.fillRect(-size, -size, size * 2, size * 2);
-          } else {
-            if (isSelected || isHovered) {
-              ctx.shadowColor = "#3b82f6";
-              ctx.shadowBlur = 30 / safeScale;
+            if (isHovered || isSelected) {
+              ctx.strokeStyle = "#ffffff";
+              ctx.lineWidth = 1 / safeScale;
+              ctx.strokeRect(
+                -size - 1,
+                -size - 1,
+                (size + 1) * 2,
+                (size + 1) * 2
+              );
             }
-            const grad = ctx.createRadialGradient(
-              node.x,
-              node.y,
-              0,
-              node.x,
-              node.y,
-              size
-            );
-            grad.addColorStop(
-              0,
-              node.type === "managed" ? "#60a5fa" : "#94a3b8"
-            );
-            grad.addColorStop(
-              0.8,
-              node.type === "managed" ? "#2563eb" : "#475569"
-            );
-            grad.addColorStop(1, "#020617");
-            ctx.fillStyle = grad;
+          } else {
+            // Main Node Styling
             ctx.beginPath();
             ctx.arc(node.x, node.y, size, 0, 2 * Math.PI, false);
+
+            if (node.type === "managed") {
+              ctx.fillStyle = isSelected || isHovered ? "#ffffff" : "#cccccc";
+            } else {
+              ctx.fillStyle = "#000000";
+              ctx.strokeStyle = isSelected || isHovered ? "#ffffff" : "#666666";
+              ctx.lineWidth = 1.5;
+              ctx.stroke();
+            }
             ctx.fill();
-            if (isSelected) {
-              ctx.strokeStyle = "#fff";
-              ctx.lineWidth = 3 / safeScale;
+
+            if (isSelected || isHovered) {
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, size + 3, 0, 2 * Math.PI, false);
+              ctx.strokeStyle = "rgba(255,255,255,0.2)";
+              ctx.lineWidth = 1 / safeScale;
               ctx.stroke();
             }
           }
           ctx.restore();
 
-          // Lógica de Etiquetas (Labels)
+          // Lógica de Etiquetas (Labels) Monospaced
           const shouldShowLabel = isPort ? showPortLabels : showNodeLabels;
           if (shouldShowLabel && (safeScale > 1.2 || isSelected)) {
-            const fontSize = 11 / safeScale;
-            ctx.font = `${
-              isSelected ? "900 " : "500 "
-            }${fontSize}px 'Inter', sans-serif`;
+            const fontSize = 10 / safeScale;
+            ctx.font = `${isSelected ? "bold " : ""}${fontSize}px 'monospace'`;
             ctx.textAlign = "center";
-            ctx.fillStyle = isSelected ? "#fff" : "#94a3b8";
+            ctx.fillStyle = isSelected || isHovered ? "#ffffff" : "#666666";
             const label = node.label || node.id || "N/A";
             ctx.fillText(label, node.x, node.y + size + fontSize + 4);
           }
         }}
       />
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      `}</style>
     </div>
   );
 };
