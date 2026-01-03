@@ -1,0 +1,10 @@
+---
+import Main from "@/layouts/main.astro";
+import NetworkGraph from "@/components/NetworkGraph";
+---
+
+<Main title="Topology.View">
+  <main class="bg-black w-screen h-screen overflow-hidden">
+    <NetworkGraph client:only="react" />
+  </main>
+</Main>
