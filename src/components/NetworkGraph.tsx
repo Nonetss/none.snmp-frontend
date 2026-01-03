@@ -43,6 +43,10 @@ const NetworkGraph: React.FC = () => {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const fgRef = useRef<any>();
+  const [dimensions, setDimensions] = useState({
+    width: typeof window !== "undefined" ? window.innerWidth : 800,
+    height: typeof window !== "undefined" ? window.innerHeight : 600,
+  });
 
   const getID = (node: any) => (typeof node === "object" ? node.id : node);
 
@@ -56,6 +60,21 @@ const NetworkGraph: React.FC = () => {
         console.error("Error cargando react-force-graph-2d:", err);
         setError("Error crítico: No se pudo cargar el motor gráfico");
       });
+
+    const handleResize = () => {
+      if (containerRef.current) {
+        setDimensions({
+          width: containerRef.current.clientWidth,
+          height: containerRef.current.clientHeight,
+        });
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    // Trigger initial resize
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // 2. Peticion al backend con logging
@@ -576,6 +595,8 @@ const NetworkGraph: React.FC = () => {
       <ForceGraph2D
         ref={fgRef}
         graphData={processedData}
+        width={dimensions.width}
+        height={dimensions.height}
         nodeRelSize={6}
         backgroundColor="#000000"
         onNodeClick={setSelectedNode}
