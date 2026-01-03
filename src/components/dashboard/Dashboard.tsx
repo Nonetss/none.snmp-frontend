@@ -29,6 +29,7 @@ const Dashboard: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   const fetchStats = async () => {
     setLoading(true);
@@ -46,8 +47,13 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     fetchStats();
-    const interval = setInterval(fetchStats, 30000);
-    return () => clearInterval(interval);
+    const statsInterval = setInterval(fetchStats, 30000);
+    const clockInterval = setInterval(() => setCurrentTime(new Date()), 1000);
+    
+    return () => {
+      clearInterval(statsInterval);
+      clearInterval(clockInterval);
+    };
   }, []);
 
   if (loading && !stats) return (
@@ -106,7 +112,7 @@ const Dashboard: React.FC = () => {
           <p className="text-[9px] text-neutral-500 uppercase tracking-[0.4em]">Autonomous Monitoring System v2.4.0</p>
         </div>
         <div className="text-right">
-          <div className="text-xs font-bold text-white mb-1">LOCAL_TIME: {new Date().toLocaleTimeString()}</div>
+          <div className="text-xs font-bold text-white mb-1">LOCAL_TIME: {currentTime.toLocaleTimeString()}</div>
           <div className="text-[8px] text-neutral-600 uppercase tracking-widest">System Status: Operational</div>
         </div>
       </div>
