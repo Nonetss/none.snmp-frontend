@@ -305,7 +305,10 @@ const NetworkGraph: React.FC = () => {
         height={dimensions.height}
         nodeRelSize={6}
         backgroundColor="#000000"
-        onNodeClick={setSelectedNode}
+        onNodeClick={(node: any) => {
+          if (node.type === "port") return;
+          setSelectedNode(node);
+        }}
         onNodeHover={setHoverNode}
         linkDirectionalParticles={showParticles ? 3 : 0}
         linkDirectionalParticleSpeed={0.004}
@@ -316,8 +319,8 @@ const NetworkGraph: React.FC = () => {
             hoverNode &&
             (getID(l.source) === getID(hoverNode) ||
               getID(l.target) === getID(hoverNode))
-              ? "#22d3ee" // Cyan glowing link on hover
-              : "#334155" // Slate-700 (darker) for default links
+              ? "#ffffff" // Pure white on hover
+              : "#1a1a1a" // Very dark grey for default links
         }
         nodeCanvasObject={(node: any, ctx: any, globalScale: number) => {
           if (!node || node.x === undefined || node.y === undefined) return;
