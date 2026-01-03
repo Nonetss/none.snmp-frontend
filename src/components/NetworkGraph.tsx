@@ -28,11 +28,14 @@ const NetworkGraph: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [ForceGraph2D, setForceGraph2D] = useState<any>(null);
 
-  // UI State
+  // UI & Physics State
   const [selectedNode, setSelectedNode] = useState<any | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [hoverNode, setHoverNode] = useState<any | null>(null);
   const [showPorts, setShowPorts] = useState(true);
+  const [showNodeLabels, setShowNodeLabels] = useState(true);
+  const [showPortLabels, setShowPortLabels] = useState(true);
+  const [showParticles, setShowParticles] = useState(true);
   const [forceStrength, setForceStrength] = useState(-300);
   const [linkDistance, setLinkDistance] = useState(70);
   const [showSettings, setShowSettings] = useState(false);
@@ -129,20 +132,29 @@ const NetworkGraph: React.FC = () => {
       const sId = getID(edge.source);
       const tId = getID(edge.target);
 
-      if (
-        showPorts &&
-        edge.metadata?.sourceInterface &&
-        edge.metadata?.targetInterface
-      ) {
-        const sPortId = `port-${sId}-${edge.metadata.sourceInterface}`;
-        const tPortId = `port-${tId}-${edge.metadata.targetInterface}`;
+      const sIface = edge.metadata?.sourceInterface;
+      const tIface = edge.metadata?.targetInterface;
+
+      if (showPorts && sIface && tIface) {
+        const sPortLabel =
+          typeof sIface === "object" ? sIface.ifDescr || sIface.ifName : sIface;
+        const tPortLabel =
+          typeof tIface === "object" ? tIface.ifDescr || tIface.ifName : tIface;
+        const sPortIdx =
+          typeof sIface === "object" ? sIface.ifIndex || sIface.ifName : sIface;
+        const tPortIdx =
+          typeof tIface === "object" ? tIface.ifIndex || tIface.ifName : tIface;
+
+        const sPortId = `port-${sId}-${sPortIdx}`;
+        const tPortId = `port-${tId}-${tPortIdx}`;
 
         if (!nodeMap.has(sPortId)) {
           const portNode = {
             id: sPortId,
-            label: edge.metadata.sourceInterface,
+            label: sPortLabel,
             type: "port",
             parentId: sId,
+            details: typeof sIface === "object" ? sIface : null,
           };
           nodes.push(portNode);
           nodeMap.set(sPortId, portNode);
@@ -151,9 +163,10 @@ const NetworkGraph: React.FC = () => {
         if (!nodeMap.has(tPortId)) {
           const portNode = {
             id: tPortId,
-            label: edge.metadata.targetInterface,
+            label: tPortLabel,
             type: "port",
             parentId: tId,
+            details: typeof tIface === "object" ? tIface : null,
           };
           nodes.push(portNode);
           nodeMap.set(tPortId, portNode);
@@ -284,16 +297,111 @@ const NetworkGraph: React.FC = () => {
           {showSettings && (
             <div className="bg-slate-900/95 backdrop-blur-2xl border border-white/10 p-6 rounded-3xl shadow-2xl space-y-6 animate-in slide-in-from-top-4 ring-1 ring-white/5">
               <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                  Ajustes de Motor
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                  Configuración de Visibilidad
                 </span>
                 <Settings2 className="w-4 h-4 text-blue-500" />
               </div>
-              <div className="space-y-4">
-                <div className="space-y-2">
+
+              <div className="grid grid-cols-2 gap-4">
+                <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white/5 rounded-xl transition-all">
+                  <div
+                    className={`w-8 h-4 rounded-full relative transition-colors ${
+                      showNodeLabels ? "bg-blue-600" : "bg-slate-700"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={showNodeLabels}
+                      onChange={() => setShowNodeLabels(!showNodeLabels)}
+                    />
+                    <div
+                      className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform ${
+                        showNodeLabels ? "translate-x-4.5" : "translate-x-0.5"
+                      }`}
+                    />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-300 uppercase">
+                    Nodos
+                  </span>
+                </label>
+
+                <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white/5 rounded-xl transition-all">
+                  <div
+                    className={`w-8 h-4 rounded-full relative transition-colors ${
+                      showPortLabels ? "bg-blue-600" : "bg-slate-700"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={showPortLabels}
+                      onChange={() => setShowPortLabels(!showPortLabels)}
+                    />
+                    <div
+                      className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform ${
+                        showPortLabels ? "translate-x-4.5" : "translate-x-0.5"
+                      }`}
+                    />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-300 uppercase">
+                    Ptos
+                  </span>
+                </label>
+
+                <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white/5 rounded-xl transition-all">
+                  <div
+                    className={`w-8 h-4 rounded-full relative transition-colors ${
+                      showPorts ? "bg-blue-600" : "bg-slate-700"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={showPorts}
+                      onChange={() => setShowPorts(!showPorts)}
+                    />
+                    <div
+                      className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform ${
+                        showPorts ? "translate-x-4.5" : "translate-x-0.5"
+                      }`}
+                    />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-300 uppercase">
+                    Rombos
+                  </span>
+                </label>
+
+                <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white/5 rounded-xl transition-all">
+                  <div
+                    className={`w-8 h-4 rounded-full relative transition-colors ${
+                      showParticles ? "bg-blue-600" : "bg-slate-700"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={showParticles}
+                      onChange={() => setShowParticles(!showParticles)}
+                    />
+                    <div
+                      className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform ${
+                        showParticles ? "translate-x-4.5" : "translate-x-0.5"
+                      }`}
+                    />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-300 uppercase">
+                    Flujo
+                  </span>
+                </label>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-white/5">
+                <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-slate-400 uppercase font-bold">
-                      Atracción
+                      Repulsión Global
                     </span>
                     <span className="text-xs font-mono text-blue-400">
                       {forceStrength}
@@ -306,13 +414,13 @@ const NetworkGraph: React.FC = () => {
                     step="50"
                     value={forceStrength}
                     onChange={(e) => setForceStrength(parseInt(e.target.value))}
-                    className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                    className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-slate-400 uppercase font-bold">
-                      Distancia
+                      Tensión de Enlaces
                     </span>
                     <span className="text-xs font-mono text-blue-400">
                       {linkDistance}px
@@ -321,23 +429,13 @@ const NetworkGraph: React.FC = () => {
                   <input
                     type="range"
                     min="30"
-                    max="300"
+                    max="350"
                     step="10"
                     value={linkDistance}
                     onChange={(e) => setLinkDistance(parseInt(e.target.value))}
-                    className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                    className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
                   />
                 </div>
-                <button
-                  onClick={() => setShowPorts(!showPorts)}
-                  className={`w-full py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                    showPorts
-                      ? "bg-blue-600 text-white"
-                      : "bg-slate-800 text-slate-500 border border-white/5"
-                  }`}
-                >
-                  {showPorts ? "Ocultar Puertos" : "Mostrar Puertos"}
-                </button>
               </div>
             </div>
           )}
@@ -449,7 +547,7 @@ const NetworkGraph: React.FC = () => {
         backgroundColor="#020617"
         onNodeClick={setSelectedNode}
         onNodeHover={setHoverNode}
-        linkDirectionalParticles={4}
+        linkDirectionalParticles={showParticles ? 4 : 0}
         linkDirectionalParticleSpeed={0.006}
         linkCurvature={0.15}
         linkColor={(l) =>
@@ -460,6 +558,7 @@ const NetworkGraph: React.FC = () => {
             : "#1e293b"
         }
         nodeCanvasObject={(node: any, ctx, globalScale) => {
+          // Protección crítica: evita crash si el nodo aún no tiene coordenadas
           if (!node || node.x === undefined || node.y === undefined) return;
 
           const isSelected = selectedNode && getID(selectedNode) === node.id;
@@ -480,7 +579,7 @@ const NetworkGraph: React.FC = () => {
           } else {
             if (isSelected || isHovered) {
               ctx.shadowColor = "#3b82f6";
-              ctx.shadowBlur = Math.min(100, 30 / safeScale);
+              ctx.shadowBlur = 30 / safeScale;
             }
             const grad = ctx.createRadialGradient(
               node.x,
@@ -511,7 +610,9 @@ const NetworkGraph: React.FC = () => {
           }
           ctx.restore();
 
-          if (safeScale > 1.2 || isSelected) {
+          // Lógica de Etiquetas (Labels)
+          const shouldShowLabel = isPort ? showPortLabels : showNodeLabels;
+          if (shouldShowLabel && (safeScale > 1.2 || isSelected)) {
             const fontSize = 11 / safeScale;
             ctx.font = `${
               isSelected ? "900 " : "500 "
