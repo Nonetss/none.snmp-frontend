@@ -1,0 +1,18 @@
+---
+import Main from "@/layouts/main.astro";
+import DeviceDetailView from "@/components/DeviceDetailView";
+
+export const prerender = false;
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/devices");
+}
+---
+
+<Main title={`Device.Node_${id}`}>
+  <main class="bg-black min-h-screen">
+    <DeviceDetailView client:only="react" deviceId={id} />
+  </main>
+</Main>

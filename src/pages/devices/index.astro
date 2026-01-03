@@ -1,0 +1,10 @@
+---
+import Main from "@/layouts/main.astro";
+import DeviceList from "@/components/DeviceList";
+---
+
+<Main title="Device.Inventory">
+  <main class="bg-black min-h-screen overflow-x-hidden">
+    <DeviceList client:only="react" />
+  </main>
+</Main>
