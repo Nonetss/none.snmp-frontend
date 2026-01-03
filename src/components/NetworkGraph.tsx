@@ -93,7 +93,23 @@ const NetworkGraph: React.FC = () => {
     fetchData();
   }, []);
 
-  // 3. Lógica de procesamiento de datos (Filtros y Puertos)
+  // 4. Aplicar fuerzas de la simulación
+  useEffect(() => {
+    if (fgRef.current) {
+      // Repulsión (Carga)
+      fgRef.current.d3Force("charge").strength(forceStrength);
+
+      // Distancia de los enlaces
+      fgRef.current.d3Force("link").distance((link: any) => {
+        return link.type === "internal" ? 30 : linkDistance;
+      });
+
+      // Re-calentar la simulación para que se muevan
+      fgRef.current.d3ReheatSimulation();
+    }
+  }, [forceStrength, linkDistance, ForceGraph2D, rawData]);
+
+  // 5. Lógica de procesamiento de datos (Filtros y Puertos)
   const processedData = useMemo(() => {
     if (!rawData) return { nodes: [], links: [] };
 
@@ -280,19 +296,10 @@ const NetworkGraph: React.FC = () => {
             Topology.View
           </h1>
         </div>
-        <div className="flex items-center gap-2 pl-4">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b981] opacity-40"></span>
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#10b981]"></span>
-          </span>
-          <span className="text-[#10b981] text-[9px] uppercase tracking-[0.3em] shadow-black drop-shadow-md">
-            SNMP_V3_MONITOR // SINC_OK
-          </span>
-        </div>
       </div>
       {/* HUD Superior Controls */}
-      <div className="absolute top-6 right-6 left-6 z-30 flex justify-end items-start pointer-events-none font-mono">
-        <div className="flex flex-col gap-3 pointer-events-auto w-full max-w-md items-end">
+      <div className="absolute top-6 inset-x-0 z-30 flex justify-center items-start pointer-events-none font-mono">
+        <div className="flex flex-col gap-3 pointer-events-auto w-full max-w-2xl items-center">
           <div className="flex items-center gap-2 bg-[#050505]/90 border border-[#0ea5e9]/30 p-1.5 shadow-[0_0_15px_rgba(14,165,233,0.1)] w-full backdrop-blur-sm">
             <div className="relative flex-1">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0ea5e9] text-xs font-bold leading-none">
@@ -319,7 +326,7 @@ const NetworkGraph: React.FC = () => {
           </div>
 
           {showSettings && (
-            <div className="bg-[#050505]/95 border border-[#0ea5e9]/30 p-4 shadow-[0_0_20px_rgba(14,165,233,0.15)] space-y-5 animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-md">
+            <div className="bg-[#050505]/95 border border-[#0ea5e9]/30 p-4 shadow-[0_0_20px_rgba(14,165,233,0.15)] space-y-5 animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-md fixed top-16 right-4">
               <div className="flex items-center justify-between border-b border-[#0ea5e9]/20 pb-2">
                 <span className="text-[9px] font-bold text-[#0ea5e9]/50 uppercase tracking-[0.2em]">
                   sys.config
@@ -327,7 +334,7 @@ const NetworkGraph: React.FC = () => {
                 <Settings2 className="w-3 h-3 text-[#0ea5e9]" />
               </div>
 
-              <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-3 w-[400px] ">
                 {[
                   {
                     label: "Labels.Node",
@@ -357,7 +364,13 @@ const NetworkGraph: React.FC = () => {
                     <span className="text-[10px] text-[#0ea5e9]/60 group-hover:text-[#0ea5e9] transition-colors">
                       {cfg.label}
                     </span>
-                    <div className={`w-3 h-3 border border-[#0ea5e9]/40 transition-all ${cfg.value ? "bg-[#0ea5e9] shadow-[0_0_5px_#0ea5e9]" : "bg-transparent"}`}></div>
+                    <div
+                      className={`w-3 h-3 border border-[#0ea5e9]/40 transition-all ${
+                        cfg.value
+                          ? "bg-[#0ea5e9] shadow-[0_0_5px_#0ea5e9]"
+                          : "bg-transparent"
+                      }`}
+                    ></div>
                     <input
                       type="checkbox"
                       className="hidden"
@@ -410,7 +423,7 @@ const NetworkGraph: React.FC = () => {
           )}
         </div>
 
-        <div className="flex gap-2 pointer-events-auto">
+        <div className="flex gap-2 pointer-events-auto fixed top-4 right-4">
           <button
             onClick={() => setShowSettings(!showSettings)}
             className={`p-2 border transition-all ${
@@ -434,84 +447,127 @@ const NetworkGraph: React.FC = () => {
         </div>
       </div>
 
-      {/* Info Panel Lateral */}
+      {/* Info Panel Lateral (Ahora Modal Centrada) */}
       {selectedNode && (
-        <div className="absolute right-6 top-6 bottom-6 z-30 w-[400px] bg-[#050505]/95 border border-[#10b981]/30 shadow-[0_0_30px_rgba(16,185,129,0.1)] flex flex-col animate-in slide-in-from-right-4 duration-300 font-mono text-[#e2e8f0] backdrop-blur-md">
-          <div className="p-6 border-b border-[#10b981]/20">
-            <div className="flex justify-between items-start mb-6">
-              <span className="px-2 py-0.5 border border-[#10b981]/40 text-[#10b981] text-[8px] font-bold uppercase tracking-widest shadow-[0_0_5px_rgba(16,185,129,0.2)]">
-                {selectedNode.type}
-              </span>
-              <button
-                onClick={() => setSelectedNode(null)}
-                className="p-1 hover:bg-[#10b981]/10 text-[#10b981]/40 hover:text-[#10b981] transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <h3 className="text-lg font-bold text-[#10b981] leading-tight mb-1 truncate drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]">
-              {selectedNode.label}
-            </h3>
-            {selectedNode.ip && (
-              <p className="text-[10px] text-[#10b981]/60 tracking-widest uppercase">
-                {selectedNode.ip}
-              </p>
-            )}
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
-            {selectedNode.details?.system && (
-              <div className="space-y-3">
-                <h4 className="text-[9px] font-bold text-[#10b981]/50 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <div className="w-1 h-3 bg-[#10b981]" /> system_desc
-                </h4>
-                <div className="bg-[#10b981]/5 p-4 border border-[#10b981]/10 space-y-3">
-                  <p className="text-[11px] text-[#10b981]/80 leading-relaxed italic">
-                    "{selectedNode.details.system.sysDescr}"
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="relative w-full max-w-4xl max-h-[85vh] bg-[#050505]/95 border border-[#10b981]/30 shadow-[0_0_50px_rgba(16,185,129,0.2)] flex flex-col font-mono text-[#e2e8f0] overflow-hidden">
+            <div className="p-8 border-b border-[#10b981]/20 bg-[#10b981]/5">
+              <div className="flex justify-between items-start mb-6">
+                <span className="px-3 py-1 border border-[#10b981]/40 text-[#10b981] text-[10px] font-bold uppercase tracking-[0.3em] shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                  {selectedNode.type}
+                </span>
+                <button
+                  onClick={() => setSelectedNode(null)}
+                  className="p-2 hover:bg-[#10b981]/10 text-[#10b981]/40 hover:text-[#10b981] transition-colors border border-[#10b981]/10"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <h3 className="text-3xl font-bold text-[#10b981] leading-tight mb-2 truncate drop-shadow-[0_0_10px_rgba(16,185,129,0.5)] tracking-tighter">
+                {selectedNode.label}
+              </h3>
+              {selectedNode.ip && (
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse" />
+                  <p className="text-xs text-[#10b981]/60 tracking-[0.4em] uppercase font-bold">
+                    {selectedNode.ip}
                   </p>
-                  <div className="flex items-center gap-3 text-[#10b981]/60 text-[10px]">
-                    <MapPin className="w-3 h-3" />
-                    <span>
-                      {selectedNode.details.system.sysLocation || "NOT_DEFINED"}
-                    </span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar bg-black/20">
+              {selectedNode.details?.system && (
+                <div className="space-y-4">
+                  <h4 className="text-[10px] font-bold text-[#10b981]/50 uppercase tracking-[0.4em] flex items-center gap-3">
+                    <div className="w-1.5 h-4 bg-[#10b981]" />{" "}
+                    system_information
+                  </h4>
+                  <div className="bg-[#10b981]/5 p-6 border border-[#10b981]/10 space-y-4 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-2 opacity-5">
+                      <Shield className="w-20 h-20 text-[#10b981]" />
+                    </div>
+                    <p className="text-[13px] text-[#10b981]/80 leading-relaxed font-medium italic relative z-10">
+                      "{selectedNode.details.system.sysDescr}"
+                    </p>
+                    <div className="flex flex-wrap gap-6 items-center pt-2 relative z-10">
+                      <div className="flex items-center gap-3 text-[#10b981]/60 text-xs">
+                        <MapPin className="w-4 h-4" />
+                        <span className="uppercase tracking-widest border-b border-[#10b981]/20">
+                          {selectedNode.details.system.sysLocation ||
+                            "NOT_DEFINED"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 text-[#10b981]/60 text-xs">
+                        <User className="w-4 h-4" />
+                        <span className="uppercase tracking-widest border-b border-[#10b981]/20">
+                          {selectedNode.details.system.sysContact ||
+                            "UNKNOWN_ADMIN"}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-            {selectedNode.details?.interfaces && (
-              <div className="space-y-4">
-                <h4 className="text-[9px] font-bold text-[#10b981]/50 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <div className="w-1 h-3 bg-[#10b981]" /> if_table (
-                  {selectedNode.details.interfaces.length})
-                </h4>
-                <div className="divide-y divide-[#10b981]/10 border-t border-[#10b981]/10">
-                  {selectedNode.details.interfaces.map(
-                    (iface: any, i: number) => (
-                      <div
-                        key={i}
-                        className="py-3 flex items-center justify-between group hover:bg-[#10b981]/5 transition-colors"
-                      >
-                        <div className="flex flex-col">
-                          <span className="text-[11px] font-bold text-[#10b981]/90 group-hover:text-[#10b981]">
-                            {iface.ifName}
-                          </span>
-                          <span className="text-[9px] text-[#10b981]/40 truncate max-w-[250px]">
-                            {iface.ifDescr}
-                          </span>
-                        </div>
+              )}
+
+              {selectedNode.details?.interfaces && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between border-b border-[#10b981]/10 pb-2">
+                    <h4 className="text-[10px] font-bold text-[#10b981]/50 uppercase tracking-[0.4em] flex items-center gap-3">
+                      <div className="w-1.5 h-4 bg-[#10b981]" />{" "}
+                      interface_matrix
+                    </h4>
+                    <span className="text-[10px] text-[#10b981]/40 tracking-widest font-bold">
+                      COUNT: {selectedNode.details.interfaces.length}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {selectedNode.details.interfaces.map(
+                      (iface: any, i: number) => (
                         <div
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            iface.ifAdminStatus === 1
-                              ? "bg-[#10b981] shadow-[0_0_5px_#10b981]"
-                              : "bg-[#10b981]/20"
-                          }`}
-                        />
-                      </div>
-                    )
-                  )}
+                          key={i}
+                          className="p-4 border border-[#10b981]/10 bg-black/40 hover:bg-[#10b981]/5 hover:border-[#10b981]/30 transition-all group flex items-start justify-between"
+                        >
+                          <div className="flex flex-col gap-1 pr-4 min-w-0">
+                            <span className="text-xs font-bold text-[#10b981] group-hover:drop-shadow-[0_0_5px_rgba(16,185,129,0.3)]">
+                              {iface.ifName}
+                            </span>
+                            <span className="text-[9px] text-[#10b981]/40 truncate uppercase tracking-tighter">
+                              {iface.ifDescr}
+                            </span>
+                            {iface.ifSpeed && (
+                              <span className="text-[8px] text-[#10b981]/30 mt-1 font-bold">
+                                SPEED: {(iface.ifSpeed / 1000000).toFixed(1)}{" "}
+                                Mbps
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex flex-col items-end gap-2 shrink-0">
+                            <div
+                              className={`px-1.5 py-0.5 text-[8px] font-bold border ${
+                                iface.ifAdminStatus === 1
+                                  ? "bg-[#10b981]/10 border-[#10b981]/30 text-[#10b981]"
+                                  : "bg-[#f43f5e]/10 border-[#f43f5e]/30 text-[#f43f5e]"
+                              }`}
+                            >
+                              {iface.ifAdminStatus === 1 ? "ACTIVE" : "DOWN"}
+                            </div>
+                            <div
+                              className={`w-1.5 h-1.5 rounded-full ${
+                                iface.ifAdminStatus === 1
+                                  ? "bg-[#10b981] shadow-[0_0_8px_#10b981]"
+                                  : "bg-[#f43f5e] opacity-30"
+                              }`}
+                            />
+                          </div>
+                        </div>
+                      )
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -528,12 +584,13 @@ const NetworkGraph: React.FC = () => {
         linkDirectionalParticleSpeed={0.004}
         linkDirectionalParticleWidth={2}
         linkCurvature={0.1}
-        linkColor={(l) =>
-          hoverNode &&
-          (getID(l.source) === getID(hoverNode) ||
-            getID(l.target) === getID(hoverNode))
-            ? "#22d3ee" // Cyan glowing link on hover
-            : "#1e293b" // Dark slate for default links
+        linkColor={
+          (l) =>
+            hoverNode &&
+            (getID(l.source) === getID(hoverNode) ||
+              getID(l.target) === getID(hoverNode))
+              ? "#22d3ee" // Cyan glowing link on hover
+              : "#1e293b" // Dark slate for default links
         }
         nodeCanvasObject={(node: any, ctx, globalScale) => {
           if (!node || node.x === undefined || node.y === undefined) return;
@@ -564,30 +621,29 @@ const NetworkGraph: React.FC = () => {
 
           // Glow effect for "Terminal" feel
           ctx.shadowColor = baseColor;
-          ctx.shadowBlur = (isSelected || isHovered) ? 15 : 0;
+          ctx.shadowBlur = isSelected || isHovered ? 15 : 0;
 
           if (isPort) {
             ctx.translate(node.x, node.y);
             ctx.rotate(Math.PI / 4);
-            
+
             // Port shape (Diamond)
             ctx.fillStyle = isHovered || isSelected ? "#ffffff" : "#1e293b"; // Dark center
             ctx.strokeStyle = baseColor;
             ctx.lineWidth = 1.5 / safeScale;
-            
+
             ctx.beginPath();
             ctx.rect(-size, -size, size * 2, size * 2);
             ctx.fill();
             ctx.stroke();
-
           } else {
             // Main Node Styling (Circle)
             ctx.beginPath();
             ctx.arc(node.x, node.y, size, 0, 2 * Math.PI, false);
-            
+
             ctx.fillStyle = "#0f172a"; // Slate-900 background
             ctx.fill();
-            
+
             ctx.strokeStyle = baseColor;
             ctx.lineWidth = 2 / safeScale;
             ctx.stroke();
@@ -615,19 +671,21 @@ const NetworkGraph: React.FC = () => {
           const shouldShowLabel = isPort ? showPortLabels : showNodeLabels;
           if (shouldShowLabel && (safeScale > 1.2 || isSelected || isHovered)) {
             const fontSize = (isPort ? 8 : 12) / safeScale;
-            ctx.font = `${isSelected ? "bold " : ""}${fontSize}px 'Courier New', monospace`;
+            ctx.font = `${
+              isSelected ? "bold " : ""
+            }${fontSize}px 'Courier New', monospace`;
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
-            
+
             // Text Background for readability
             const label = node.label || node.id || "N/A";
             const textWidth = ctx.measureText(label).width;
-            
+
             ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
             ctx.fillRect(
-              node.x - textWidth / 2 - 2, 
-              node.y + size + 4, 
-              textWidth + 4, 
+              node.x - textWidth / 2 - 2,
+              node.y + size + 4,
+              textWidth + 4,
               fontSize + 4
             );
 
