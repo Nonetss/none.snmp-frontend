@@ -2,6 +2,7 @@ export type TabId =
   | "dashboard"
   | "interfaces"
   | "network"
+  | "bridge"
   | "discovery"
   | "inventory"
   | "services"
@@ -21,8 +22,8 @@ export interface Root2 {
   interfaces: Interface[];
   ipSnmp: IpSnmp;
   neighbor_discovery: NeighborDiscovery;
-  routes: any[];
-  physicalEntities: any[];
+  routes: Route[];
+  physicalEntities: PhysicalEntity[];
   resources: Resource[];
   applications: Application[];
   services: Service[];
@@ -109,8 +110,101 @@ export interface NetToMediaEntry {
 }
 
 export interface NeighborDiscovery {
-  outbound: any[];
-  inbound: any[];
+  outbound: Outbound[];
+  inbound: Inbound[];
+}
+
+export interface Outbound {
+  id: number;
+  deviceId: number;
+  interfaceId?: number;
+  localPortNum?: number;
+  neighborIndex: number;
+  chassisIdSubtype?: number;
+  chassisId?: string;
+  portIdSubtype?: number;
+  portId?: string;
+  portDesc?: string;
+  sysName?: string;
+  sysDesc?: string;
+  sysCapSupported?: string;
+  sysCapEnabled?: string;
+  mgmtAddress?: string;
+  remoteDeviceId?: number;
+  remoteInterfaceId?: number;
+  updatedAt: string;
+  protocol: string;
+  remoteDeviceName?: string;
+  ifIndex?: number;
+  address?: string;
+  neighborDeviceId?: string;
+  neighborPort?: string;
+  neighborPlatform?: string;
+  neighborSysName: any;
+}
+
+export interface Inbound {
+  id: number;
+  deviceId: number;
+  interfaceId: number;
+  localPortNum: number;
+  neighborIndex: number;
+  chassisIdSubtype: number;
+  chassisId: string;
+  portIdSubtype: number;
+  portId: string;
+  portDesc: string;
+  sysName: string;
+  sysDesc: string;
+  sysCapSupported: string;
+  sysCapEnabled: string;
+  mgmtAddress: string;
+  remoteDeviceId: number;
+  remoteInterfaceId: any;
+  updatedAt: string;
+  protocol: string;
+  remoteDeviceName: string;
+}
+
+export interface Route {
+  id: number;
+  deviceId: number;
+  dest: string;
+  mask: string;
+  pfxLen: any;
+  nextHop: string;
+  ifIndex: number;
+  type: number;
+  proto: number;
+  age: number;
+  metric1: number;
+  metric2: any;
+  metric3: any;
+  metric4: any;
+  metric5: any;
+  updatedAt: string;
+}
+
+export interface PhysicalEntity {
+  id: number;
+  deviceId: number;
+  physicalIndex: number;
+  descr: string;
+  vendorType: string;
+  containedIn: number;
+  class: number;
+  parentRelPos: number;
+  name: string;
+  hardwareRev: string;
+  firmwareRev: string;
+  softwareRev: string;
+  serialNum: string;
+  mfgName: string;
+  modelName: string;
+  alias: string;
+  assetId: string;
+  isFru: number;
+  updatedAt: string;
 }
 
 export interface Resource {
@@ -183,17 +277,55 @@ export interface Service {
 
 export interface Bridge {
   base: Base;
-  ports: any[];
-  fdb: any[];
-  fdbQ: any[];
-  vlans: any[];
+  ports: Port[];
+  fdb: Fdb[];
+  fdbQ: FdbQ[];
+  vlans: Vlan[];
 }
 
 export interface Base {
   id: number;
   deviceId: number;
-  bridgeAddress: any;
+  bridgeAddress: string;
   numPorts: number;
   type: number;
+  updatedAt: string;
+}
+
+export interface Port {
+  id: number;
+  deviceId: number;
+  bridgePort: number;
+  ifIndex: number;
+  pvid: number;
+  updatedAt: string;
+}
+
+export interface Fdb {
+  id: number;
+  deviceId: number;
+  address: string;
+  port: number;
+  status: number;
+  updatedAt: string;
+}
+
+export interface FdbQ {
+  id: number;
+  deviceId: number;
+  vlanId: number;
+  address: string;
+  port: number;
+  status: number;
+  updatedAt: string;
+}
+
+export interface Vlan {
+  id: number;
+  deviceId: number;
+  vlanId: number;
+  name: string;
+  egressPorts: string;
+  untaggedPorts: string;
   updatedAt: string;
 }

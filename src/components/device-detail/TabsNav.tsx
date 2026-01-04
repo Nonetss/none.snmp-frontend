@@ -19,6 +19,7 @@ const tabs = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "interfaces", label: "Interfaces", icon: Network },
   { id: "network", label: "Network & Routes", icon: Activity },
+  { id: "bridge", label: "Bridge", icon: Box },
   { id: "discovery", label: "Discovery", icon: MapPin },
   { id: "inventory", label: "Inventory", icon: Box },
   { id: "services", label: "Services", icon: List },

@@ -8,8 +8,8 @@ interface NetworkTabProps {
 
 export const NetworkTab: React.FC<NetworkTabProps> = ({ device }) => (
   <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-    <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-      <section className="xl:col-span-2 bg-neutral-900/20 border border-white/10 p-6 space-y-6">
+    <div className="grid grid-cols-1 gap-8">
+      <section className="bg-neutral-900/20 border border-white/10 p-6 space-y-6">
         <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] flex items-center gap-3 border-b border-white/10 pb-4">
           <RefreshCcw className="w-4 h-4" /> active_routing_table
         </h3>
@@ -45,54 +45,6 @@ export const NetworkTab: React.FC<NetworkTabProps> = ({ device }) => (
               Routing table is empty
             </div>
           )}
-        </div>
-      </section>
-
-      <section className="bg-neutral-900/10 border border-white/5 p-6 space-y-4">
-        <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] flex items-center gap-3 border-b border-white/10 pb-3">
-          <Box className="w-4 h-4" /> bridge_architecture
-        </h3>
-        <div className="space-y-6 pt-2">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-3 bg-white/5 border border-white/5">
-              <span className="text-[7px] text-neutral-600 uppercase font-bold block mb-1">
-                Bridge Address
-              </span>
-              <span className="text-xs font-mono text-white">
-                {device.bridge?.base?.bridgeAddress || "NULL"}
-              </span>
-            </div>
-            <div className="p-3 bg-white/5 border border-white/5">
-              <span className="text-[7px] text-neutral-600 uppercase font-bold block mb-1">
-                Active Ports
-              </span>
-              <span className="text-xs font-mono text-white">
-                {device.bridge?.base?.numPorts || 0}
-              </span>
-            </div>
-          </div>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center text-[10px] border-b border-white/5 pb-2">
-              <span className="text-neutral-500 uppercase">Device Type</span>
-              <span className="font-mono text-white">
-                CLASS_{device.bridge?.base?.type || 0}
-              </span>
-            </div>
-            <div className="flex justify-between items-center text-[10px] border-b border-white/5 pb-2">
-              <span className="text-neutral-500 uppercase">FDB Entries</span>
-              <span className="font-mono text-white">
-                {device.bridge?.fdb?.length || 0}
-              </span>
-            </div>
-            <div className="flex justify-between items-center text-[10px] border-b border-white/5 pb-2">
-              <span className="text-neutral-500 uppercase">
-                VLANs Configured
-              </span>
-              <span className="font-mono text-white">
-                {device.bridge?.vlans?.length || 0}
-              </span>
-            </div>
-          </div>
         </div>
       </section>
     </div>

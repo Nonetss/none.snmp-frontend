@@ -9,6 +9,7 @@ import { InterfacesTab } from "./device-detail/InterfacesTab";
 import { NetworkTab } from "./device-detail/NetworkTab";
 import { DiscoveryTab } from "./device-detail/DiscoveryTab";
 import { InventoryTab } from "./device-detail/InventoryTab";
+import { BridgeTab } from "./device-detail/BridgeTab";
 import { ServicesTab } from "./device-detail/ServicesTab";
 import { ApplicationsTab } from "./device-detail/ApplicationsTab";
 import type { DeviceDetail, TabId } from "./device-detail/types";
@@ -118,6 +119,7 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
         )}
         {activeTab === "interfaces" && <InterfacesTab device={device} />}
         {activeTab === "network" && <NetworkTab device={device} />}
+        {activeTab === "bridge" && <BridgeTab device={device} />}
         {activeTab === "discovery" && <DiscoveryTab device={device} />}
         {activeTab === "inventory" && <InventoryTab device={device} />}
         {activeTab === "services" && <ServicesTab device={device} />}
