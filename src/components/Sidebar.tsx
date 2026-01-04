@@ -1,18 +1,19 @@
 import React from "react";
-import { 
-  LayoutDashboard, 
-  Share2, 
+import {
+  LayoutDashboard,
+  Share2,
   Server,
-  Settings, 
+  Settings,
   Terminal,
   Cpu,
   ShieldCheck,
-  Zap
+  Zap,
 } from "lucide-react";
 
 const Sidebar: React.FC = () => {
   // Get current path to highlight active link
-  const currentPath = typeof window !== "undefined" ? window.location.pathname : "/";
+  const currentPath =
+    typeof window !== "undefined" ? window.location.pathname : "/";
 
   const menuItems = [
     { name: "Dashboard", icon: LayoutDashboard, path: "/" },
@@ -40,14 +41,16 @@ const Sidebar: React.FC = () => {
       {/* Main Navigation */}
       <nav className="flex-1 w-full space-y-2 px-3">
         {menuItems.map((item) => {
-          const isActive = currentPath === item.path || (item.path !== "/" && currentPath.startsWith(item.path));
+          const isActive =
+            currentPath === item.path ||
+            (item.path !== "/" && currentPath.startsWith(item.path));
           return (
             <a
               key={item.name}
               href={item.path}
               className={`flex items-center h-10 px-2 rounded-none transition-all group/item ${
-                isActive 
-                  ? "bg-white text-black" 
+                isActive
+                  ? "bg-white text-black"
                   : "text-neutral-500 hover:bg-neutral-900 hover:text-white"
               }`}
             >
@@ -85,11 +88,15 @@ const Sidebar: React.FC = () => {
             <ShieldCheck className="w-4 h-4 text-neutral-600" />
           </div>
           <div className="hidden group-hover:block mt-2">
-            <div className="text-[7px] text-neutral-700 uppercase tracking-tighter">Auth.Session</div>
-            <div className="text-[8px] text-white font-bold uppercase tracking-widest">Admin_Root</div>
+            <div className="text-[7px] text-neutral-700 uppercase tracking-tighter">
+              Auth.Session
+            </div>
+            <div className="text-[8px] text-white font-bold uppercase tracking-widest">
+              Admin_Root
+            </div>
           </div>
         </div>
-        
+
         <div className="flex items-center justify-center group-hover:justify-start h-8">
           <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
           <span className="ml-3 text-[8px] text-neutral-500 uppercase tracking-widest hidden group-hover:block opacity-0 group-hover:opacity-100 transition-opacity duration-300">

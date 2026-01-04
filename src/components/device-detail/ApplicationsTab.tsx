@@ -11,8 +11,8 @@ export const ApplicationsTab: React.FC<ApplicationsTabProps> = ({ device }) => {
 
   const filteredApplications = useMemo(() => {
     if (!device.applications) return [];
-    return device.applications.filter((app) => 
-      app.hrSWInstalledName.toLowerCase().includes(searchTerm.toLowerCase())
+    return device.applications.filter((app) =>
+      app.hrSWInstalledName.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [device.applications, searchTerm]);
 
@@ -39,7 +39,7 @@ export const ApplicationsTab: React.FC<ApplicationsTabProps> = ({ device }) => {
               className="w-full bg-white/5 border border-white/10 py-2 pl-9 pr-8 text-[10px] uppercase font-bold tracking-widest focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all"
             />
             {searchTerm && (
-              <button 
+              <button
                 onClick={() => setSearchTerm("")}
                 className="absolute right-3 top-1/2 -translate-y-1/2 hover:text-white text-neutral-500"
               >
@@ -51,26 +51,40 @@ export const ApplicationsTab: React.FC<ApplicationsTabProps> = ({ device }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
           {filteredApplications.map((app: Application, i: number) => (
-            <div key={i} className="p-4 bg-neutral-900/40 border border-white/5 hover:border-white/20 transition-all group">
+            <div
+              key={i}
+              className="p-4 bg-neutral-900/40 border border-white/5 hover:border-white/20 transition-all group"
+            >
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-8 flex items-center justify-center bg-white/5 border border-white/10 group-hover:bg-white group-hover:text-black transition-all">
                   <Layers className="w-4 h-4" />
                 </div>
                 <div className="flex-grow min-w-0">
-                  <h4 className="text-[10px] font-bold text-white uppercase truncate" title={app.hrSWInstalledName}>
+                  <h4
+                    className="text-[10px] font-bold text-white uppercase truncate"
+                    title={app.hrSWInstalledName}
+                  >
                     {app.hrSWInstalledName}
                   </h4>
-                  <span className="text-[8px] text-neutral-600 font-bold uppercase">TYPE_{app.hrSWInstalledType || 'SOFTWARE'}</span>
+                  <span className="text-[8px] text-neutral-600 font-bold uppercase">
+                    TYPE_{app.hrSWInstalledType || "SOFTWARE"}
+                  </span>
                 </div>
               </div>
               <div className="space-y-2 pt-2 border-t border-white/5">
                 <div className="flex justify-between text-[9px]">
                   <span className="text-neutral-600 uppercase">Index</span>
-                  <span className="text-neutral-300 font-mono">{app.hrSWInstalledIndex}</span>
+                  <span className="text-neutral-300 font-mono">
+                    {app.hrSWInstalledIndex}
+                  </span>
                 </div>
                 <div className="flex justify-between text-[9px]">
-                  <span className="text-neutral-600 uppercase">Install Date</span>
-                  <span className="text-neutral-300">{app.hrSWInstalledDate || 'Unknown'}</span>
+                  <span className="text-neutral-600 uppercase">
+                    Install Date
+                  </span>
+                  <span className="text-neutral-300">
+                    {app.hrSWInstalledDate || "Unknown"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -78,8 +92,10 @@ export const ApplicationsTab: React.FC<ApplicationsTabProps> = ({ device }) => {
           {filteredApplications.length === 0 && (
             <div className="col-span-full h-64 flex flex-col items-center justify-center border border-dashed border-white/10 text-neutral-600">
               <Layers className="w-8 h-8 mb-4 opacity-20" />
-              <span className="text-[10px] uppercase tracking-[0.4em]">No.Applications.Found</span>
-              <button 
+              <span className="text-[10px] uppercase tracking-[0.4em]">
+                No.Applications.Found
+              </span>
+              <button
                 onClick={() => setSearchTerm("")}
                 className="mt-4 px-4 py-2 border border-white/10 text-[8px] hover:bg-white hover:text-black transition-all uppercase font-bold"
               >

@@ -1,5 +1,11 @@
 import React from "react";
-import { Search, Minimize2, Maximize2, Settings2, RotateCcw } from "lucide-react";
+import {
+  Search,
+  Minimize2,
+  Maximize2,
+  Settings2,
+  RotateCcw,
+} from "lucide-react";
 
 interface ControlsProps {
   searchQuery: string;

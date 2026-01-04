@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { 
-  Server, 
-  Search, 
-  MapPin, 
-  Cpu, 
-  Hash, 
+import {
+  Server,
+  Search,
+  MapPin,
+  Cpu,
+  Hash,
   RefreshCcw,
   AlertCircle,
   ChevronRight,
-  Filter
+  Filter,
 } from "lucide-react";
 
 interface Device {
@@ -32,7 +32,9 @@ const DeviceList: React.FC = () => {
     setLoading(true);
     try {
       const hostname = window.location.hostname;
-      const response = await axios.get(`http://${hostname}:3000/api/v1/search/device/list`);
+      const response = await axios.get(
+        `http://${hostname}:3000/api/v1/search/device/list`,
+      );
       setDevices(response.data);
       setError(null);
     } catch (err: any) {
@@ -46,7 +48,7 @@ const DeviceList: React.FC = () => {
     fetchDevices();
   }, []);
 
-  const filteredDevices = devices.filter(device => {
+  const filteredDevices = devices.filter((device) => {
     const query = searchQuery.toLowerCase();
     return (
       device.ipv4.toLowerCase().includes(query) ||
@@ -58,24 +60,33 @@ const DeviceList: React.FC = () => {
     );
   });
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-full bg-black text-white font-mono">
-      <div className="flex flex-col items-center gap-4">
-        <RefreshCcw className="w-8 h-8 animate-spin text-white" />
-        <span className="text-[10px] tracking-[0.3em] uppercase">Inventory.Loading()</span>
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-full bg-black text-white font-mono">
+        <div className="flex flex-col items-center gap-4">
+          <RefreshCcw className="w-8 h-8 animate-spin text-white" />
+          <span className="text-[10px] tracking-[0.3em] uppercase">
+            Inventory.Loading()
+          </span>
+        </div>
       </div>
-    </div>
-  );
+    );
 
-  if (error) return (
-    <div className="p-8 text-white font-mono bg-black">
-      <div className="border border-white/20 p-6 flex flex-col items-center gap-4">
-        <AlertCircle className="w-8 h-8 text-white" />
-        <p className="text-xs uppercase tracking-widest">{error}</p>
-        <button onClick={fetchDevices} className="px-4 py-2 border border-white text-xs hover:bg-white hover:text-black transition-all">RETRY.INVENTORY()</button>
+  if (error)
+    return (
+      <div className="p-8 text-white font-mono bg-black">
+        <div className="border border-white/20 p-6 flex flex-col items-center gap-4">
+          <AlertCircle className="w-8 h-8 text-white" />
+          <p className="text-xs uppercase tracking-widest">{error}</p>
+          <button
+            onClick={fetchDevices}
+            className="px-4 py-2 border border-white text-xs hover:bg-white hover:text-black transition-all"
+          >
+            RETRY.INVENTORY()
+          </button>
+        </div>
       </div>
-    </div>
-  );
+    );
 
   return (
     <div className="p-8 bg-black text-white font-mono min-h-screen space-y-8 w-full max-w-[1600px]">
@@ -84,22 +95,29 @@ const DeviceList: React.FC = () => {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-4 bg-white" />
-            <h1 className="text-2xl font-bold tracking-tighter uppercase">Device.Inventory</h1>
+            <h1 className="text-2xl font-bold tracking-tighter uppercase">
+              Device.Inventory
+            </h1>
           </div>
-          <p className="text-[9px] text-neutral-500 uppercase tracking-[0.4em]">Total discovered units: {devices.length}</p>
+          <p className="text-[9px] text-neutral-500 uppercase tracking-[0.4em]">
+            Total discovered units: {devices.length}
+          </p>
         </div>
         <div className="flex items-center gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="SEARCH_DEVICES..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="bg-neutral-900/50 border border-white/10 px-10 py-2 text-xs focus:outline-none focus:border-white/30 w-64 uppercase placeholder:text-neutral-700"
             />
           </div>
-          <button onClick={fetchDevices} className="p-2 border border-white/10 hover:bg-white hover:text-black transition-all">
+          <button
+            onClick={fetchDevices}
+            className="p-2 border border-white/10 hover:bg-white hover:text-black transition-all"
+          >
             <RefreshCcw className="w-4 h-4" />
           </button>
         </div>
@@ -110,18 +128,35 @@ const DeviceList: React.FC = () => {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-white/10 bg-white/5">
-              <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500 w-16">ID</th>
-              <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500">Device_Identity</th>
-              <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500">Network_Address</th>
-              <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500">Location</th>
-              <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500 hidden lg:table-cell">System_Specs</th>
-              <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500 text-right">Action</th>
+              <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500 w-16">
+                ID
+              </th>
+              <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
+                Device_Identity
+              </th>
+              <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
+                Network_Address
+              </th>
+              <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
+                Location
+              </th>
+              <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500 hidden lg:table-cell">
+                System_Specs
+              </th>
+              <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500 text-right">
+                Action
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
             {filteredDevices.map((device) => (
-              <tr key={device.id} className="hover:bg-white/[0.02] group transition-colors">
-                <td className="p-4 text-[10px] text-neutral-600 font-bold">#{device.id}</td>
+              <tr
+                key={device.id}
+                className="hover:bg-white/[0.02] group transition-colors"
+              >
+                <td className="p-4 text-[10px] text-neutral-600 font-bold">
+                  #{device.id}
+                </td>
                 <td className="p-4">
                   <div className="flex flex-col">
                     <span className="text-xs font-bold text-white uppercase tracking-wider group-hover:text-white transition-colors">
@@ -135,7 +170,9 @@ const DeviceList: React.FC = () => {
                 <td className="p-4">
                   <div className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                    <span className="text-xs font-bold text-neutral-400 font-mono">{device.ipv4}</span>
+                    <span className="text-xs font-bold text-neutral-400 font-mono">
+                      {device.ipv4}
+                    </span>
                   </div>
                 </td>
                 <td className="p-4">
@@ -153,7 +190,7 @@ const DeviceList: React.FC = () => {
                   </div>
                 </td>
                 <td className="p-4 text-right">
-                  <a 
+                  <a
                     href={`/devices/${device.id}`}
                     className="inline-block p-1.5 border border-white/5 text-neutral-700 hover:text-white hover:border-white/40 transition-all"
                   >
@@ -167,7 +204,9 @@ const DeviceList: React.FC = () => {
                 <td colSpan={6} className="p-12 text-center">
                   <div className="flex flex-col items-center gap-3 opacity-30">
                     <Filter className="w-8 h-8" />
-                    <span className="text-[10px] uppercase tracking-[0.3em]">No_Devices_Match_Query</span>
+                    <span className="text-[10px] uppercase tracking-[0.3em]">
+                      No_Devices_Match_Query
+                    </span>
                   </div>
                 </td>
               </tr>
@@ -182,9 +221,7 @@ const DeviceList: React.FC = () => {
           <span>Buffer_Status: Optimized</span>
           <span>Security_Level: Root</span>
         </div>
-        <div>
-          Last Sync: {new Date().toLocaleTimeString()}
-        </div>
+        <div>Last Sync: {new Date().toLocaleTimeString()}</div>
       </div>
     </div>
   );

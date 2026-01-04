@@ -71,7 +71,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             </span>
             <div
               className={`w-3 h-3 border border-white/40 transition-all ${
-                cfg.value ? "bg-white shadow-[0_0_5px_rgba(255,255,255,0.5)]" : "bg-transparent"
+                cfg.value
+                  ? "bg-white shadow-[0_0_5px_rgba(255,255,255,0.5)]"
+                  : "bg-transparent"
               }`}
             ></div>
             <input

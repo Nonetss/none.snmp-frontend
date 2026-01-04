@@ -47,11 +47,15 @@ export const NodeDetails: React.FC<NodeDetailsProps> = ({ node, onClose }) => {
               <div className="space-y-2 pt-2 border-t border-white/5">
                 <div className="flex items-center gap-2 text-neutral-500 text-[10px]">
                   <MapPin className="w-3.5 h-3.5" />
-                  <span className="uppercase">{node.details.system.sysLocation || "N/A"}</span>
+                  <span className="uppercase">
+                    {node.details.system.sysLocation || "N/A"}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-neutral-500 text-[10px]">
                   <User className="w-3.5 h-3.5" />
-                  <span className="uppercase">{node.details.system.sysContact || "N/A"}</span>
+                  <span className="uppercase">
+                    {node.details.system.sysContact || "N/A"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -87,7 +91,9 @@ export const NodeDetails: React.FC<NodeDetailsProps> = ({ node, onClose }) => {
       <div className="p-4 border-t border-white/5 bg-neutral-900/10">
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-          <span className="text-[8px] text-neutral-600 uppercase tracking-widest">Selected.Node_Isolated</span>
+          <span className="text-[8px] text-neutral-600 uppercase tracking-widest">
+            Selected.Node_Isolated
+          </span>
         </div>
       </div>
     </div>

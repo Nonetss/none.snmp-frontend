@@ -28,7 +28,9 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
     if (!silent) setLoading(true);
     try {
       const hostname = window.location.hostname;
-      const response = await axios.get(`http://${hostname}:3000/api/v1/search/device?id=${deviceId}`);
+      const response = await axios.get(
+        `http://${hostname}:3000/api/v1/search/device?id=${deviceId}`,
+      );
       if (response.data && response.data.length > 0) {
         setDevice(response.data[0]);
       } else {
@@ -45,7 +47,9 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
     setPolling(true);
     try {
       const hostname = window.location.hostname;
-      await axios.post(`http://${hostname}:3000/api/v1/snmp/device/poll/${deviceId}/all`);
+      await axios.post(
+        `http://${hostname}:3000/api/v1/snmp/device/poll/${deviceId}/all`,
+      );
       await fetchDevice(true);
     } catch (err: any) {
       console.error("Poll failed:", err);
@@ -59,41 +63,58 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
     if (deviceId) fetchDevice();
   }, [deviceId]);
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-full bg-black text-white font-mono">
-      <div className="flex flex-col items-center gap-4">
-        <RefreshCcw className="w-8 h-8 animate-spin text-white" />
-        <span className="text-[10px] tracking-[0.3em] uppercase">Deep.Scanning(ID:{deviceId})</span>
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-full bg-black text-white font-mono">
+        <div className="flex flex-col items-center gap-4">
+          <RefreshCcw className="w-8 h-8 animate-spin text-white" />
+          <span className="text-[10px] tracking-[0.3em] uppercase">
+            Deep.Scanning(ID:{deviceId})
+          </span>
+        </div>
       </div>
-    </div>
-  );
+    );
 
-  if (error || !device) return (
-    <div className="p-8 text-white font-mono bg-black h-full flex items-center justify-center">
-      <div className="border border-white/20 p-8 flex flex-col items-center gap-4 max-w-md">
-        <AlertCircle className="w-10 h-10 text-white" />
-        <p className="text-xs uppercase tracking-widest text-center">{error || "CRITICAL_ERROR: NODE_NOT_FOUND"}</p>
-        <a href="/devices" className="mt-4 px-6 py-2 border border-white text-xs hover:bg-white hover:text-black transition-all uppercase">Back.To.Inventory()</a>
+  if (error || !device)
+    return (
+      <div className="p-8 text-white font-mono bg-black h-full flex items-center justify-center">
+        <div className="border border-white/20 p-8 flex flex-col items-center gap-4 max-w-md">
+          <AlertCircle className="w-10 h-10 text-white" />
+          <p className="text-xs uppercase tracking-widest text-center">
+            {error || "CRITICAL_ERROR: NODE_NOT_FOUND"}
+          </p>
+          <a
+            href="/devices"
+            className="mt-4 px-6 py-2 border border-white text-xs hover:bg-white hover:text-black transition-all uppercase"
+          >
+            Back.To.Inventory()
+          </a>
+        </div>
       </div>
-    </div>
-  );
+    );
 
-  const hasNeighbors = (device.neighbor_discovery?.outbound?.length > 0) || (device.neighbor_discovery?.inbound?.length > 0);
+  const hasNeighbors =
+    device.neighbor_discovery?.outbound?.length > 0 ||
+    device.neighbor_discovery?.inbound?.length > 0;
 
   return (
     <div className="bg-black text-white font-mono min-h-screen w-full flex flex-col">
-      <Header 
-        device={device} 
-        polling={polling} 
-        onFullPoll={handleFullPoll} 
-        onRescan={() => fetchDevice()} 
+      <Header
+        device={device}
+        polling={polling}
+        onFullPoll={handleFullPoll}
+        onRescan={() => fetchDevice()}
       />
 
       <TabsNav activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <div className="p-8 space-y-8 max-w-[1800px] mx-auto w-full flex-grow">
         {activeTab === "dashboard" && (
-          <DashboardTab device={device} setActiveTab={setActiveTab} hasNeighbors={hasNeighbors} />
+          <DashboardTab
+            device={device}
+            setActiveTab={setActiveTab}
+            hasNeighbors={hasNeighbors}
+          />
         )}
         {activeTab === "interfaces" && <InterfacesTab device={device} />}
         {activeTab === "network" && <NetworkTab device={device} />}
@@ -107,5 +128,3 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
 };
 
 export default DeviceDetailView;
-
-

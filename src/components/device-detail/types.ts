@@ -1,4 +1,11 @@
-export type TabId = "dashboard" | "interfaces" | "network" | "discovery" | "inventory" | "services" | "applications";
+export type TabId =
+  | "dashboard"
+  | "interfaces"
+  | "network"
+  | "discovery"
+  | "inventory"
+  | "services"
+  | "applications";
 
 export type DeviceDetail = Root2;
 

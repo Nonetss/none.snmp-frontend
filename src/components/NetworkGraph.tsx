@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import axios from "axios";
-import {
-  LoadingScreen,
-} from "./network-graph/LoadingScreen";
+import { LoadingScreen } from "./network-graph/LoadingScreen";
 import { ErrorScreen } from "./network-graph/ErrorScreen";
 import { Controls } from "./network-graph/Controls";
 import { SettingsPanel } from "./network-graph/SettingsPanel";
@@ -89,7 +87,7 @@ const NetworkGraph: React.FC = () => {
       } catch (err: any) {
         console.error("❌ Error en la petición:", err);
         setError(
-          `Error de conexión: ${err.message || "Servidor no disponible"}`
+          `Error de conexión: ${err.message || "Servidor no disponible"}`,
         );
       } finally {
         setLoading(false);
@@ -133,7 +131,8 @@ const NetworkGraph: React.FC = () => {
       const links = rawData.edges
         .filter(
           (e) =>
-            neighborIds.has(getID(e.source)) && neighborIds.has(getID(e.target))
+            neighborIds.has(getID(e.source)) &&
+            neighborIds.has(getID(e.target)),
         )
         .map((e) => ({
           ...e,
@@ -220,7 +219,7 @@ const NetworkGraph: React.FC = () => {
             n.details?.interfaces?.some(
               (i: any) =>
                 i.ifName?.toLowerCase().includes(q) ||
-                i.ifDescr?.toLowerCase().includes(q)
+                i.ifDescr?.toLowerCase().includes(q),
             )
           );
         })
@@ -233,7 +232,7 @@ const NetworkGraph: React.FC = () => {
       return {
         nodes: nodes.filter((n) => visible.has(n.id)),
         links: links.filter(
-          (l) => visible.has(getID(l.source)) && visible.has(getID(l.target))
+          (l) => visible.has(getID(l.source)) && visible.has(getID(l.target)),
         ),
       };
     }
@@ -342,10 +341,10 @@ const NetworkGraph: React.FC = () => {
           const baseColor = isSelected
             ? selectedColor
             : isHovered
-            ? hoverColor
-            : isPort
-            ? portColor
-            : primaryColor;
+              ? hoverColor
+              : isPort
+                ? portColor
+                : primaryColor;
 
           ctx.save();
 
@@ -416,7 +415,7 @@ const NetworkGraph: React.FC = () => {
               node.x - textWidth / 2 - 2,
               node.y + size + 4,
               textWidth + 4,
-              fontSize + 4
+              fontSize + 4,
             );
 
             ctx.fillStyle = isSelected ? selectedColor : "#94a3b8"; // Slate-400 default text
