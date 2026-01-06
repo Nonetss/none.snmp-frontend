@@ -2,6 +2,7 @@ import React from 'react'
 import {
   LayoutDashboard,
   Share2,
+  Search,
   Server,
   Settings,
   Terminal,
@@ -21,6 +22,7 @@ const Sidebar: React.FC = () => {
     { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
     { name: 'Topology', icon: Share2, path: '/graph' },
     { name: 'Devices', icon: Server, path: '/devices' },
+    { name: 'Search', icon: Search, path: '/search' },
   ]
 
   const systemItems = [
