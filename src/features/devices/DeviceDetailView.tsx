@@ -1,66 +1,66 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { RefreshCcw, AlertCircle } from "lucide-react";
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
+import { RefreshCcw, AlertCircle } from 'lucide-react'
 
-import { Header } from "@/features/devices/components/Header";
-import { TabsNav } from "@/features/devices/components/TabsNav";
-import { DashboardTab } from "@/features/devices/components/DashboardTab";
-import { InterfacesTab } from "@/features/devices/components/InterfacesTab";
-import { NetworkTab } from "@/features/devices/components/NetworkTab";
-import { DiscoveryTab } from "@/features/devices/components/DiscoveryTab";
-import { InventoryTab } from "@/features/devices/components/InventoryTab";
-import { BridgeTab } from "@/features/devices/components/BridgeTab";
-import { ServicesTab } from "@/features/devices/components/ServicesTab";
-import { ApplicationsTab } from "@/features/devices/components/ApplicationsTab";
-import type { DeviceDetail, TabId } from "@/features/devices/components/types";
+import { Header } from '@/features/devices/components/Header'
+import { TabsNav } from '@/features/devices/components/TabsNav'
+import { DashboardTab } from '@/features/devices/components/DashboardTab'
+import { InterfacesTab } from '@/features/devices/components/InterfacesTab'
+import { NetworkTab } from '@/features/devices/components/NetworkTab'
+import { DiscoveryTab } from '@/features/devices/components/DiscoveryTab'
+import { InventoryTab } from '@/features/devices/components/InventoryTab'
+import { BridgeTab } from '@/features/devices/components/BridgeTab'
+import { ServicesTab } from '@/features/devices/components/ServicesTab'
+import { ApplicationsTab } from '@/features/devices/components/ApplicationsTab'
+import type { DeviceDetail, TabId } from '@/features/devices/components/types'
 
 interface Props {
-  deviceId: string;
+  deviceId: string
 }
 
 const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
-  const [device, setDevice] = useState<DeviceDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [polling, setPolling] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabId>("dashboard");
+  const [device, setDevice] = useState<DeviceDetail | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [polling, setPolling] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<TabId>('dashboard')
 
   const fetchDevice = async (silent = false) => {
-    if (!silent) setLoading(true);
+    if (!silent) setLoading(true)
     try {
       const response = await axios.get(
-        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/device?id=${deviceId}`,
-      );
+        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/device?id=${deviceId}`
+      )
       if (response.data && response.data.length > 0) {
-        setDevice(response.data[0]);
+        setDevice(response.data[0])
       } else {
-        setError("Device not found.");
+        setError('Device not found.')
       }
     } catch (err: any) {
-      setError(err.message || "Failed to fetch device details");
+      setError(err.message || 'Failed to fetch device details')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleFullPoll = async () => {
-    setPolling(true);
+    setPolling(true)
     try {
       await axios.post(
-        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/snmp/device/poll/${deviceId}/all`,
-      );
-      await fetchDevice(true);
+        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/snmp/device/poll/${deviceId}/all`
+      )
+      await fetchDevice(true)
     } catch (err: any) {
-      console.error("Poll failed:", err);
-      alert("CRITICAL_ERROR: SNMP_POLL_FAILED");
+      console.error('Poll failed:', err)
+      alert('CRITICAL_ERROR: SNMP_POLL_FAILED')
     } finally {
-      setPolling(false);
+      setPolling(false)
     }
-  };
+  }
 
   useEffect(() => {
-    if (deviceId) fetchDevice();
-  }, [deviceId]);
+    if (deviceId) fetchDevice()
+  }, [deviceId])
 
   if (loading)
     return (
@@ -72,7 +72,7 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
           </span>
         </div>
       </div>
-    );
+    )
 
   if (error || !device)
     return (
@@ -80,7 +80,7 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
         <div className="border border-white/20 p-8 flex flex-col items-center gap-4 max-w-md">
           <AlertCircle className="w-10 h-10 text-white" />
           <p className="text-xs uppercase tracking-widest text-center">
-            {error || "CRITICAL_ERROR: NODE_NOT_FOUND"}
+            {error || 'CRITICAL_ERROR: NODE_NOT_FOUND'}
           </p>
           <a
             href="/devices"
@@ -90,11 +90,11 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
           </a>
         </div>
       </div>
-    );
+    )
 
   const hasNeighbors =
     device.neighbor_discovery?.outbound?.length > 0 ||
-    device.neighbor_discovery?.inbound?.length > 0;
+    device.neighbor_discovery?.inbound?.length > 0
 
   return (
     <div className="bg-black text-white font-mono min-h-screen w-full flex flex-col">
@@ -108,23 +108,19 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
       <TabsNav activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <div className="p-8 space-y-8 max-w-[1800px] mx-auto w-full flex-grow">
-        {activeTab === "dashboard" && (
-          <DashboardTab
-            device={device}
-            setActiveTab={setActiveTab}
-            hasNeighbors={hasNeighbors}
-          />
+        {activeTab === 'dashboard' && (
+          <DashboardTab device={device} setActiveTab={setActiveTab} hasNeighbors={hasNeighbors} />
         )}
-        {activeTab === "interfaces" && <InterfacesTab device={device} />}
-        {activeTab === "network" && <NetworkTab device={device} />}
-        {activeTab === "bridge" && <BridgeTab device={device} />}
-        {activeTab === "discovery" && <DiscoveryTab device={device} />}
-        {activeTab === "inventory" && <InventoryTab device={device} />}
-        {activeTab === "services" && <ServicesTab device={device} />}
-        {activeTab === "applications" && <ApplicationsTab device={device} />}
+        {activeTab === 'interfaces' && <InterfacesTab device={device} />}
+        {activeTab === 'network' && <NetworkTab device={device} />}
+        {activeTab === 'bridge' && <BridgeTab device={device} />}
+        {activeTab === 'discovery' && <DiscoveryTab device={device} />}
+        {activeTab === 'inventory' && <InventoryTab device={device} />}
+        {activeTab === 'services' && <ServicesTab device={device} />}
+        {activeTab === 'applications' && <ApplicationsTab device={device} />}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default DeviceDetailView;
+export default DeviceDetailView

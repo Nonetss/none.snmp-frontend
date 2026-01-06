@@ -1,41 +1,37 @@
-import React, { useState, useMemo } from "react";
-import { List, Shield, Database, Search, X } from "lucide-react";
-import type {
-  DeviceDetail,
-  Service,
-} from "@/features/devices/components/types";
+import React, { useState, useMemo } from 'react'
+import { List, Shield, Database, Search, X } from 'lucide-react'
+import type { DeviceDetail, Service } from '@/features/devices/components/types'
 
 interface ServicesTabProps {
-  device: DeviceDetail;
+  device: DeviceDetail
 }
 
-type ServiceStatusFilter = "all" | "running" | "other";
+type ServiceStatusFilter = 'all' | 'running' | 'other'
 
 export const ServicesTab: React.FC<ServicesTabProps> = ({ device }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<ServiceStatusFilter>("all");
+  const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState<ServiceStatusFilter>('all')
 
   const filteredServices = useMemo(() => {
-    if (!device.services) return [];
+    if (!device.services) return []
     return device.services.filter((svc) => {
       const matchesSearch =
         svc.hrSWRunName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        svc.hrSWRunPath.toLowerCase().includes(searchTerm.toLowerCase());
+        svc.hrSWRunPath.toLowerCase().includes(searchTerm.toLowerCase())
 
-      if (statusFilter === "all") return matchesSearch;
-      const isRunning = svc.hrSWRunStatus === 1;
-      const matchesStatus = statusFilter === "running" ? isRunning : !isRunning;
+      if (statusFilter === 'all') return matchesSearch
+      const isRunning = svc.hrSWRunStatus === 1
+      const matchesStatus = statusFilter === 'running' ? isRunning : !isRunning
 
-      return matchesSearch && matchesStatus;
-    });
-  }, [device.services, searchTerm, statusFilter]);
+      return matchesSearch && matchesStatus
+    })
+  }, [device.services, searchTerm, statusFilter])
 
   const stats = useMemo(() => {
-    const total = device.services?.length || 0;
-    const running =
-      device.services?.filter((s) => s.hrSWRunStatus === 1).length || 0;
-    return { total, running, other: total - running };
-  }, [device.services]);
+    const total = device.services?.length || 0
+    const running = device.services?.filter((s) => s.hrSWRunStatus === 1).length || 0
+    return { total, running, other: total - running }
+  }, [device.services])
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -63,7 +59,7 @@ export const ServicesTab: React.FC<ServicesTabProps> = ({ device }) => {
               />
               {searchTerm && (
                 <button
-                  onClick={() => setSearchTerm("")}
+                  onClick={() => setSearchTerm('')}
                   className="absolute right-3 top-1/2 -translate-y-1/2 hover:text-white text-neutral-500"
                 >
                   <X className="w-3 h-3" />
@@ -73,27 +69,17 @@ export const ServicesTab: React.FC<ServicesTabProps> = ({ device }) => {
 
             {/* Status Filter */}
             <div className="flex items-center gap-2 bg-white/5 p-1 border border-white/10">
-              {(["all", "running", "other"] as ServiceStatusFilter[]).map(
-                (f) => (
-                  <button
-                    key={f}
-                    onClick={() => setStatusFilter(f)}
-                    className={`px-3 py-1.5 text-[8px] uppercase font-bold transition-all whitespace-nowrap ${
-                      statusFilter === f
-                        ? "bg-white text-black"
-                        : "text-neutral-500 hover:text-white"
-                    }`}
-                  >
-                    {f} (
-                    {f === "all"
-                      ? stats.total
-                      : f === "running"
-                        ? stats.running
-                        : stats.other}
-                    )
-                  </button>
-                ),
-              )}
+              {(['all', 'running', 'other'] as ServiceStatusFilter[]).map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setStatusFilter(f)}
+                  className={`px-3 py-1.5 text-[8px] uppercase font-bold transition-all whitespace-nowrap ${
+                    statusFilter === f ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'
+                  }`}
+                >
+                  {f} ({f === 'all' ? stats.total : f === 'running' ? stats.running : stats.other})
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -106,15 +92,15 @@ export const ServicesTab: React.FC<ServicesTabProps> = ({ device }) => {
             >
               <div className="flex justify-between items-start mb-4">
                 <div
-                  className={`p-2 border transition-all ${svc.hrSWRunStatus === 1 ? "bg-white/5 border-white/10 group-hover:bg-white group-hover:text-black" : "bg-neutral-900 border-white/5 text-neutral-700"}`}
+                  className={`p-2 border transition-all ${svc.hrSWRunStatus === 1 ? 'bg-white/5 border-white/10 group-hover:bg-white group-hover:text-black' : 'bg-neutral-900 border-white/5 text-neutral-700'}`}
                 >
                   <Shield className="w-4 h-4" />
                 </div>
                 <div className="text-right">
                   <span
-                    className={`text-[8px] px-1.5 py-0.5 font-bold uppercase ${svc.hrSWRunStatus === 1 ? "bg-white/10 text-neutral-300" : "bg-neutral-900 text-neutral-600 border border-white/5"}`}
+                    className={`text-[8px] px-1.5 py-0.5 font-bold uppercase ${svc.hrSWRunStatus === 1 ? 'bg-white/10 text-neutral-300' : 'bg-neutral-900 text-neutral-600 border border-white/5'}`}
                   >
-                    {svc.hrSWRunStatus === 1 ? "Running" : "Other"}
+                    {svc.hrSWRunStatus === 1 ? 'Running' : 'Other'}
                   </span>
                 </div>
               </div>
@@ -122,13 +108,13 @@ export const ServicesTab: React.FC<ServicesTabProps> = ({ device }) => {
                 className="text-xs font-bold text-white uppercase mb-1 truncate"
                 title={svc.hrSWRunName}
               >
-                {svc.hrSWRunName || "Unnamed Service"}
+                {svc.hrSWRunName || 'Unnamed Service'}
               </h4>
               <p
                 className="text-[9px] text-neutral-500 line-clamp-2 italic mb-4 h-6"
                 title={svc.hrSWRunPath}
               >
-                {svc.hrSWRunPath || "No path specified."}
+                {svc.hrSWRunPath || 'No path specified.'}
               </p>
               <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
                 <div className="flex flex-col overflow-hidden">
@@ -139,16 +125,12 @@ export const ServicesTab: React.FC<ServicesTabProps> = ({ device }) => {
                     className="text-[9px] text-neutral-400 truncate"
                     title={svc.hrSWRunParameters}
                   >
-                    {svc.hrSWRunParameters || "None"}
+                    {svc.hrSWRunParameters || 'None'}
                   </span>
                 </div>
                 <div className="flex flex-col items-end">
-                  <span className="text-[7px] text-neutral-600 uppercase font-bold">
-                    Index
-                  </span>
-                  <span className="text-[10px] text-neutral-400 font-mono">
-                    {svc.hrSWRunIndex}
-                  </span>
+                  <span className="text-[7px] text-neutral-600 uppercase font-bold">Index</span>
+                  <span className="text-[10px] text-neutral-400 font-mono">{svc.hrSWRunIndex}</span>
                 </div>
               </div>
             </div>
@@ -161,8 +143,8 @@ export const ServicesTab: React.FC<ServicesTabProps> = ({ device }) => {
               </span>
               <button
                 onClick={() => {
-                  setSearchTerm("");
-                  setStatusFilter("all");
+                  setSearchTerm('')
+                  setStatusFilter('all')
                 }}
                 className="mt-4 px-4 py-2 border border-white/10 text-[8px] hover:bg-white hover:text-black transition-all uppercase font-bold"
               >
@@ -173,5 +155,5 @@ export const ServicesTab: React.FC<ServicesTabProps> = ({ device }) => {
         </div>
       </section>
     </div>
-  );
-};
+  )
+}

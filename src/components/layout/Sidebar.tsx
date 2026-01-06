@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 import {
   LayoutDashboard,
   Share2,
@@ -8,25 +8,25 @@ import {
   Cpu,
   ShieldCheck,
   Zap,
-} from "lucide-react";
+} from 'lucide-react'
 
 const Sidebar: React.FC = () => {
-  const [currentPath, setCurrentPath] = React.useState("/");
+  const [currentPath, setCurrentPath] = React.useState('/')
 
   React.useEffect(() => {
-    setCurrentPath(window.location.pathname);
-  }, []);
+    setCurrentPath(window.location.pathname)
+  }, [])
 
   const menuItems = [
-    { name: "Dashboard", icon: LayoutDashboard, path: "/" },
-    { name: "Topology", icon: Share2, path: "/graph" },
-    { name: "Devices", icon: Server, path: "/devices" },
-  ];
+    { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
+    { name: 'Topology', icon: Share2, path: '/graph' },
+    { name: 'Devices', icon: Server, path: '/devices' },
+  ]
 
   const systemItems = [
-    { name: "Settings", icon: Settings, path: "#" },
-    { name: "Terminal", icon: Terminal, path: "#" },
-  ];
+    { name: 'Settings', icon: Settings, path: '#' },
+    { name: 'Terminal', icon: Terminal, path: '#' },
+  ]
 
   return (
     <aside className="w-16 hover:w-48 transition-all duration-300 h-screen bg-black border-r border-white/10 flex flex-col items-center py-6 z-[100] group overflow-hidden font-mono">
@@ -44,16 +44,15 @@ const Sidebar: React.FC = () => {
       <nav className="flex-1 w-full space-y-2 px-3">
         {menuItems.map((item) => {
           const isActive =
-            currentPath === item.path ||
-            (item.path !== "/" && currentPath.startsWith(item.path));
+            currentPath === item.path || (item.path !== '/' && currentPath.startsWith(item.path))
           return (
             <a
               key={item.name}
               href={item.path}
               className={`flex items-center h-10 px-2 rounded-none transition-all group/item ${
                 isActive
-                  ? "bg-white text-black"
-                  : "text-neutral-500 hover:bg-neutral-900 hover:text-white"
+                  ? 'bg-white text-black'
+                  : 'text-neutral-500 hover:bg-neutral-900 hover:text-white'
               }`}
             >
               <item.icon className="w-5 h-5 min-w-[20px]" />
@@ -64,7 +63,7 @@ const Sidebar: React.FC = () => {
                 <div className="absolute left-0 w-0.5 h-6 bg-white hidden group-hover:block" />
               )}
             </a>
-          );
+          )
         })}
 
         <div className="h-px bg-white/5 my-4 mx-2" />
@@ -107,7 +106,7 @@ const Sidebar: React.FC = () => {
         </div>
       </div>
     </aside>
-  );
-};
+  )
+}
 
-export default Sidebar;
+export default Sidebar

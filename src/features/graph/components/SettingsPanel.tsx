@@ -1,19 +1,19 @@
-import React from "react";
-import { Settings2 } from "lucide-react";
+import React from 'react'
+import { Settings2 } from 'lucide-react'
 
 interface SettingsPanelProps {
-  showNodeLabels: boolean;
-  setShowNodeLabels: (v: boolean) => void;
-  showPortLabels: boolean;
-  setShowPortLabels: (v: boolean) => void;
-  showPorts: boolean;
-  setShowPorts: (v: boolean) => void;
-  showParticles: boolean;
-  setShowParticles: (v: boolean) => void;
-  forceStrength: number;
-  setForceStrength: (v: number) => void;
-  linkDistance: number;
-  setLinkDistance: (v: number) => void;
+  showNodeLabels: boolean
+  setShowNodeLabels: (v: boolean) => void
+  showPortLabels: boolean
+  setShowPortLabels: (v: boolean) => void
+  showPorts: boolean
+  setShowPorts: (v: boolean) => void
+  showParticles: boolean
+  setShowParticles: (v: boolean) => void
+  forceStrength: number
+  setForceStrength: (v: number) => void
+  linkDistance: number
+  setLinkDistance: (v: number) => void
 }
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({
@@ -42,38 +42,33 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       <div className="grid grid-cols-2 gap-x-6 gap-y-3 w-[400px]">
         {[
           {
-            label: "Labels.Node",
+            label: 'Labels.Node',
             value: showNodeLabels,
             set: setShowNodeLabels,
           },
           {
-            label: "Labels.Port",
+            label: 'Labels.Port',
             value: showPortLabels,
             set: setShowPortLabels,
           },
           {
-            label: "Visual.Ports",
+            label: 'Visual.Ports',
             value: showPorts,
             set: setShowPorts,
           },
           {
-            label: "Visual.Flow",
+            label: 'Visual.Flow',
             value: showParticles,
             set: setShowParticles,
           },
         ].map((cfg) => (
-          <label
-            key={cfg.label}
-            className="flex items-center justify-between cursor-pointer group"
-          >
+          <label key={cfg.label} className="flex items-center justify-between cursor-pointer group">
             <span className="text-[10px] text-neutral-400 group-hover:text-white transition-colors">
               {cfg.label}
             </span>
             <div
               className={`w-3 h-3 border border-white/40 transition-all ${
-                cfg.value
-                  ? "bg-white shadow-[0_0_5px_rgba(255,255,255,0.5)]"
-                  : "bg-transparent"
+                cfg.value ? 'bg-white shadow-[0_0_5px_rgba(255,255,255,0.5)]' : 'bg-transparent'
               }`}
             ></div>
             <input
@@ -89,7 +84,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       <div className="space-y-4 pt-2">
         {[
           {
-            label: "Phys.Repulsion",
+            label: 'Phys.Repulsion',
             value: forceStrength,
             min: -1000,
             max: -50,
@@ -97,7 +92,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             set: (v: string) => setForceStrength(parseInt(v)),
           },
           {
-            label: "Phys.Distance",
+            label: 'Phys.Distance',
             value: linkDistance,
             min: 30,
             max: 350,
@@ -123,5 +118,5 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         ))}
       </div>
     </div>
-  );
-};
+  )
+}

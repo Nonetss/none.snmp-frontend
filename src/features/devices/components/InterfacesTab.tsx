@@ -1,41 +1,35 @@
-import React, { useState, useMemo } from "react";
-import { Network, Activity, Filter } from "lucide-react";
-import type {
-  DeviceDetail,
-  Interface,
-  AddrEntry,
-} from "@/features/devices/components/types";
+import React, { useState, useMemo } from 'react'
+import { Network, Activity, Filter } from 'lucide-react'
+import type { DeviceDetail, Interface, AddrEntry } from '@/features/devices/components/types'
 
 interface InterfacesTabProps {
-  device: DeviceDetail;
+  device: DeviceDetail
 }
 
-type StatusFilter = "all" | "up" | "down";
+type StatusFilter = 'all' | 'up' | 'down'
 
 export const InterfacesTab: React.FC<InterfacesTabProps> = ({ device }) => {
-  const [showAllInterfaces, setShowAllInterfaces] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [showAllInterfaces, setShowAllInterfaces] = useState(false)
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
 
   const filteredInterfaces = useMemo(() => {
-    if (!device.interfaces) return [];
+    if (!device.interfaces) return []
     return device.interfaces.filter((iface) => {
-      if (statusFilter === "all") return true;
-      const isUp = iface.latestData?.ifOperStatus === 1;
-      return statusFilter === "up" ? isUp : !isUp;
-    });
-  }, [device.interfaces, statusFilter]);
+      if (statusFilter === 'all') return true
+      const isUp = iface.latestData?.ifOperStatus === 1
+      return statusFilter === 'up' ? isUp : !isUp
+    })
+  }, [device.interfaces, statusFilter])
 
   const displayedInterfaces = showAllInterfaces
     ? filteredInterfaces
-    : filteredInterfaces.slice(0, 10);
+    : filteredInterfaces.slice(0, 10)
 
   const stats = useMemo(() => {
-    const total = device.interfaces?.length || 0;
-    const up =
-      device.interfaces?.filter((i) => i.latestData?.ifOperStatus === 1)
-        .length || 0;
-    return { total, up, down: total - up };
-  }, [device.interfaces]);
+    const total = device.interfaces?.length || 0
+    const up = device.interfaces?.filter((i) => i.latestData?.ifOperStatus === 1).length || 0
+    return { total, up, down: total - up }
+  }, [device.interfaces])
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -47,23 +41,15 @@ export const InterfacesTab: React.FC<InterfacesTabProps> = ({ device }) => {
             </h3>
 
             <div className="flex items-center gap-2 bg-white/5 p-1 border border-white/10">
-              {(["all", "up", "down"] as StatusFilter[]).map((f) => (
+              {(['all', 'up', 'down'] as StatusFilter[]).map((f) => (
                 <button
                   key={f}
                   onClick={() => setStatusFilter(f)}
                   className={`px-3 py-1 text-[8px] uppercase font-bold transition-all ${
-                    statusFilter === f
-                      ? "bg-white text-black"
-                      : "text-neutral-500 hover:text-white"
+                    statusFilter === f ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'
                   }`}
                 >
-                  {f} (
-                  {f === "all"
-                    ? stats.total
-                    : f === "up"
-                      ? stats.up
-                      : stats.down}
-                  )
+                  {f} ({f === 'all' ? stats.total : f === 'up' ? stats.up : stats.down})
                 </button>
               ))}
             </div>
@@ -78,9 +64,7 @@ export const InterfacesTab: React.FC<InterfacesTabProps> = ({ device }) => {
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex flex-col">
                     <span className="text-xs font-bold text-white uppercase group-hover:tracking-wider transition-all">
-                      {iface.ifDescr ||
-                        iface.ifName ||
-                        "IFACE_ID:" + iface.ifIndex}
+                      {iface.ifDescr || iface.ifName || 'IFACE_ID:' + iface.ifIndex}
                     </span>
                     <span className="text-[8px] text-neutral-600 font-bold uppercase">
                       Index: {iface.ifIndex}
@@ -88,10 +72,10 @@ export const InterfacesTab: React.FC<InterfacesTabProps> = ({ device }) => {
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <div
-                      className={`w-2 h-2 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.4)] ${iface.latestData?.ifOperStatus === 1 ? "bg-white" : "bg-neutral-800 border border-white/20"}`}
+                      className={`w-2 h-2 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.4)] ${iface.latestData?.ifOperStatus === 1 ? 'bg-white' : 'bg-neutral-800 border border-white/20'}`}
                     />
                     <span className="text-[8px] text-neutral-600 uppercase font-bold">
-                      {iface.latestData?.ifOperStatus === 1 ? "Active" : "Down"}
+                      {iface.latestData?.ifOperStatus === 1 ? 'Active' : 'Down'}
                     </span>
                   </div>
                 </div>
@@ -102,7 +86,7 @@ export const InterfacesTab: React.FC<InterfacesTabProps> = ({ device }) => {
                       Physical Address
                     </span>
                     <span className="text-[10px] font-mono text-neutral-400">
-                      {iface.ifPhysAddress || "00:00:00:00:00:00"}
+                      {iface.ifPhysAddress || '00:00:00:00:00:00'}
                     </span>
                   </div>
                   <div className="flex flex-col items-end">
@@ -148,7 +132,7 @@ export const InterfacesTab: React.FC<InterfacesTabProps> = ({ device }) => {
                 className="px-8 py-2 border border-white/20 text-[10px] uppercase font-bold hover:bg-white hover:text-black transition-all tracking-widest"
               >
                 {showAllInterfaces
-                  ? "Collapse.Matrix()"
+                  ? 'Collapse.Matrix()'
                   : `Expand.Matrix(${filteredInterfaces.length - 10}.More)`}
               </button>
             </div>
@@ -161,28 +145,20 @@ export const InterfacesTab: React.FC<InterfacesTabProps> = ({ device }) => {
           </h3>
           <div className="space-y-2 max-h-[600px] overflow-y-auto custom-scrollbar">
             {device.ipSnmp?.addrEntries?.map((addr: AddrEntry, i: number) => (
-              <div
-                key={i}
-                className="p-3 border border-white/5 bg-neutral-900/40"
-              >
+              <div key={i} className="p-3 border border-white/5 bg-neutral-900/40">
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs font-bold text-white">
-                    {addr.ipAdEntAddr}
-                  </span>
+                  <span className="text-xs font-bold text-white">{addr.ipAdEntAddr}</span>
                   <span className="text-[8px] text-neutral-600 font-bold uppercase tracking-tighter">
                     IF: {addr.ipAdEntIfIndex}
                   </span>
                 </div>
                 <div className="flex justify-between text-[9px] text-neutral-500">
                   <span className="uppercase">Mask: {addr.ipAdEntNetMask}</span>
-                  <span className="uppercase">
-                    MTU: {addr.ipAdEntReasmMaxSize}
-                  </span>
+                  <span className="uppercase">MTU: {addr.ipAdEntReasmMaxSize}</span>
                 </div>
               </div>
             ))}
-            {(!device.ipSnmp?.addrEntries ||
-              device.ipSnmp.addrEntries.length === 0) && (
+            {(!device.ipSnmp?.addrEntries || device.ipSnmp.addrEntries.length === 0) && (
               <div className="text-center py-8 text-[8px] text-neutral-700 uppercase italic">
                 No IP entries found
               </div>
@@ -191,5 +167,5 @@ export const InterfacesTab: React.FC<InterfacesTabProps> = ({ device }) => {
         </section>
       </div>
     </div>
-  );
-};
+  )
+}

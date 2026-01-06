@@ -1,23 +1,20 @@
-import React, { useState, useMemo } from "react";
-import { Cpu, Layers, Search, X } from "lucide-react";
-import type {
-  DeviceDetail,
-  Application,
-} from "@/features/devices/components/types";
+import React, { useState, useMemo } from 'react'
+import { Cpu, Layers, Search, X } from 'lucide-react'
+import type { DeviceDetail, Application } from '@/features/devices/components/types'
 
 interface ApplicationsTabProps {
-  device: DeviceDetail;
+  device: DeviceDetail
 }
 
 export const ApplicationsTab: React.FC<ApplicationsTabProps> = ({ device }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('')
 
   const filteredApplications = useMemo(() => {
-    if (!device.applications) return [];
+    if (!device.applications) return []
     return device.applications.filter((app) =>
-      app.hrSWInstalledName.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-  }, [device.applications, searchTerm]);
+      app.hrSWInstalledName.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  }, [device.applications, searchTerm])
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -43,7 +40,7 @@ export const ApplicationsTab: React.FC<ApplicationsTabProps> = ({ device }) => {
             />
             {searchTerm && (
               <button
-                onClick={() => setSearchTerm("")}
+                onClick={() => setSearchTerm('')}
                 className="absolute right-3 top-1/2 -translate-y-1/2 hover:text-white text-neutral-500"
               >
                 <X className="w-3 h-3" />
@@ -70,24 +67,18 @@ export const ApplicationsTab: React.FC<ApplicationsTabProps> = ({ device }) => {
                     {app.hrSWInstalledName}
                   </h4>
                   <span className="text-[8px] text-neutral-600 font-bold uppercase">
-                    TYPE_{app.hrSWInstalledType || "SOFTWARE"}
+                    TYPE_{app.hrSWInstalledType || 'SOFTWARE'}
                   </span>
                 </div>
               </div>
               <div className="space-y-2 pt-2 border-t border-white/5">
                 <div className="flex justify-between text-[9px]">
                   <span className="text-neutral-600 uppercase">Index</span>
-                  <span className="text-neutral-300 font-mono">
-                    {app.hrSWInstalledIndex}
-                  </span>
+                  <span className="text-neutral-300 font-mono">{app.hrSWInstalledIndex}</span>
                 </div>
                 <div className="flex justify-between text-[9px]">
-                  <span className="text-neutral-600 uppercase">
-                    Install Date
-                  </span>
-                  <span className="text-neutral-300">
-                    {app.hrSWInstalledDate || "Unknown"}
-                  </span>
+                  <span className="text-neutral-600 uppercase">Install Date</span>
+                  <span className="text-neutral-300">{app.hrSWInstalledDate || 'Unknown'}</span>
                 </div>
               </div>
             </div>
@@ -95,11 +86,9 @@ export const ApplicationsTab: React.FC<ApplicationsTabProps> = ({ device }) => {
           {filteredApplications.length === 0 && (
             <div className="col-span-full h-64 flex flex-col items-center justify-center border border-dashed border-white/10 text-neutral-600">
               <Layers className="w-8 h-8 mb-4 opacity-20" />
-              <span className="text-[10px] uppercase tracking-[0.4em]">
-                No.Applications.Found
-              </span>
+              <span className="text-[10px] uppercase tracking-[0.4em]">No.Applications.Found</span>
               <button
-                onClick={() => setSearchTerm("")}
+                onClick={() => setSearchTerm('')}
                 className="mt-4 px-4 py-2 border border-white/10 text-[8px] hover:bg-white hover:text-black transition-all uppercase font-bold"
               >
                 Clear.Search()
@@ -109,5 +98,5 @@ export const ApplicationsTab: React.FC<ApplicationsTabProps> = ({ device }) => {
         </div>
       </section>
     </div>
-  );
-};
+  )
+}

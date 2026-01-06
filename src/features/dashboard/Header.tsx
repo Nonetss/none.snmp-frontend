@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react'
 
 interface HeaderProps {
-  currentTime: Date;
+  currentTime: Date
 }
 
 export const Header: React.FC<HeaderProps> = ({ currentTime }) => (
@@ -26,4 +26,4 @@ export const Header: React.FC<HeaderProps> = ({ currentTime }) => (
       </div>
     </div>
   </div>
-);
+)

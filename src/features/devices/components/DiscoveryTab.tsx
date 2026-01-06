@@ -1,9 +1,9 @@
-import React from "react";
-import { Network, ChevronRight } from "lucide-react";
-import type { DeviceDetail } from "@/features/devices/components/types";
+import React from 'react'
+import { Network, ChevronRight } from 'lucide-react'
+import type { DeviceDetail } from '@/features/devices/components/types'
 
 interface DiscoveryTabProps {
-  device: DeviceDetail;
+  device: DeviceDetail
 }
 
 export const DiscoveryTab: React.FC<DiscoveryTabProps> = ({ device }) => (
@@ -32,7 +32,7 @@ export const DiscoveryTab: React.FC<DiscoveryTabProps> = ({ device }) => (
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <span className="text-xs font-bold text-white uppercase">
-                      {n.sysName || n.remoteDeviceName || "REMOTE_NODE"}
+                      {n.sysName || n.remoteDeviceName || 'REMOTE_NODE'}
                     </span>
                     <div className="text-[8px] text-neutral-500 uppercase mt-0.5">
                       {n.sysDesc?.slice(0, 100)}...
@@ -55,9 +55,7 @@ export const DiscoveryTab: React.FC<DiscoveryTabProps> = ({ device }) => (
                     <span className="text-[7px] text-neutral-600 uppercase font-bold">
                       Remote Port
                     </span>
-                    <span className="text-[10px] text-neutral-400">
-                      {n.portDesc || n.portId}
-                    </span>
+                    <span className="text-[10px] text-neutral-400">{n.portDesc || n.portId}</span>
                   </div>
                 </div>
               </div>
@@ -84,12 +82,10 @@ export const DiscoveryTab: React.FC<DiscoveryTabProps> = ({ device }) => (
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <span className="text-xs font-bold text-white uppercase">
-                      {n.neighborSysName ||
-                        n.remoteDeviceName ||
-                        "DETECTED_NODE"}
+                      {n.neighborSysName || n.remoteDeviceName || 'DETECTED_NODE'}
                     </span>
                     <div className="text-[8px] text-neutral-500 uppercase mt-0.5">
-                      {n.neighborPlatform || "Generic Platform"}
+                      {n.neighborPlatform || 'Generic Platform'}
                     </div>
                   </div>
                   <span className="text-[8px] px-1.5 py-0.5 bg-white/10 text-neutral-300 uppercase font-bold tracking-tighter">
@@ -101,17 +97,13 @@ export const DiscoveryTab: React.FC<DiscoveryTabProps> = ({ device }) => (
                     <span className="text-[7px] text-neutral-600 uppercase font-bold">
                       Reported Address
                     </span>
-                    <span className="text-[10px] text-neutral-400">
-                      {n.address || "Unknown"}
-                    </span>
+                    <span className="text-[10px] text-neutral-400">{n.address || 'Unknown'}</span>
                   </div>
                   <div className="flex flex-col items-end">
                     <span className="text-[7px] text-neutral-600 uppercase font-bold">
                       Remote Port
                     </span>
-                    <span className="text-[10px] text-neutral-400">
-                      {n.neighborPort}
-                    </span>
+                    <span className="text-[10px] text-neutral-400">{n.neighborPort}</span>
                   </div>
                 </div>
               </div>
@@ -127,4 +119,4 @@ export const DiscoveryTab: React.FC<DiscoveryTabProps> = ({ device }) => (
       </div>
     </section>
   </div>
-);
+)

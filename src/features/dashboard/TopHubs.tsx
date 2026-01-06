@@ -1,8 +1,8 @@
-import React from "react";
-import { Share2 } from "lucide-react";
+import React from 'react'
+import { Share2 } from 'lucide-react'
 
 interface TopHubsProps {
-  hubs: Array<{ name: string; connections: number }>;
+  hubs: Array<{ name: string; connections: number }>
 }
 
 export const TopHubs: React.FC<TopHubsProps> = ({ hubs }) => (
@@ -17,16 +17,12 @@ export const TopHubs: React.FC<TopHubsProps> = ({ hubs }) => (
           className="group flex items-center justify-between p-3 bg-white/5 border border-transparent hover:border-white/20 transition-all"
         >
           <div className="flex items-center gap-4">
-            <span className="text-neutral-600 text-[9px] font-bold">
-              0{i + 1}
-            </span>
+            <span className="text-neutral-600 text-[9px] font-bold">0{i + 1}</span>
             <div className="flex flex-col">
               <span className="text-xs font-bold text-white group-hover:tracking-wider transition-all uppercase">
                 {hub.name}
               </span>
-              <span className="text-[8px] text-neutral-600 uppercase">
-                Network backbone node
-              </span>
+              <span className="text-[8px] text-neutral-600 uppercase">Network backbone node</span>
             </div>
           </div>
           <div className="text-right">
@@ -37,4 +33,4 @@ export const TopHubs: React.FC<TopHubsProps> = ({ hubs }) => (
       ))}
     </div>
   </div>
-);
+)

@@ -1,23 +1,11 @@
-import React from "react";
-import {
-  Info,
-  MapPin,
-  Clock,
-  Database,
-  Activity,
-  Network as NetworkIcon,
-} from "lucide-react";
-import type {
-  DeviceDetail,
-  TabId,
-  AddrEntry,
-  Resource,
-} from "@/features/devices/components/types";
+import React from 'react'
+import { Info, MapPin, Clock, Database, Activity, Network as NetworkIcon } from 'lucide-react'
+import type { DeviceDetail, TabId, AddrEntry, Resource } from '@/features/devices/components/types'
 
 interface DashboardTabProps {
-  device: DeviceDetail;
-  setActiveTab: (tab: TabId) => void;
-  hasNeighbors: boolean;
+  device: DeviceDetail
+  setActiveTab: (tab: TabId) => void
+  hasNeighbors: boolean
 }
 
 export const DashboardTab: React.FC<DashboardTabProps> = ({
@@ -43,35 +31,27 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
             </div>
             <div className="flex justify-between items-center text-[10px] pt-4">
               <span className="text-neutral-500 uppercase">SysName</span>
-              <span className="font-bold">
-                {device.system?.sysName || "N/A"}
-              </span>
+              <span className="font-bold">{device.system?.sysName || 'N/A'}</span>
             </div>
           </div>
 
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <span className="text-[8px] text-neutral-600 uppercase font-bold">
-                  Location
-                </span>
+                <span className="text-[8px] text-neutral-600 uppercase font-bold">Location</span>
                 <div className="flex items-center gap-2 text-xs text-white">
                   <MapPin className="w-3 h-3 text-neutral-500" />
-                  <span className="uppercase">
-                    {device.system?.sysLocation || "N/A"}
-                  </span>
+                  <span className="uppercase">{device.system?.sysLocation || 'N/A'}</span>
                 </div>
               </div>
               <div className="space-y-1">
-                <span className="text-[8px] text-neutral-600 uppercase font-bold">
-                  Uptime
-                </span>
+                <span className="text-[8px] text-neutral-600 uppercase font-bold">Uptime</span>
                 <div className="flex items-center gap-2 text-xs text-white">
                   <Clock className="w-3 h-3 text-neutral-500" />
                   <span>
                     {device.system?.sysUpTime
                       ? new Date(device.system.sysUpTime).toLocaleDateString()
-                      : "N/A"}
+                      : 'N/A'}
                   </span>
                 </div>
               </div>
@@ -79,14 +59,10 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
             <div className="pt-4 border-t border-white/5 space-y-3">
               <div className="flex justify-between items-center text-[10px]">
                 <span className="text-neutral-500 uppercase">Contact</span>
-                <span className="font-bold">
-                  {device.system?.sysContact || "NOT_DEFINED"}
-                </span>
+                <span className="font-bold">{device.system?.sysContact || 'NOT_DEFINED'}</span>
               </div>
               <div className="flex justify-between items-center text-[10px]">
-                <span className="text-neutral-500 uppercase">
-                  Services_Bitmask
-                </span>
+                <span className="text-neutral-500 uppercase">Services_Bitmask</span>
                 <span className="font-bold">{device.system?.sysServices}</span>
               </div>
             </div>
@@ -105,16 +81,12 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
               className="p-3 bg-white/5 border border-transparent hover:border-white/10 transition-all"
             >
               <div className="flex justify-between items-start mb-1">
-                <span className="text-[10px] font-bold text-white uppercase">
-                  {res.name}
-                </span>
+                <span className="text-[10px] font-bold text-white uppercase">{res.name}</span>
                 <span className="text-[8px] px-1 bg-white/10 text-neutral-400 uppercase tracking-tighter">
                   {res.type}
                 </span>
               </div>
-              <p className="text-[9px] text-neutral-600 italic line-clamp-1">
-                {res.value}
-              </p>
+              <p className="text-[9px] text-neutral-600 italic line-clamp-1">{res.value}</p>
             </div>
           ))}
         </div>
@@ -127,26 +99,19 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
           <Activity className="w-4 h-4" /> quick_ipv4_table
         </h3>
         <div className="space-y-2 max-h-[250px] overflow-y-auto custom-scrollbar">
-          {device.ipSnmp?.addrEntries
-            ?.slice(0, 5)
-            .map((addr: AddrEntry, i: number) => (
-              <div
-                key={i}
-                className="p-3 border border-white/5 bg-neutral-900/40"
-              >
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs font-bold text-white">
-                    {addr.ipAdEntAddr}
-                  </span>
-                  <span className="text-[8px] text-neutral-600 font-bold uppercase tracking-tighter">
-                    IF: {addr.ipAdEntIfIndex}
-                  </span>
-                </div>
+          {device.ipSnmp?.addrEntries?.slice(0, 5).map((addr: AddrEntry, i: number) => (
+            <div key={i} className="p-3 border border-white/5 bg-neutral-900/40">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-xs font-bold text-white">{addr.ipAdEntAddr}</span>
+                <span className="text-[8px] text-neutral-600 font-bold uppercase tracking-tighter">
+                  IF: {addr.ipAdEntIfIndex}
+                </span>
               </div>
-            ))}
+            </div>
+          ))}
           {device.ipSnmp?.addrEntries?.length > 5 && (
             <button
-              onClick={() => setActiveTab("interfaces")}
+              onClick={() => setActiveTab('interfaces')}
               className="w-full py-2 text-[8px] text-neutral-500 uppercase hover:text-white transition-all"
             >
               View.All.Addresses({device.ipSnmp.addrEntries.length})
@@ -166,43 +131,37 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
                 <span className="text-[8px] text-neutral-600 font-bold uppercase tracking-widest">
                   Outbound.Neighbors
                 </span>
-                {device.neighbor_discovery?.outbound
-                  ?.slice(0, 2)
-                  ?.map((n: any, i: number) => (
-                    <div
-                      key={`out-${i}`}
-                      className="p-3 border border-white/5 bg-white/5 flex flex-col gap-1"
-                    >
-                      <span className="text-xs font-bold text-white uppercase">
-                        {n.sysName || n.remoteDeviceName || "REMOTE_NODE"}
-                      </span>
-                      <span className="text-[9px] text-neutral-500 uppercase tracking-tighter">
-                        {n.portId} {"->"} {n.portDesc}
-                      </span>
-                    </div>
-                  ))}
+                {device.neighbor_discovery?.outbound?.slice(0, 2)?.map((n: any, i: number) => (
+                  <div
+                    key={`out-${i}`}
+                    className="p-3 border border-white/5 bg-white/5 flex flex-col gap-1"
+                  >
+                    <span className="text-xs font-bold text-white uppercase">
+                      {n.sysName || n.remoteDeviceName || 'REMOTE_NODE'}
+                    </span>
+                    <span className="text-[9px] text-neutral-500 uppercase tracking-tighter">
+                      {n.portId} {'->'} {n.portDesc}
+                    </span>
+                  </div>
+                ))}
               </div>
               <div className="space-y-2">
                 <span className="text-[8px] text-neutral-600 font-bold uppercase tracking-widest">
                   Inbound.Discovery
                 </span>
-                {device.neighbor_discovery?.inbound
-                  ?.slice(0, 2)
-                  ?.map((n: any, i: number) => (
-                    <div
-                      key={`in-${i}`}
-                      className="p-3 border border-white/5 bg-white/5 flex flex-col gap-1"
-                    >
-                      <span className="text-xs font-bold text-white uppercase">
-                        {n.neighborSysName ||
-                          n.remoteDeviceName ||
-                          "DETECTED_NODE"}
-                      </span>
-                      <span className="text-[9px] text-neutral-500 uppercase tracking-tighter">
-                        {n.address || "N/A"}
-                      </span>
-                    </div>
-                  ))}
+                {device.neighbor_discovery?.inbound?.slice(0, 2)?.map((n: any, i: number) => (
+                  <div
+                    key={`in-${i}`}
+                    className="p-3 border border-white/5 bg-white/5 flex flex-col gap-1"
+                  >
+                    <span className="text-xs font-bold text-white uppercase">
+                      {n.neighborSysName || n.remoteDeviceName || 'DETECTED_NODE'}
+                    </span>
+                    <span className="text-[9px] text-neutral-500 uppercase tracking-tighter">
+                      {n.address || 'N/A'}
+                    </span>
+                  </div>
+                ))}
               </div>
             </>
           ) : (
@@ -215,7 +174,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         </div>
         {hasNeighbors && (
           <button
-            onClick={() => setActiveTab("discovery")}
+            onClick={() => setActiveTab('discovery')}
             className="w-full mt-2 py-2 border border-white/5 text-[8px] text-neutral-500 uppercase hover:bg-white/5 transition-all"
           >
             Open.Discovery.Matrix()
@@ -224,4 +183,4 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
       </section>
     </div>
   </div>
-);
+)

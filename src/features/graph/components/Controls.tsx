@@ -1,20 +1,14 @@
-import React from "react";
-import {
-  Search,
-  Minimize2,
-  Maximize2,
-  Settings2,
-  RotateCcw,
-} from "lucide-react";
+import React from 'react'
+import { Search, Minimize2, Maximize2, Settings2, RotateCcw } from 'lucide-react'
 
 interface ControlsProps {
-  searchQuery: string;
-  setSearchQuery: (v: string) => void;
-  isFullscreen: boolean;
-  toggleFullscreen: () => void;
-  showSettings: boolean;
-  setShowSettings: (v: boolean) => void;
-  onResetZoom: () => void;
+  searchQuery: string
+  setSearchQuery: (v: string) => void
+  isFullscreen: boolean
+  toggleFullscreen: () => void
+  showSettings: boolean
+  setShowSettings: (v: boolean) => void
+  onResetZoom: () => void
 }
 
 export const Controls: React.FC<ControlsProps> = ({
@@ -44,7 +38,7 @@ export const Controls: React.FC<ControlsProps> = ({
           <div className="flex items-center gap-2 bg-black/90 border border-white/20 p-1.5 shadow-lg w-full backdrop-blur-sm">
             <div className="relative flex-1">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white text-xs font-bold leading-none">
-                {">"}
+                {'>'}
               </span>
               <input
                 type="text"
@@ -58,11 +52,7 @@ export const Controls: React.FC<ControlsProps> = ({
               onClick={toggleFullscreen}
               className="p-2 hover:bg-white/10 text-neutral-400 hover:text-white transition-colors border-l border-white/10"
             >
-              {isFullscreen ? (
-                <Minimize2 className="w-4 h-4" />
-              ) : (
-                <Maximize2 className="w-4 h-4" />
-              )}
+              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>
           </div>
         </div>
@@ -72,8 +62,8 @@ export const Controls: React.FC<ControlsProps> = ({
             onClick={() => setShowSettings(!showSettings)}
             className={`p-2 border transition-all ${
               showSettings
-                ? "bg-white text-black border-white shadow-[0_0_10px_rgba(255,255,255,0.5)]"
-                : "bg-black border-white/20 text-neutral-400 hover:border-white hover:text-white"
+                ? 'bg-white text-black border-white shadow-[0_0_10px_rgba(255,255,255,0.5)]'
+                : 'bg-black border-white/20 text-neutral-400 hover:border-white hover:text-white'
             }`}
           >
             <Settings2 className="w-4 h-4" />
@@ -87,5 +77,5 @@ export const Controls: React.FC<ControlsProps> = ({
         </div>
       </div>
     </>
-  );
-};
+  )
+}

@@ -1,66 +1,54 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import {
-  Activity,
-  Server,
-  Share2,
-  Database,
-  Globe,
-  RefreshCcw,
-  AlertCircle,
-} from "lucide-react";
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
+import { Activity, Server, Share2, Database, Globe, RefreshCcw, AlertCircle } from 'lucide-react'
 
-import { Header } from "@/features/dashboard/Header";
-import { StatCard } from "@/features/dashboard/StatCard";
-import { SubnetChart } from "@/features/dashboard/SubnetChart";
-import { InterfaceHealthChart } from "@/features/dashboard/InterfaceHealthChart";
-import { TopHubs } from "@/features/dashboard/TopHubs";
-import { SnmpDistribution } from "@/features/dashboard/SnmpDistribution";
-import { Footer } from "@/features/dashboard/Footer";
-import type { DashboardStats } from "@/features/dashboard/types";
+import { Header } from '@/features/dashboard/Header'
+import { StatCard } from '@/features/dashboard/StatCard'
+import { SubnetChart } from '@/features/dashboard/SubnetChart'
+import { InterfaceHealthChart } from '@/features/dashboard/InterfaceHealthChart'
+import { TopHubs } from '@/features/dashboard/TopHubs'
+import { SnmpDistribution } from '@/features/dashboard/SnmpDistribution'
+import { Footer } from '@/features/dashboard/Footer'
+import type { DashboardStats } from '@/features/dashboard/types'
 
 const Dashboard: React.FC = () => {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [currentTime, setCurrentTime] = useState(new Date())
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/stats`,
-      );
-      setStats(response.data);
-      setError(null);
+      const response = await axios.get(`${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/stats`)
+      setStats(response.data)
+      setError(null)
     } catch (err: any) {
-      setError(err.message || "Failed to fetch stats");
+      setError(err.message || 'Failed to fetch stats')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchStats();
-    const statsInterval = setInterval(fetchStats, 30000);
-    const clockInterval = setInterval(() => setCurrentTime(new Date()), 1000);
+    fetchStats()
+    const statsInterval = setInterval(fetchStats, 30000)
+    const clockInterval = setInterval(() => setCurrentTime(new Date()), 1000)
 
     return () => {
-      clearInterval(statsInterval);
-      clearInterval(clockInterval);
-    };
-  }, []);
+      clearInterval(statsInterval)
+      clearInterval(clockInterval)
+    }
+  }, [])
 
   if (loading && !stats)
     return (
       <div className="flex items-center justify-center h-full bg-black text-white font-mono">
         <div className="flex flex-col items-center gap-4">
           <RefreshCcw className="w-8 h-8 animate-spin text-white" />
-          <span className="text-[10px] tracking-[0.3em] uppercase">
-            Loading.Metrics()
-          </span>
+          <span className="text-[10px] tracking-[0.3em] uppercase">Loading.Metrics()</span>
         </div>
       </div>
-    );
+    )
 
   if (error)
     return (
@@ -76,9 +64,9 @@ const Dashboard: React.FC = () => {
           </button>
         </div>
       </div>
-    );
+    )
 
-  if (!stats) return null;
+  if (!stats) return null
 
   return (
     <div className="p-8 bg-black text-white font-mono min-h-screen space-y-8 w-full">
@@ -106,10 +94,7 @@ const Dashboard: React.FC = () => {
         />
         <StatCard
           title="24H Activity"
-          value={
-            stats.activity.updatedNeighbors24h +
-            stats.activity.arpDiscoveries24h
-          }
+          value={stats.activity.updatedNeighbors24h + stats.activity.arpDiscoveries24h}
           icon={Activity}
           subtext={`${stats.activity.arpDiscoveries24h} ARP New Discoveries`}
         />
@@ -132,7 +117,7 @@ const Dashboard: React.FC = () => {
 
       <Footer />
     </div>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default Dashboard

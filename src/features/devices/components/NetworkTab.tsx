@@ -1,9 +1,9 @@
-import React from "react";
-import { RefreshCcw, Box } from "lucide-react";
-import type { DeviceDetail } from "@/features/devices/components/types";
+import React from 'react'
+import { RefreshCcw, Box } from 'lucide-react'
+import type { DeviceDetail } from '@/features/devices/components/types'
 
 interface NetworkTabProps {
-  device: DeviceDetail;
+  device: DeviceDetail
 }
 
 export const NetworkTab: React.FC<NetworkTabProps> = ({ device }) => (
@@ -30,12 +30,8 @@ export const NetworkTab: React.FC<NetworkTabProps> = ({ device }) => (
                   <td className="py-2 text-white font-bold">{route.dest}</td>
                   <td className="py-2 text-neutral-400">{route.nextHop}</td>
                   <td className="py-2 text-neutral-500">IF_{route.ifIndex}</td>
-                  <td className="py-2 text-neutral-600 uppercase italic">
-                    {route.proto}
-                  </td>
-                  <td className="py-2 text-right text-neutral-400 font-bold">
-                    {route.metric1}
-                  </td>
+                  <td className="py-2 text-neutral-600 uppercase italic">{route.proto}</td>
+                  <td className="py-2 text-right text-neutral-400 font-bold">{route.metric1}</td>
                 </tr>
               ))}
             </tbody>
@@ -49,4 +45,4 @@ export const NetworkTab: React.FC<NetworkTabProps> = ({ device }) => (
       </section>
     </div>
   </div>
-);
+)

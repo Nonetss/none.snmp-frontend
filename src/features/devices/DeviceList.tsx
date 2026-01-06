@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 import {
   Server,
   Search,
@@ -10,45 +10,45 @@ import {
   AlertCircle,
   ChevronRight,
   Filter,
-} from "lucide-react";
+} from 'lucide-react'
 
 interface Device {
-  id: number;
-  name: string | null;
-  ipv4: string;
-  sysName: string | null;
-  sysLocation: string | null;
-  sysDescr: string | null;
-  macAddress: string | null;
+  id: number
+  name: string | null
+  ipv4: string
+  sysName: string | null
+  sysLocation: string | null
+  sysDescr: string | null
+  macAddress: string | null
 }
 
 const DeviceList: React.FC = () => {
-  const [devices, setDevices] = useState<Device[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [devices, setDevices] = useState<Device[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
   const fetchDevices = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
       const response = await axios.get(
-        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/device/list`,
-      );
-      setDevices(response.data);
-      setError(null);
+        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/device/list`
+      )
+      setDevices(response.data)
+      setError(null)
     } catch (err: any) {
-      setError(err.message || "Failed to fetch devices");
+      setError(err.message || 'Failed to fetch devices')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchDevices();
-  }, []);
+    fetchDevices()
+  }, [])
 
   const filteredDevices = devices.filter((device) => {
-    const query = searchQuery.toLowerCase();
+    const query = searchQuery.toLowerCase()
     return (
       device.ipv4.toLowerCase().includes(query) ||
       (device.name?.toLowerCase().includes(query) ?? false) ||
@@ -56,20 +56,18 @@ const DeviceList: React.FC = () => {
       (device.sysLocation?.toLowerCase().includes(query) ?? false) ||
       (device.sysDescr?.toLowerCase().includes(query) ?? false) ||
       (device.macAddress?.toLowerCase().includes(query) ?? false)
-    );
-  });
+    )
+  })
 
   if (loading)
     return (
       <div className="flex items-center justify-center h-full bg-black text-white font-mono">
         <div className="flex flex-col items-center gap-4">
           <RefreshCcw className="w-8 h-8 animate-spin text-white" />
-          <span className="text-[10px] tracking-[0.3em] uppercase">
-            Inventory.Loading()
-          </span>
+          <span className="text-[10px] tracking-[0.3em] uppercase">Inventory.Loading()</span>
         </div>
       </div>
-    );
+    )
 
   if (error)
     return (
@@ -85,7 +83,7 @@ const DeviceList: React.FC = () => {
           </button>
         </div>
       </div>
-    );
+    )
 
   return (
     <div className="p-8 bg-black text-white font-mono min-h-screen space-y-8 w-full max-w-[1600px]">
@@ -94,9 +92,7 @@ const DeviceList: React.FC = () => {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-4 bg-white" />
-            <h1 className="text-2xl font-bold tracking-tighter uppercase">
-              Device.Inventory
-            </h1>
+            <h1 className="text-2xl font-bold tracking-tighter uppercase">Device.Inventory</h1>
           </div>
           <p className="text-[9px] text-neutral-500 uppercase tracking-[0.4em]">
             Total discovered units: {devices.length}
@@ -149,20 +145,15 @@ const DeviceList: React.FC = () => {
           </thead>
           <tbody className="divide-y divide-white/5">
             {filteredDevices.map((device) => (
-              <tr
-                key={device.id}
-                className="hover:bg-white/[0.02] group transition-colors"
-              >
-                <td className="p-4 text-[10px] text-neutral-600 font-bold">
-                  #{device.id}
-                </td>
+              <tr key={device.id} className="hover:bg-white/[0.02] group transition-colors">
+                <td className="p-4 text-[10px] text-neutral-600 font-bold">#{device.id}</td>
                 <td className="p-4">
                   <div className="flex flex-col">
                     <span className="text-xs font-bold text-white uppercase tracking-wider group-hover:text-white transition-colors">
-                      {device.name || device.sysName || "UNKNOWN_NODE"}
+                      {device.name || device.sysName || 'UNKNOWN_NODE'}
                     </span>
                     <span className="text-[9px] text-neutral-600 uppercase tracking-tighter">
-                      {device.macAddress || "NO_MAC_ADDR"}
+                      {device.macAddress || 'NO_MAC_ADDR'}
                     </span>
                   </div>
                 </td>
@@ -177,14 +168,14 @@ const DeviceList: React.FC = () => {
                 <td className="p-4">
                   <div className="flex items-center gap-2 text-[10px] text-neutral-500 uppercase">
                     <MapPin className="w-3 h-3" />
-                    <span>{device.sysLocation || "NOT_DEFINED"}</span>
+                    <span>{device.sysLocation || 'NOT_DEFINED'}</span>
                   </div>
                 </td>
                 <td className="p-4 hidden lg:table-cell max-w-xs">
                   <div className="flex items-start gap-2">
                     <Cpu className="w-3 h-3 mt-0.5 text-neutral-700 shrink-0" />
                     <p className="text-[9px] text-neutral-600 line-clamp-2 uppercase leading-relaxed italic">
-                      {device.sysDescr || "No system description available."}
+                      {device.sysDescr || 'No system description available.'}
                     </p>
                   </div>
                 </td>
@@ -223,7 +214,7 @@ const DeviceList: React.FC = () => {
         <div>Last Sync: {new Date().toLocaleTimeString()}</div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default DeviceList;
+export default DeviceList
