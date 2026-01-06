@@ -245,7 +245,19 @@ const SnmpAuthManager: React.FC = () => {
                   </label>
                   <select
                     value={formData.version}
-                    onChange={(e) => setFormData({ ...formData, version: e.target.value as any })}
+                    onChange={(e) => {
+                      const newVersion = e.target.value as any
+                      const newData: Partial<SnmpAuth> = { ...formData, version: newVersion }
+
+                      // Initialize V3 defaults if they don't exist
+                      if (newVersion === 'v3') {
+                        newData.v3Level = newData.v3Level || 'authPriv'
+                        newData.v3AuthProtocol = newData.v3AuthProtocol || 'sha'
+                        newData.v3PrivProtocol = newData.v3PrivProtocol || 'aes'
+                      }
+
+                      setFormData(newData)
+                    }}
                     className="w-full bg-black border border-white/10 p-2 text-xs focus:outline-none focus:border-white/40 uppercase font-mono"
                   >
                     <option value="v1">v1</option>
@@ -303,7 +315,7 @@ const SnmpAuthManager: React.FC = () => {
                       Security Level
                     </label>
                     <select
-                      value={formData.v3Level}
+                      value={formData.v3Level || 'authPriv'}
                       onChange={(e) => setFormData({ ...formData, v3Level: e.target.value as any })}
                       className="w-full bg-black border border-white/10 p-2 text-xs focus:outline-none focus:border-white/40 uppercase font-mono"
                     >
@@ -319,7 +331,7 @@ const SnmpAuthManager: React.FC = () => {
                     </label>
                     <input
                       type="text"
-                      value={formData.v3User}
+                      value={formData.v3User || ''}
                       onChange={(e) => setFormData({ ...formData, v3User: e.target.value })}
                       className="w-full bg-black border border-white/10 p-2 text-xs focus:outline-none focus:border-white/40 font-mono"
                       required
@@ -333,7 +345,7 @@ const SnmpAuthManager: React.FC = () => {
                           Auth Protocol
                         </label>
                         <select
-                          value={formData.v3AuthProtocol}
+                          value={formData.v3AuthProtocol || 'sha'}
                           onChange={(e) =>
                             setFormData({ ...formData, v3AuthProtocol: e.target.value as any })
                           }
@@ -350,7 +362,7 @@ const SnmpAuthManager: React.FC = () => {
                         <div className="relative">
                           <input
                             type={showAuthKey ? 'text' : 'password'}
-                            value={formData.v3AuthKey}
+                            value={formData.v3AuthKey || ''}
                             onChange={(e) =>
                               setFormData({ ...formData, v3AuthKey: e.target.value })
                             }
@@ -372,14 +384,14 @@ const SnmpAuthManager: React.FC = () => {
                     </div>
                   )}
 
-                  {formData.v3Level === 'authPriv' && (
+                  {(formData.v3Level === 'authPriv' || !formData.v3Level) && (
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
                         <label className="text-[10px] text-neutral-500 uppercase font-bold tracking-tighter">
                           Priv Protocol
                         </label>
                         <select
-                          value={formData.v3PrivProtocol}
+                          value={formData.v3PrivProtocol || 'aes'}
                           onChange={(e) =>
                             setFormData({ ...formData, v3PrivProtocol: e.target.value as any })
                           }
@@ -396,7 +408,7 @@ const SnmpAuthManager: React.FC = () => {
                         <div className="relative">
                           <input
                             type={showPrivKey ? 'text' : 'password'}
-                            value={formData.v3PrivKey}
+                            value={formData.v3PrivKey || ''}
                             onChange={(e) =>
                               setFormData({ ...formData, v3PrivKey: e.target.value })
                             }
