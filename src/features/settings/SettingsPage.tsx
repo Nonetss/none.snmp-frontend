@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import SnmpAuthManager from '@/features/settings/SnmpAuthManager'
 import SubnetManager from '@/features/settings/SubnetManager'
-import { Shield, Network } from 'lucide-react'
+import TaskScheduler from '@/features/settings/TaskScheduler'
+import { Shield, Network, Calendar } from 'lucide-react'
 
-type TabId = 'snmp' | 'subnets'
+type TabId = 'snmp' | 'subnets' | 'scheduler'
 
 const SettingsPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabId>('snmp')
+  const [activeTab, setActiveTab] = useState<TabId>('subnets')
 
   // Sync with URL hash for persistence
   useEffect(() => {
     const hash = window.location.hash.replace('#', '') as TabId
-    if (hash === 'snmp' || hash === 'subnets') {
+    if (hash === 'snmp' || hash === 'subnets' || hash === 'scheduler') {
       setActiveTab(hash)
     }
   }, [])
@@ -26,8 +27,19 @@ const SettingsPage: React.FC = () => {
       {/* Tab Navigation */}
       <div className="flex gap-1 border-b border-white/10 max-w-[1200px] mx-auto">
         <button
+          onClick={() => handleTabChange('subnets')}
+          className={`flex items-center gap-2 px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] transition-all border-b-2 ${
+            activeTab === 'subnets'
+              ? 'border-white text-white bg-white/5'
+              : 'border-transparent text-neutral-500 hover:text-white hover:bg-white/5'
+          }`}
+        >
+          <Network className="w-4 h-4" />
+          Subnet_Inventory
+        </button>
+        <button
           onClick={() => handleTabChange('snmp')}
-          className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-[0.2em] transition-all border-b-2 ${
+          className={`flex items-center gap-2 px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] transition-all border-b-2 ${
             activeTab === 'snmp'
               ? 'border-white text-white bg-white/5'
               : 'border-transparent text-neutral-500 hover:text-white hover:bg-white/5'
@@ -37,21 +49,22 @@ const SettingsPage: React.FC = () => {
           SNMP_Auth
         </button>
         <button
-          onClick={() => handleTabChange('subnets')}
-          className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-[0.2em] transition-all border-b-2 ${
-            activeTab === 'subnets'
+          onClick={() => handleTabChange('scheduler')}
+          className={`flex items-center gap-2 px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] transition-all border-b-2 ${
+            activeTab === 'scheduler'
               ? 'border-white text-white bg-white/5'
               : 'border-transparent text-neutral-500 hover:text-white hover:bg-white/5'
           }`}
         >
-          <Network className="w-4 h-4" />
-          Subnet_Inventory
+          <Calendar className="w-4 h-4" />
+          Task_Scheduler
         </button>
       </div>
 
       <div className="max-w-[1200px] mx-auto">
-        {activeTab === 'snmp' && <SnmpAuthManager />}
         {activeTab === 'subnets' && <SubnetManager />}
+        {activeTab === 'snmp' && <SnmpAuthManager />}
+        {activeTab === 'scheduler' && <TaskScheduler />}
       </div>
     </div>
   )
