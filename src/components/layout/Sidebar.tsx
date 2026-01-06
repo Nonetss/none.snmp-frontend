@@ -14,13 +14,15 @@ import {
 
 interface Props {
   initialExpanded?: boolean
+  pathname?: string
 }
 
-const Sidebar: React.FC<Props> = ({ initialExpanded = false }) => {
-  const [currentPath, setCurrentPath] = useState('/')
+const Sidebar: React.FC<Props> = ({ initialExpanded = false, pathname = '/' }) => {
+  const [currentPath, setCurrentPath] = useState(pathname)
   const [isExpanded, setIsExpanded] = useState(initialExpanded)
 
   useEffect(() => {
+    // Keep it in sync if client-side navigation happens without full reload
     setCurrentPath(window.location.pathname)
   }, [])
 
@@ -53,7 +55,7 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false }) => {
             <Cpu className="w-5 h-5 text-white" />
           </div>
           {isExpanded && (
-            <div className="text-[10px] font-black text-white tracking-[0.3em] uppercase whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-300">
+            <div className="text-xs font-black text-white tracking-[0.3em] uppercase whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-300">
               SNMP.v2
             </div>
           )}
@@ -94,7 +96,7 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false }) => {
             >
               <item.icon className="w-5 h-5 min-w-[20px] shrink-0" />
               {isExpanded && (
-                <span className="ml-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap animate-in fade-in duration-500">
+                <span className="ml-4 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap animate-in fade-in duration-500">
                   {item.name}
                 </span>
               )}
@@ -120,7 +122,7 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false }) => {
         >
           <Settings className="w-5 h-5 min-w-[20px] shrink-0" />
           {isExpanded && (
-            <span className="ml-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap animate-in fade-in duration-500">
+            <span className="ml-4 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap animate-in fade-in duration-500">
               System_Settings
             </span>
           )}
@@ -130,13 +132,13 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false }) => {
           <div
             className={`w-full flex items-center gap-4 px-2.5 py-3 bg-white/5 border border-white/5 transition-all ${isExpanded ? 'justify-start' : 'justify-center'}`}
           >
-            <ShieldCheck className="w-4 h-4 text-neutral-500" />
+            <ShieldCheck className="w-4 h-4 text-neutral-400" />
             {isExpanded && (
               <div className="flex flex-col animate-in fade-in duration-500">
-                <span className="text-[7px] text-neutral-600 uppercase font-black">
+                <span className="text-[10px] text-neutral-400 uppercase font-black">
                   Auth.Session
                 </span>
-                <span className="text-[9px] text-white font-bold uppercase truncate">
+                <span className="text-[11px] text-white font-bold uppercase truncate">
                   Admin_Root
                 </span>
               </div>
@@ -149,7 +151,7 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false }) => {
         >
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
           {isExpanded && (
-            <span className="ml-3 text-[8px] text-neutral-500 uppercase tracking-widest font-black animate-in fade-in duration-500">
+            <span className="ml-3 text-[10px] text-neutral-400 uppercase tracking-widest font-black animate-in fade-in duration-500">
               System.Online
             </span>
           )}

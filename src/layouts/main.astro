@@ -6,6 +6,7 @@ const { title } = Astro.props
 // Get sidebar state from cookies
 const sidebarCookie = Astro.cookies.get('sidebar-expanded')
 const initialExpanded = sidebarCookie?.value === 'true'
+const pathname = Astro.url.pathname
 ---
 
 <html lang="en">
@@ -17,7 +18,7 @@ const initialExpanded = sidebarCookie?.value === 'true'
   </head>
   <body class="bg-black text-white selection:bg-white selection:text-black overflow-hidden">
     <div class="flex h-screen w-screen">
-      <Sidebar client:load initialExpanded={initialExpanded} />
+      <Sidebar client:load initialExpanded={initialExpanded} pathname={pathname} />
       <div class="flex-1 h-full overflow-y-auto">
         <slot />
       </div>

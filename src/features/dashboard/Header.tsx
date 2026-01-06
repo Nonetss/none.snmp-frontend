@@ -13,7 +13,7 @@ export const Header: React.FC<HeaderProps> = ({ currentTime }) => (
           Network.Intelligence.Center
         </h1>
       </div>
-      <p className="text-[9px] text-neutral-500 uppercase tracking-[0.4em]">
+      <p className="text-[11px] text-neutral-400 uppercase tracking-[0.4em]">
         Autonomous Monitoring System v2.4.0
       </p>
     </div>
@@ -21,7 +21,7 @@ export const Header: React.FC<HeaderProps> = ({ currentTime }) => (
       <div className="text-xs font-bold text-white mb-1">
         LOCAL_TIME: {currentTime.toLocaleTimeString()}
       </div>
-      <div className="text-[8px] text-neutral-600 uppercase tracking-widest">
+      <div className="text-[10px] text-neutral-400 uppercase tracking-widest">
         System Status: Operational
       </div>
     </div>

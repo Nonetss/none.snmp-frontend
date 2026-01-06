@@ -14,18 +14,18 @@ export const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, su
       <div className="p-2 bg-white/5 border border-white/10 group-hover:border-white/20">
         <Icon className="w-4 h-4 text-white" />
       </div>
-      <div className="text-[8px] font-bold text-neutral-600 uppercase tracking-widest">
+      <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
         Live.Feed
       </div>
     </div>
     <div>
       <div className="text-2xl font-bold text-white tracking-tighter">{value}</div>
-      <div className="text-[9px] text-neutral-500 uppercase font-bold tracking-[0.2em]">
+      <div className="text-[11px] text-neutral-300 uppercase font-bold tracking-[0.2em]">
         {title}
       </div>
     </div>
     {subtext && (
-      <div className="text-[8px] text-neutral-600 border-t border-white/5 pt-2">{subtext}</div>
+      <div className="text-[10px] text-neutral-400 border-t border-white/5 pt-2">{subtext}</div>
     )}
   </div>
 )

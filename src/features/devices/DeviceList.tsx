@@ -134,7 +134,7 @@ const DeviceList: React.FC = () => {
             <div className="w-1.5 h-4 bg-white" />
             <h1 className="text-2xl font-bold tracking-tighter uppercase">Device.Inventory</h1>
           </div>
-          <p className="text-[9px] text-neutral-500 uppercase tracking-[0.4em]">
+          <p className="text-[11px] text-neutral-400 uppercase tracking-[0.4em]">
             Total discovered units: {totalDevices} across {data.length} subnets
           </p>
         </div>
@@ -146,7 +146,7 @@ const DeviceList: React.FC = () => {
               placeholder="SEARCH_DEVICES..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-neutral-900/50 border border-white/10 px-10 py-2 text-xs focus:outline-none focus:border-white/30 w-64 uppercase placeholder:text-neutral-700"
+              className="bg-neutral-900/50 border border-white/10 px-10 py-2 text-xs focus:outline-none focus:border-white/30 w-64 uppercase placeholder:text-neutral-500"
             />
           </div>
           <button
@@ -192,22 +192,22 @@ const DeviceList: React.FC = () => {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-white/5 bg-black/40">
-                      <th className="p-4 text-[9px] font-bold uppercase tracking-widest text-neutral-600 w-16">
+                      <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500 w-16">
                         ID
                       </th>
-                      <th className="p-4 text-[9px] font-bold uppercase tracking-widest text-neutral-600">
+                      <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
                         Device_Identity
                       </th>
-                      <th className="p-4 text-[9px] font-bold uppercase tracking-widest text-neutral-600">
+                      <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
                         Network_Address
                       </th>
-                      <th className="p-4 text-[9px] font-bold uppercase tracking-widest text-neutral-600">
+                      <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
                         Location
                       </th>
-                      <th className="p-4 text-[9px] font-bold uppercase tracking-widest text-neutral-600 hidden lg:table-cell">
+                      <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500 hidden lg:table-cell">
                         System_Specs
                       </th>
-                      <th className="p-4 text-[9px] font-bold uppercase tracking-widest text-neutral-600 text-right">
+                      <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500 text-right">
                         Action
                       </th>
                     </tr>
@@ -215,13 +215,13 @@ const DeviceList: React.FC = () => {
                   <tbody className="divide-y divide-white/5">
                     {subnet.devices.map((device) => (
                       <tr key={device.id} className="hover:bg-white/[0.02] group transition-colors">
-                        <td className="p-4 text-[10px] text-neutral-700 font-bold">#{device.id}</td>
+                        <td className="p-4 text-[11px] text-neutral-500 font-bold">#{device.id}</td>
                         <td className="p-4">
                           <div className="flex flex-col">
                             <span className="text-xs font-bold text-neutral-300 uppercase tracking-wider group-hover:text-white transition-colors">
                               {device.name || device.sysName || 'UNKNOWN_NODE'}
                             </span>
-                            <span className="text-[9px] text-neutral-700 uppercase tracking-tighter">
+                            <span className="text-[10px] text-neutral-500 uppercase tracking-tighter">
                               {device.macAddress || 'NO_MAC_ADDR'}
                             </span>
                           </div>
@@ -229,21 +229,21 @@ const DeviceList: React.FC = () => {
                         <td className="p-4">
                           <div className="flex items-center gap-2">
                             <div className="w-1 h-1 rounded-full bg-white/40 group-hover:bg-white group-hover:animate-pulse transition-all" />
-                            <span className="text-xs font-bold text-neutral-500 group-hover:text-neutral-300 font-mono transition-colors">
+                            <span className="text-xs font-bold text-neutral-400 group-hover:text-neutral-300 font-mono transition-colors">
                               {device.ipv4}
                             </span>
                           </div>
                         </td>
                         <td className="p-4">
-                          <div className="flex items-center gap-2 text-[10px] text-neutral-600 uppercase">
+                          <div className="flex items-center gap-2 text-[11px] text-neutral-500 uppercase">
                             <MapPin className="w-3 h-3" />
                             <span>{device.sysLocation || 'NOT_DEFINED'}</span>
                           </div>
                         </td>
                         <td className="p-4 hidden lg:table-cell max-w-xs">
                           <div className="flex items-start gap-2">
-                            <Cpu className="w-3 h-3 mt-0.5 text-neutral-800 shrink-0" />
-                            <p className="text-[9px] text-neutral-700 line-clamp-1 uppercase italic group-hover:text-neutral-500 transition-colors">
+                            <Cpu className="w-3 h-3 mt-0.5 text-neutral-600 shrink-0" />
+                            <p className="text-[10px] text-neutral-500 line-clamp-1 uppercase italic group-hover:text-neutral-400 transition-colors">
                               {device.sysDescr || 'No system description available.'}
                             </p>
                           </div>

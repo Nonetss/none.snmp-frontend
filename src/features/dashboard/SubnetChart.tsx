@@ -9,10 +9,10 @@ interface SubnetChartProps {
 export const SubnetChart: React.FC<SubnetChartProps> = ({ data }) => (
   <div className="lg:col-span-2 bg-neutral-900/20 border border-white/10 p-6 space-y-6">
     <div className="flex justify-between items-center border-b border-white/10 pb-4">
-      <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] flex items-center gap-2">
+      <h3 className="text-xs font-bold uppercase tracking-[0.3em] flex items-center gap-2">
         <BarChart3 className="w-3.5 h-3.5" /> Subnet_Capacity_Map
       </h3>
-      <span className="text-[8px] text-neutral-600 tracking-widest">
+      <span className="text-[10px] text-neutral-400 tracking-widest">
         X-AXIS: SUBNET_CIDR / Y-AXIS: DEVICE_COUNT
       </span>
     </div>
@@ -22,24 +22,24 @@ export const SubnetChart: React.FC<SubnetChartProps> = ({ data }) => (
           <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f" vertical={false} />
           <XAxis
             dataKey="cidr"
-            stroke="#555"
-            fontSize={8}
+            stroke="#888"
+            fontSize={10}
             tickLine={false}
             axisLine={false}
-            tick={{ fill: '#555' }}
+            tick={{ fill: '#888' }}
           />
           <YAxis
-            stroke="#555"
-            fontSize={8}
+            stroke="#888"
+            fontSize={10}
             tickLine={false}
             axisLine={false}
-            tick={{ fill: '#555' }}
+            tick={{ fill: '#888' }}
           />
           <Tooltip
             contentStyle={{
               backgroundColor: '#000',
               border: '1px solid #333',
-              fontSize: '10px',
+              fontSize: '11px',
             }}
             itemStyle={{ color: '#fff' }}
             cursor={{ fill: 'rgba(255,255,255,0.05)' }}

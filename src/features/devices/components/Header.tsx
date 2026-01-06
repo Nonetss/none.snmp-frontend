@@ -23,7 +23,7 @@ export const Header: React.FC<HeaderProps> = ({ device, polling, onFullPoll, onR
           <div className="w-1.5 h-4 bg-white" />
           <h1 className="text-xl font-bold tracking-tighter uppercase">{device.name}</h1>
         </div>
-        <div className="flex items-center gap-3 text-[9px] text-neutral-500 uppercase tracking-widest font-bold">
+        <div className="flex items-center gap-3 text-[11px] text-neutral-400 uppercase tracking-widest font-bold">
           <span className="flex items-center gap-1">
             <Server className="w-3 h-3" /> ID:{device.id}
           </span>
@@ -37,7 +37,7 @@ export const Header: React.FC<HeaderProps> = ({ device, polling, onFullPoll, onR
       <button
         onClick={onFullPoll}
         disabled={polling}
-        className={`px-4 py-2 border border-white/10 text-[10px] uppercase font-bold transition-all flex items-center gap-2 ${
+        className={`px-4 py-2 border border-white/10 text-xs uppercase font-bold transition-all flex items-center gap-2 ${
           polling ? 'bg-white text-black animate-pulse' : 'hover:bg-white/5'
         }`}
       >
@@ -50,11 +50,11 @@ export const Header: React.FC<HeaderProps> = ({ device, polling, onFullPoll, onR
       </button>
       <button
         onClick={onRescan}
-        className="px-4 py-2 border border-white/10 text-[10px] uppercase font-bold hover:bg-white/5 flex items-center gap-2"
+        className="px-4 py-2 border border-white/10 text-xs uppercase font-bold hover:bg-white/5 flex items-center gap-2"
       >
         <RefreshCcw className="w-3 h-3" /> Re-Scan
       </button>
-      <div className="hidden sm:block px-4 py-2 border border-white/20 bg-white text-black text-[10px] uppercase font-bold">
+      <div className="hidden sm:block px-4 py-2 border border-white/20 bg-white text-black text-xs uppercase font-bold">
         Status: Managed
       </div>
     </div>

@@ -13,14 +13,14 @@ interface InterfaceHealthChartProps {
 export const InterfaceHealthChart: React.FC<InterfaceHealthChartProps> = ({ stats }) => {
   const interfaceData = [
     { name: 'UP', value: stats?.up || 0, color: '#FFFFFF' },
-    { name: 'DOWN', value: stats?.down || 0, color: '#333333' },
-    { name: 'OTHER', value: stats?.other || 0, color: '#111111' },
+    { name: 'DOWN', value: stats?.down || 0, color: '#A3A3A3' },
+    { name: 'OTHER', value: stats?.other || 0, color: '#525252' },
   ]
 
   return (
     <div className="bg-neutral-900/20 border border-white/10 p-6 space-y-6">
       <div className="flex justify-between items-center border-b border-white/10 pb-4">
-        <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] flex items-center gap-2">
+        <h3 className="text-xs font-bold uppercase tracking-[0.3em] flex items-center gap-2">
           <Zap className="w-3.5 h-3.5" /> Interface_Health
         </h3>
       </div>
@@ -44,7 +44,7 @@ export const InterfaceHealthChart: React.FC<InterfaceHealthChartProps> = ({ stat
               contentStyle={{
                 backgroundColor: '#000',
                 border: '1px solid #333',
-                fontSize: '10px',
+                fontSize: '11px',
               }}
               itemStyle={{ color: '#fff' }}
             />
@@ -52,16 +52,16 @@ export const InterfaceHealthChart: React.FC<InterfaceHealthChartProps> = ({ stat
         </ResponsiveContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <span className="text-2xl font-bold tracking-tighter">{stats?.up}</span>
-          <span className="text-[8px] text-neutral-500 uppercase">Active.Ports</span>
+          <span className="text-[10px] text-neutral-400 uppercase">Active.Ports</span>
         </div>
       </div>
       <div className="grid grid-cols-1 gap-2 pt-2">
         {interfaceData.map((item) => (
           <div
             key={item.name}
-            className="flex justify-between items-center text-[9px] border-b border-white/5 pb-1"
+            className="flex justify-between items-center text-[11px] border-b border-white/5 pb-1"
           >
-            <span className="text-neutral-500 flex items-center gap-2 uppercase tracking-widest">
+            <span className="text-neutral-400 flex items-center gap-2 uppercase tracking-widest">
               <div className="w-1.5 h-1.5" style={{ backgroundColor: item.color }} /> {item.name}
             </span>
             <span className="font-bold">{item.value}</span>
