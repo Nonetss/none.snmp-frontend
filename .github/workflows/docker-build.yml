@@ -22,7 +22,7 @@ jobs:
           IMAGE_ID=$(echo $IMAGE_ID | tr '[:upper:]' '[:lower:]')
 
           BRANCH=${{ github.ref_name }}
-          SHA=$(git rev-parse --short=8)
+          SHA=$(git rev-parse --short=8 HEAD)
 
           docker build . \
             -t $IMAGE_ID:latest \
