@@ -70,10 +70,9 @@ const ServiceSearch: React.FC = () => {
   const fetchInventory = async () => {
     setInventoryLoading(true)
     try {
-      const response = await axios.get(
-        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/service/inventory`,
-        { params: { page: invPage, pageSize: PAGE_SIZE } }
-      )
+      const response = await axios.get(`/api/v1/search/service/inventory`, {
+        params: { page: invPage, pageSize: PAGE_SIZE },
+      })
       setInventory(response.data.data || [])
       setInvMeta(response.data.meta || null)
     } catch (err) {
@@ -89,10 +88,9 @@ const ServiceSearch: React.FC = () => {
 
     setFuzzyLoading(true)
     try {
-      const response = await axios.get(
-        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/service/fuzzy`,
-        { params: { name: fuzzyQuery, page: newPage, pageSize: PAGE_SIZE } }
-      )
+      const response = await axios.get(`/api/v1/search/service/fuzzy`, {
+        params: { name: fuzzyQuery, page: newPage, pageSize: PAGE_SIZE },
+      })
       setFuzzyResults(response.data.data || [])
       setFuzzyMeta(response.data.meta || null)
       setFuzzyPage(newPage)
@@ -110,10 +108,9 @@ const ServiceSearch: React.FC = () => {
     setLoading(true)
     setDirectError(null)
     try {
-      const response = await axios.get(
-        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/service/service`,
-        { params: { name: svcName, running: isRunning ? 'true' : 'false' } }
-      )
+      const response = await axios.get(`/api/v1/search/service/service`, {
+        params: { name: svcName, running: isRunning ? 'true' : 'false' },
+      })
       setResults(response.data)
       if (response.data.length === 0) {
         setDirectError(

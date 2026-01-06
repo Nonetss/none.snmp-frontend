@@ -45,7 +45,7 @@ const SnmpAuthManager: React.FC = () => {
   const fetchAuths = async () => {
     setLoading(true)
     try {
-      const response = await axios.get(`${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/snmp/auth`)
+      const response = await axios.get(`/api/v1/snmp/auth`)
       setAuths(response.data)
       setError(null)
     } catch (err: any) {
@@ -64,12 +64,9 @@ const SnmpAuthManager: React.FC = () => {
     setSubmitting(true)
     try {
       if (editingId) {
-        await axios.patch(
-          `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/snmp/auth/${editingId}`,
-          formData
-        )
+        await axios.patch(`/api/v1/snmp/auth/${editingId}`, formData)
       } else {
-        await axios.post(`${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/snmp/auth`, formData)
+        await axios.post(`/api/v1/snmp/auth`, formData)
       }
       setShowForm(false)
       setEditingId(null)
@@ -85,7 +82,7 @@ const SnmpAuthManager: React.FC = () => {
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this configuration?')) return
     try {
-      await axios.delete(`${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/snmp/auth/${id}`)
+      await axios.delete(`/api/v1/snmp/auth/${id}`)
       await fetchAuths()
     } catch (err: any) {
       alert(err.message || 'Failed to delete configuration')

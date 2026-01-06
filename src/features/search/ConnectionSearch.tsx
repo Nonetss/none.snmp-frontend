@@ -55,9 +55,7 @@ const ConnectionSearch: React.FC = () => {
     setError(null)
     try {
       const param = mode === 'mac' ? `mac=${query}` : `ip=${query}`
-      const response = await axios.get(
-        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/connection?${param}`
-      )
+      const response = await axios.get(`/api/v1/search/connection?${param}`)
 
       setResults(response.data)
       if (response.data.length === 0) {

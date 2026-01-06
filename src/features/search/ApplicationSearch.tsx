@@ -71,10 +71,9 @@ const ApplicationSearch: React.FC = () => {
   const fetchInventory = async () => {
     setInventoryLoading(true)
     try {
-      const response = await axios.get(
-        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/resource/inventory`,
-        { params: { page: invPage, pageSize: PAGE_SIZE } }
-      )
+      const response = await axios.get(`/api/v1/search/resource/inventory`, {
+        params: { page: invPage, pageSize: PAGE_SIZE },
+      })
       setInventory(response.data.data || [])
       setInvMeta(response.data.meta || null)
     } catch (err) {
@@ -91,10 +90,9 @@ const ApplicationSearch: React.FC = () => {
 
     setFuzzyLoading(true)
     try {
-      const response = await axios.get(
-        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/resource/fuzzy`,
-        { params: { name: fuzzyQuery, page: newPage, pageSize: PAGE_SIZE } }
-      )
+      const response = await axios.get(`/api/v1/search/resource/fuzzy`, {
+        params: { name: fuzzyQuery, page: newPage, pageSize: PAGE_SIZE },
+      })
       setFuzzyResults(response.data.data || [])
       setFuzzyMeta(response.data.meta || null)
       setFuzzyPage(newPage)
@@ -113,10 +111,9 @@ const ApplicationSearch: React.FC = () => {
     setLoading(true)
     setDirectError(null)
     try {
-      const response = await axios.get(
-        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/resource/resource`,
-        { params: { name: appName, installed: isInstalled ? 'true' : 'false' } }
-      )
+      const response = await axios.get(`/api/v1/search/resource/resource`, {
+        params: { name: appName, installed: isInstalled ? 'true' : 'false' },
+      })
       setResults(response.data)
       if (response.data.length === 0) {
         setDirectError(`No devices found with ${appName} ${isInstalled ? 'installed' : 'missing'}.`)

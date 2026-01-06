@@ -44,9 +44,7 @@ const DeviceIdentify: React.FC = () => {
     setError(null)
     try {
       const param = mode === 'mac' ? `mac=${query}` : `ip=${query}`
-      const response = await axios.get(
-        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/device/identify?${param}`
-      )
+      const response = await axios.get(`/api/v1/search/device/identify?${param}`)
 
       const data = response.data
       setResults(Array.isArray(data) ? data : [])

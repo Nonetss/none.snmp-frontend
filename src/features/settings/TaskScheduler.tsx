@@ -57,8 +57,8 @@ const TaskScheduler: React.FC = () => {
     setLoading(true)
     try {
       const [tasksRes, subnetsRes] = await Promise.all([
-        axios.get(`${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/snmp/scheduler`),
-        axios.get(`${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/snmp/subnet`),
+        axios.get(`/api/v1/snmp/scheduler`),
+        axios.get(`/api/v1/snmp/subnet`),
       ])
       setTasks(tasksRes.data || [])
       setSubnets(subnetsRes.data || [])
@@ -86,12 +86,9 @@ const TaskScheduler: React.FC = () => {
       }
 
       if (editingId) {
-        await axios.patch(
-          `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/snmp/scheduler/${editingId}`,
-          payload
-        )
+        await axios.patch(`/api/v1/snmp/scheduler/${editingId}`, payload)
       } else {
-        await axios.post(`${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/snmp/scheduler`, payload)
+        await axios.post(`/api/v1/snmp/scheduler`, payload)
       }
 
       handleCloseForm()
@@ -130,7 +127,7 @@ const TaskScheduler: React.FC = () => {
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this task?')) return
     try {
-      await axios.delete(`${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/snmp/scheduler/${id}`)
+      await axios.delete(`/api/v1/snmp/scheduler/${id}`)
       await fetchData()
     } catch (err: any) {
       alert(err.message || 'Delete failed')
@@ -139,7 +136,7 @@ const TaskScheduler: React.FC = () => {
 
   const handleToggle = async (task: TaskSchedule) => {
     try {
-      await axios.patch(`${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/snmp/scheduler/${task.id}`, {
+      await axios.patch(`/api/v1/snmp/scheduler/${task.id}`, {
         enabled: !task.enabled,
       })
       await fetchData()

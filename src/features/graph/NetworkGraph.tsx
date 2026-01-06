@@ -65,7 +65,7 @@ const NetworkGraph: React.FC = () => {
   // 2. Peticion al backend
   useEffect(() => {
     const fetchData = async () => {
-      const apiUrl = `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/graph`
+      const apiUrl = `/api/v1/search/graph`
 
       try {
         const response = await axios.get(apiUrl, {

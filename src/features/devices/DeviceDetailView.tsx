@@ -28,9 +28,7 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
   const fetchDevice = async (silent = false) => {
     if (!silent) setLoading(true)
     try {
-      const response = await axios.get(
-        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/device?id=${deviceId}`
-      )
+      const response = await axios.get(`/api/v1/search/device?id=${deviceId}`)
       if (response.data && response.data.length > 0) {
         setDevice(response.data[0])
       } else {
@@ -46,9 +44,7 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
   const handleFullPoll = async () => {
     setPolling(true)
     try {
-      await axios.post(
-        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/snmp/device/poll/${deviceId}/all`
-      )
+      await axios.post(`/api/v1/snmp/device/poll/${deviceId}/all`)
       await fetchDevice(true)
     } catch (err: any) {
       console.error('Poll failed:', err)
