@@ -24,7 +24,7 @@ const Sidebar: React.FC = () => {
   ]
 
   const systemItems = [
-    { name: 'Settings', icon: Settings, path: '#' },
+    { name: 'Settings', icon: Settings, path: '/settings/snmp' },
     { name: 'Terminal', icon: Terminal, path: '#' },
   ]
 
@@ -72,7 +72,13 @@ const Sidebar: React.FC = () => {
           <a
             key={item.name}
             href={item.path}
-            className="flex items-center h-10 px-2 text-neutral-600 hover:text-neutral-400 transition-all group/item cursor-not-allowed opacity-50"
+            className={`flex items-center h-10 px-2 transition-all group/item ${
+              item.path === '#'
+                ? 'text-neutral-600 hover:text-neutral-400 cursor-not-allowed opacity-50'
+                : currentPath.startsWith(item.path)
+                  ? 'bg-white text-black'
+                  : 'text-neutral-500 hover:bg-neutral-900 hover:text-white'
+            }`}
           >
             <item.icon className="w-5 h-5 min-w-[20px]" />
             <span className="ml-4 text-[10px] font-bold uppercase tracking-widest hidden group-hover:block whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">

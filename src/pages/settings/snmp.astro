@@ -1,0 +1,10 @@
+---
+import Main from '@/layouts/main.astro'
+import SettingsPage from '@/features/settings/SettingsPage'
+---
+
+<Main title="Settings.System_Config">
+  <main class="bg-black min-h-screen overflow-x-hidden">
+    <SettingsPage client:only="react" />
+  </main>
+</Main>
