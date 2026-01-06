@@ -1,0 +1,11 @@
+node_modules
+.astro
+dist
+.git
+.husky
+.vscode
+.env
+.env.local
+README.md
+Dockerfile
+docker-compose.yml

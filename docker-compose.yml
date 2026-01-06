@@ -1,0 +1,15 @@
+services:
+  snmp-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - PUBLIC_BACKEND_URL=${PUBLIC_BACKEND_URL:-http://localhost:3000}
+    container_name: snmp-frontend
+    ports:
+      - "4321:4321"
+    environment:
+      - PUBLIC_BACKEND_URL=${PUBLIC_BACKEND_URL:-http://localhost:3000}
+      - HOST=0.0.0.0
+      - PORT=4321
+    restart: unless-stopped
