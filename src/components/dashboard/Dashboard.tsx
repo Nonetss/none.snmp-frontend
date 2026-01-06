@@ -27,9 +27,8 @@ const Dashboard: React.FC = () => {
 
   const fetchStats = async () => {
     try {
-      const hostname = window.location.hostname;
       const response = await axios.get(
-        `http://${hostname}:3000/api/v1/search/stats`,
+        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/stats`,
       );
       setStats(response.data);
       setError(null);

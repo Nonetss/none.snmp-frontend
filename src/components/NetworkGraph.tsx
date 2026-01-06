@@ -65,8 +65,7 @@ const NetworkGraph: React.FC = () => {
   // 2. Peticion al backend con logging
   useEffect(() => {
     const fetchData = async () => {
-      const hostname = window.location.hostname;
-      const apiUrl = `http://${hostname}:3000/api/v1/search/graph`;
+      const apiUrl = `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/graph`;
 
       console.log(`📡 Iniciando petición al backend: ${apiUrl}`);
       try {

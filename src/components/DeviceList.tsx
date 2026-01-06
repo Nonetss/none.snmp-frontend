@@ -31,9 +31,8 @@ const DeviceList: React.FC = () => {
   const fetchDevices = async () => {
     setLoading(true);
     try {
-      const hostname = window.location.hostname;
       const response = await axios.get(
-        `http://${hostname}:3000/api/v1/search/device/list`,
+        `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/device/list`,
       );
       setDevices(response.data);
       setError(null);
