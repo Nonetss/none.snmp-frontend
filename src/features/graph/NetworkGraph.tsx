@@ -67,12 +67,10 @@ const NetworkGraph: React.FC = () => {
     const fetchData = async () => {
       const apiUrl = `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/graph`
 
-      console.log(`📡 Iniciando petición al backend: ${apiUrl}`)
       try {
         const response = await axios.get(apiUrl, {
           headers: { 'Cache-Control': 'no-cache' },
         })
-        console.log('✅ Datos recibidos con éxito:', response.data)
 
         if (response.data && Array.isArray(response.data.nodes)) {
           setRawData({
