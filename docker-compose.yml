@@ -1,11 +1,11 @@
 services:
-  snmp-frontend:
+  none.smnp-frontend:
     build:
       context: .
       dockerfile: Dockerfile
       args:
         - PUBLIC_BACKEND_URL=${PUBLIC_BACKEND_URL:-http://localhost:3000}
-    container_name: snmp-frontend
+    container_name: none.smnp-frontend
     ports:
       - "4321:4321"
     environment:

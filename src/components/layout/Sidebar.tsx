@@ -56,7 +56,7 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false, pathname = '/' }) =
           </div>
           {isExpanded && (
             <div className="text-xs font-black text-white tracking-[0.3em] uppercase whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-300">
-              SNMP.v2
+              NONE.SMNP
             </div>
           )}
         </div>
