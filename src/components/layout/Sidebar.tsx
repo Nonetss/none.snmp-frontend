@@ -54,11 +54,13 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false, pathname = '/' }) =
           <div className="w-8 h-8 shrink-0 border border-white flex items-center justify-center bg-white/5">
             <Cpu className="w-5 h-5 text-white" />
           </div>
-          {isExpanded && (
-            <div className="text-xs font-black text-white tracking-[0.3em] uppercase whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-300">
-              NONE.SMNP
-            </div>
-          )}
+          <div
+            className={`text-xs font-black text-white tracking-[0.3em] uppercase whitespace-nowrap transition-all duration-300 overflow-hidden ${
+              isExpanded ? 'w-auto opacity-100 ml-3' : 'w-0 opacity-0 ml-0'
+            }`}
+          >
+            none.snmp
+          </div>
         </div>
 
         {isExpanded && (
@@ -78,7 +80,6 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false, pathname = '/' }) =
           />
         )}
       </div>
-
       {/* Main Navigation */}
       <nav className="flex-1 w-full space-y-2 px-3">
         {menuItems.map((item) => {
@@ -95,11 +96,13 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false, pathname = '/' }) =
               }`}
             >
               <item.icon className="w-5 h-5 min-w-[20px] shrink-0" />
-              {isExpanded && (
-                <span className="ml-4 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap animate-in fade-in duration-500">
-                  {item.name}
-                </span>
-              )}
+              <span
+                className={`ml-4 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 overflow-hidden ${
+                  isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
+                }`}
+              >
+                {item.name}
+              </span>
               {isActive && (
                 <div
                   className={`absolute left-0 w-0.5 h-6 ${isExpanded ? 'bg-black' : 'bg-white'}`}
@@ -109,7 +112,6 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false, pathname = '/' }) =
           )
         })}
       </nav>
-
       {/* Bottom Navigation (Settings & Status) */}
       <div className="w-full px-3 space-y-4 pt-4 border-t border-white/5">
         <a
@@ -121,11 +123,13 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false, pathname = '/' }) =
           }`}
         >
           <Settings className="w-5 h-5 min-w-[20px] shrink-0" />
-          {isExpanded && (
-            <span className="ml-4 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap animate-in fade-in duration-500">
-              System_Settings
-            </span>
-          )}
+          <span
+            className={`ml-4 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 overflow-hidden ${
+              isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
+            }`}
+          >
+            System_Settings
+          </span>
         </a>
 
         <div className="flex flex-col items-center overflow-hidden">
@@ -133,16 +137,18 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false, pathname = '/' }) =
             className={`w-full flex items-center gap-4 px-2.5 py-3 bg-white/5 border border-white/5 transition-all ${isExpanded ? 'justify-start' : 'justify-center'}`}
           >
             <ShieldCheck className="w-4 h-4 text-neutral-400" />
-            {isExpanded && (
-              <div className="flex flex-col animate-in fade-in duration-500">
-                <span className="text-[10px] text-neutral-400 uppercase font-black">
-                  Auth.Session
-                </span>
-                <span className="text-[11px] text-white font-bold uppercase truncate">
-                  Admin_Root
-                </span>
-              </div>
-            )}
+            <div
+              className={`flex flex-col transition-all duration-300 overflow-hidden ${
+                isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
+              }`}
+            >
+              <span className="text-[10px] text-neutral-400 uppercase font-black whitespace-nowrap">
+                Auth.Session
+              </span>
+              <span className="text-[11px] text-white font-bold uppercase truncate whitespace-nowrap">
+                Admin_Root
+              </span>
+            </div>
           </div>
         </div>
 
@@ -150,13 +156,15 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false, pathname = '/' }) =
           className={`flex items-center h-8 transition-all ${isExpanded ? 'px-2.5' : 'justify-center'}`}
         >
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-          {isExpanded && (
-            <span className="ml-3 text-[10px] text-neutral-400 uppercase tracking-widest font-black animate-in fade-in duration-500">
-              System.Online
-            </span>
-          )}
+          <span
+            className={`ml-3 text-[10px] text-neutral-400 uppercase tracking-widest font-black transition-all duration-300 overflow-hidden ${
+              isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
+            }`}
+          >
+            System.Online
+          </span>
         </div>
-      </div>
+      </div>{' '}
     </aside>
   )
 }
