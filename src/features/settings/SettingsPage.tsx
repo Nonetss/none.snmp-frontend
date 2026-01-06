@@ -8,13 +8,25 @@ type TabId = 'snmp' | 'subnets'
 const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabId>('snmp')
 
-  // Sync with URL if needed or just use state
+  // Sync with URL hash for persistence
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '') as TabId
+    if (hash === 'snmp' || hash === 'subnets') {
+      setActiveTab(hash)
+    }
+  }, [])
+
+  const handleTabChange = (tab: TabId) => {
+    setActiveTab(tab)
+    window.location.hash = tab
+  }
+
   return (
     <div className="p-8 bg-black text-white font-mono min-h-screen space-y-8 w-full">
       {/* Tab Navigation */}
       <div className="flex gap-1 border-b border-white/10 max-w-[1200px] mx-auto">
         <button
-          onClick={() => setActiveTab('snmp')}
+          onClick={() => handleTabChange('snmp')}
           className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-[0.2em] transition-all border-b-2 ${
             activeTab === 'snmp'
               ? 'border-white text-white bg-white/5'
@@ -25,7 +37,7 @@ const SettingsPage: React.FC = () => {
           SNMP_Auth
         </button>
         <button
-          onClick={() => setActiveTab('subnets')}
+          onClick={() => handleTabChange('subnets')}
           className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-[0.2em] transition-all border-b-2 ${
             activeTab === 'subnets'
               ? 'border-white text-white bg-white/5'
