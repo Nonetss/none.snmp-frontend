@@ -6,6 +6,7 @@ import { Controls } from '@/features/graph/components/Controls'
 import { SettingsPanel } from '@/features/graph/components/SettingsPanel'
 import { NodeDetails } from '@/features/graph/components/NodeDetails'
 import type { GraphData, GraphNode } from '@/features/graph/components/types'
+import { Info, Activity, Share2, Box } from 'lucide-react'
 
 const NetworkGraph: React.FC = () => {
   const [rawData, setRawData] = useState<GraphData | null>(null)
@@ -56,13 +57,12 @@ const NetworkGraph: React.FC = () => {
     }
 
     window.addEventListener('resize', handleResize)
-    // Trigger initial resize
     handleResize()
 
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // 2. Peticion al backend con logging
+  // 2. Peticion al backend
   useEffect(() => {
     const fetchData = async () => {
       const apiUrl = `${import.meta.env.PUBLIC_BACKEND_URL}/api/v1/search/graph`
@@ -78,11 +78,9 @@ const NetworkGraph: React.FC = () => {
             edges: response.data.edges || [],
           })
         } else {
-          console.error('❌ Formato de datos inválido:', response.data)
           setError('El backend devolvió un formato de datos inesperado')
         }
       } catch (err: any) {
-        console.error('❌ Error en la petición:', err)
         setError(`Error de conexión: ${err.message || 'Servidor no disponible'}`)
       } finally {
         setLoading(false)
@@ -92,23 +90,18 @@ const NetworkGraph: React.FC = () => {
     fetchData()
   }, [])
 
-  // 4. Aplicar fuerzas de la simulación
+  // 4. Aplicar fuerzas
   useEffect(() => {
     if (fgRef.current) {
-      // Repulsión (Carga)
       fgRef.current.d3Force('charge').strength(forceStrength)
-
-      // Distancia de los enlaces
       fgRef.current.d3Force('link').distance((link: any) => {
         return link.type === 'internal' ? 30 : linkDistance
       })
-
-      // Re-calentar la simulación para que se muevan
       fgRef.current.d3ReheatSimulation()
     }
   }, [forceStrength, linkDistance, ForceGraph2D, rawData])
 
-  // 5. Lógica de procesamiento de datos (Filtros y Puertos)
+  // 5. Procesamiento de datos
   const processedData = useMemo(() => {
     if (!rawData) return { nodes: [], links: [] }
 
@@ -202,11 +195,7 @@ const NetworkGraph: React.FC = () => {
             n.label?.toLowerCase().includes(q) ||
             n.ip?.toLowerCase().includes(q) ||
             n.details?.system?.sysDescr?.toLowerCase().includes(q) ||
-            n.details?.system?.sysName?.toLowerCase().includes(q) ||
-            n.details?.interfaces?.some(
-              (i: any) =>
-                i.ifName?.toLowerCase().includes(q) || i.ifDescr?.toLowerCase().includes(q)
-            )
+            n.details?.system?.sysName?.toLowerCase().includes(q)
           )
         })
         .map((n) => n.id)
@@ -240,8 +229,9 @@ const NetworkGraph: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className="relative flex flex-col w-full h-screen overflow-hidden bg-black transition-all font-mono"
+      className="relative flex flex-col w-full h-screen overflow-hidden bg-black transition-all font-mono selection:bg-white selection:text-black"
     >
+      {/* HUD: Controls */}
       <Controls
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -255,6 +245,58 @@ const NetworkGraph: React.FC = () => {
           fgRef.current.zoomToFit(400)
         }}
       />
+
+      {/* HUD: Legend */}
+      <div className="absolute bottom-20 left-8 z-50 flex flex-col gap-3 bg-black/60 backdrop-blur-md border border-white/10 p-4 pointer-events-none">
+        <div className="text-[8px] font-black text-neutral-500 uppercase tracking-[0.2em] mb-1">
+          Topology_Legend
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="w-2.5 h-2.5 rounded-full border border-blue-500/50 bg-blue-500/20" />
+          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
+            Managed Node
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="w-2.5 h-2.5 bg-emerald-500/20 border border-emerald-500/50 rotate-45" />
+          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
+            Access Port
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="w-4 h-0.5 bg-neutral-800" />
+          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
+            Physical Link
+          </span>
+        </div>
+      </div>
+
+      {/* HUD: Status Bar */}
+      <div className="absolute bottom-0 left-0 w-full z-50 bg-black/80 backdrop-blur-md border-t border-white/10 p-3 flex items-center justify-between px-8">
+        <div className="flex items-center gap-8">
+          <div className="flex items-center gap-2">
+            <Activity className="w-3.5 h-3.5 text-emerald-500" />
+            <span className="text-[10px] font-black text-white uppercase tracking-widest">
+              Engine: Active
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-neutral-500">
+            <Box className="w-3.5 h-3.5" />
+            <span className="text-[10px] font-bold uppercase tracking-widest">
+              Nodes: {processedData.nodes.length}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-neutral-500">
+            <Share2 className="w-3.5 h-3.5" />
+            <span className="text-[10px] font-bold uppercase tracking-widest">
+              Edges: {processedData.links.length}
+            </span>
+          </div>
+        </div>
+        <div className="text-[9px] text-neutral-600 font-bold uppercase tracking-widest italic">
+          Resolution: D3-Force Realtime Simulation
+        </div>
+      </div>
 
       {showSettings && (
         <SettingsPanel
@@ -292,12 +334,24 @@ const NetworkGraph: React.FC = () => {
         linkDirectionalParticleSpeed={0.004}
         linkDirectionalParticleWidth={2}
         linkCurvature={0.1}
-        linkColor={
-          (l: any) =>
-            hoverNode &&
-            (getID(l.source) === getID(hoverNode) || getID(l.target) === getID(hoverNode))
-              ? '#ffffff' // Pure white on hover
-              : '#1a1a1a' // Very dark grey for default links
+        nodeLabel={(node: any) => {
+          const type = node.type === 'port' ? 'PORT' : 'DEVICE'
+          return `
+            <div class="bg-black/90 border border-white/20 p-2 text-[10px] font-mono leading-tight shadow-2xl">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="px-1 bg-white/10 text-neutral-400 text-[8px] font-black uppercase tracking-tighter">${type}</span>
+                <span class="text-white font-black uppercase">${node.label || node.id}</span>
+              </div>
+              ${node.ip ? `<div class="text-neutral-500">ADDR: ${node.ip}</div>` : ''}
+              ${node.parentId ? `<div class="text-neutral-600 text-[8px]">PARENT: ${node.parentId}</div>` : ''}
+            </div>
+          `
+        }}
+        linkColor={(l: any) =>
+          hoverNode &&
+          (getID(l.source) === getID(hoverNode) || getID(l.target) === getID(hoverNode))
+            ? '#ffffff'
+            : '#1a1a1a'
         }
         nodeCanvasObject={(node: any, ctx: any, globalScale: number) => {
           if (!node || node.x === undefined || node.y === undefined) return
@@ -310,10 +364,10 @@ const NetworkGraph: React.FC = () => {
           const safeScale = Math.max(0.1, globalScale)
 
           // Colors
-          const primaryColor = '#0ea5e9' // Sky blue
-          const portColor = '#10b981' // Emerald
-          const selectedColor = '#f43f5e' // Rose
-          const hoverColor = '#eab308' // Yellow
+          const primaryColor = '#0ea5e9'
+          const portColor = '#10b981'
+          const selectedColor = '#f43f5e'
+          const hoverColor = '#eab308'
           const baseColor = isSelected
             ? selectedColor
             : isHovered
@@ -323,71 +377,56 @@ const NetworkGraph: React.FC = () => {
                 : primaryColor
 
           ctx.save()
-
-          // Glow effect for "Terminal" feel
           ctx.shadowColor = baseColor
           ctx.shadowBlur = isSelected || isHovered ? 15 : 0
 
           if (isPort) {
             ctx.translate(node.x, node.y)
             ctx.rotate(Math.PI / 4)
-
-            // Port shape (Diamond)
-            ctx.fillStyle = isHovered || isSelected ? '#ffffff' : '#1e293b' // Dark center
+            ctx.fillStyle = isHovered || isSelected ? '#ffffff' : '#1e293b'
             ctx.strokeStyle = baseColor
             ctx.lineWidth = 1.5 / safeScale
-
             ctx.beginPath()
             ctx.rect(-size, -size, size * 2, size * 2)
             ctx.fill()
             ctx.stroke()
           } else {
-            // Main Node Styling (Circle)
             ctx.beginPath()
             ctx.arc(node.x, node.y, size, 0, 2 * Math.PI, false)
-
-            ctx.fillStyle = '#0f172a' // Slate-900 background
+            ctx.fillStyle = '#0f172a'
             ctx.fill()
-
             ctx.strokeStyle = baseColor
             ctx.lineWidth = 2 / safeScale
             ctx.stroke()
-
-            // Inner dot for "active" look
             ctx.beginPath()
             ctx.arc(node.x, node.y, size * 0.4, 0, 2 * Math.PI, false)
             ctx.fillStyle = baseColor
             ctx.fill()
 
-            // Outer ring selection
             if (isSelected || isHovered) {
               ctx.beginPath()
               ctx.arc(node.x, node.y, size + 4, 0, 2 * Math.PI, false)
               ctx.strokeStyle = baseColor
               ctx.lineWidth = 1 / safeScale
-              ctx.setLineDash([2, 2]) // Dotted line
+              ctx.setLineDash([2, 2])
               ctx.stroke()
-              ctx.setLineDash([]) // Reset
+              ctx.setLineDash([])
             }
           }
           ctx.restore()
 
-          // Text Labels - Monospace Retro
+          // Text Labels
           const shouldShowLabel = isPort ? showPortLabels : showNodeLabels
           if (shouldShowLabel && (safeScale > 1.2 || isSelected || isHovered)) {
             const fontSize = (isPort ? 8 : 12) / safeScale
             ctx.font = `${isSelected ? 'bold ' : ''}${fontSize}px 'Courier New', monospace`
             ctx.textAlign = 'center'
             ctx.textBaseline = 'top'
-
-            // Text Background for readability
             const label = node.label || node.id || 'N/A'
             const textWidth = ctx.measureText(label).width
-
             ctx.fillStyle = 'rgba(0, 0, 0, 0.7)'
             ctx.fillRect(node.x - textWidth / 2 - 2, node.y + size + 4, textWidth + 4, fontSize + 4)
-
-            ctx.fillStyle = isSelected ? selectedColor : '#94a3b8' // Slate-400 default text
+            ctx.fillStyle = isSelected ? selectedColor : '#94a3b8'
             ctx.fillText(label, node.x, node.y + size + 6)
           }
         }}
