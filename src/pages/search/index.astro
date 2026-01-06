@@ -1,0 +1,10 @@
+---
+import Main from '@/layouts/main.astro'
+import SearchPage from '@/features/search/SearchPage'
+---
+
+<Main title="Network.Search_Engine">
+  <main class="bg-black min-h-screen overflow-x-hidden">
+    <SearchPage client:only="react" />
+  </main>
+</Main>
