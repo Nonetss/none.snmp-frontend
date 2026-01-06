@@ -1,6 +1,6 @@
 import React from "react";
 import { RefreshCcw, Box } from "lucide-react";
-import type { DeviceDetail } from "./types";
+import type { DeviceDetail } from "@/features/devices/components/types";
 
 interface NetworkTabProps {
   device: DeviceDetail;

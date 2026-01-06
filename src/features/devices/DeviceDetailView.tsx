@@ -2,17 +2,17 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { RefreshCcw, AlertCircle } from "lucide-react";
 
-import { Header } from "./device-detail/Header";
-import { TabsNav } from "./device-detail/TabsNav";
-import { DashboardTab } from "./device-detail/DashboardTab";
-import { InterfacesTab } from "./device-detail/InterfacesTab";
-import { NetworkTab } from "./device-detail/NetworkTab";
-import { DiscoveryTab } from "./device-detail/DiscoveryTab";
-import { InventoryTab } from "./device-detail/InventoryTab";
-import { BridgeTab } from "./device-detail/BridgeTab";
-import { ServicesTab } from "./device-detail/ServicesTab";
-import { ApplicationsTab } from "./device-detail/ApplicationsTab";
-import type { DeviceDetail, TabId } from "./device-detail/types";
+import { Header } from "@/features/devices/components/Header";
+import { TabsNav } from "@/features/devices/components/TabsNav";
+import { DashboardTab } from "@/features/devices/components/DashboardTab";
+import { InterfacesTab } from "@/features/devices/components/InterfacesTab";
+import { NetworkTab } from "@/features/devices/components/NetworkTab";
+import { DiscoveryTab } from "@/features/devices/components/DiscoveryTab";
+import { InventoryTab } from "@/features/devices/components/InventoryTab";
+import { BridgeTab } from "@/features/devices/components/BridgeTab";
+import { ServicesTab } from "@/features/devices/components/ServicesTab";
+import { ApplicationsTab } from "@/features/devices/components/ApplicationsTab";
+import type { DeviceDetail, TabId } from "@/features/devices/components/types";
 
 interface Props {
   deviceId: string;

@@ -8,7 +8,7 @@ import {
   List,
   Cpu,
 } from "lucide-react";
-import type { TabId } from "./types";
+import type { TabId } from "@/features/devices/components/types";
 
 interface TabsNavProps {
   activeTab: TabId;

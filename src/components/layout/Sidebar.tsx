@@ -11,9 +11,11 @@ import {
 } from "lucide-react";
 
 const Sidebar: React.FC = () => {
-  // Get current path to highlight active link
-  const currentPath =
-    typeof window !== "undefined" ? window.location.pathname : "/";
+  const [currentPath, setCurrentPath] = React.useState("/");
+
+  React.useEffect(() => {
+    setCurrentPath(window.location.pathname);
+  }, []);
 
   const menuItems = [
     { name: "Dashboard", icon: LayoutDashboard, path: "/" },

@@ -1,6 +1,10 @@
 import React, { useState, useMemo } from "react";
 import { Network, Activity, Filter } from "lucide-react";
-import type { DeviceDetail, Interface, AddrEntry } from "./types";
+import type {
+  DeviceDetail,
+  Interface,
+  AddrEntry,
+} from "@/features/devices/components/types";
 
 interface InterfacesTabProps {
   device: DeviceDetail;

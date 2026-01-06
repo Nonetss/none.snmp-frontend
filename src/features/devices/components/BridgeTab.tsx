@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { Box, Network, Layers, Hash } from "lucide-react";
-import type { DeviceDetail, Port, Fdb, FdbQ, Vlan } from "./types";
+import type {
+  DeviceDetail,
+  Port,
+  Fdb,
+  FdbQ,
+  Vlan,
+} from "@/features/devices/components/types";
 
 interface BridgeTabProps {
   device: DeviceDetail;

@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import axios from "axios";
-import { LoadingScreen } from "./network-graph/LoadingScreen";
-import { ErrorScreen } from "./network-graph/ErrorScreen";
-import { Controls } from "./network-graph/Controls";
-import { SettingsPanel } from "./network-graph/SettingsPanel";
-import { NodeDetails } from "./network-graph/NodeDetails";
-import type { GraphData, GraphNode } from "./network-graph/types";
+import { LoadingScreen } from "@/features/graph/components/LoadingScreen";
+import { ErrorScreen } from "@/features/graph/components/ErrorScreen";
+import { Controls } from "@/features/graph/components/Controls";
+import { SettingsPanel } from "@/features/graph/components/SettingsPanel";
+import { NodeDetails } from "@/features/graph/components/NodeDetails";
+import type { GraphData, GraphNode } from "@/features/graph/components/types";
 
 const NetworkGraph: React.FC = () => {
   const [rawData, setRawData] = useState<GraphData | null>(null);

@@ -7,7 +7,12 @@ import {
   Activity,
   Network as NetworkIcon,
 } from "lucide-react";
-import type { DeviceDetail, TabId, AddrEntry, Resource } from "./types";
+import type {
+  DeviceDetail,
+  TabId,
+  AddrEntry,
+  Resource,
+} from "@/features/devices/components/types";
 
 interface DashboardTabProps {
   device: DeviceDetail;

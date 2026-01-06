@@ -1,6 +1,6 @@
 import React from "react";
 import { X, Shield, MapPin, User } from "lucide-react";
-import type { GraphNode } from "./types";
+import type { GraphNode } from "@/features/graph/components/types";
 
 interface NodeDetailsProps {
   node: GraphNode;

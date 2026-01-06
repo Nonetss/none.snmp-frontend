@@ -1,6 +1,9 @@
 import React, { useState, useMemo } from "react";
 import { List, Shield, Database, Search, X } from "lucide-react";
-import type { DeviceDetail, Service } from "./types";
+import type {
+  DeviceDetail,
+  Service,
+} from "@/features/devices/components/types";
 
 interface ServicesTabProps {
   device: DeviceDetail;

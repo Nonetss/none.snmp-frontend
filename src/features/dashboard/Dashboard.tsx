@@ -10,14 +10,14 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-import { Header } from "./Header";
-import { StatCard } from "./StatCard";
-import { SubnetChart } from "./SubnetChart";
-import { InterfaceHealthChart } from "./InterfaceHealthChart";
-import { TopHubs } from "./TopHubs";
-import { SnmpDistribution } from "./SnmpDistribution";
-import { Footer } from "./Footer";
-import type { DashboardStats } from "./types";
+import { Header } from "@/features/dashboard/Header";
+import { StatCard } from "@/features/dashboard/StatCard";
+import { SubnetChart } from "@/features/dashboard/SubnetChart";
+import { InterfaceHealthChart } from "@/features/dashboard/InterfaceHealthChart";
+import { TopHubs } from "@/features/dashboard/TopHubs";
+import { SnmpDistribution } from "@/features/dashboard/SnmpDistribution";
+import { Footer } from "@/features/dashboard/Footer";
+import type { DashboardStats } from "@/features/dashboard/types";
 
 const Dashboard: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);

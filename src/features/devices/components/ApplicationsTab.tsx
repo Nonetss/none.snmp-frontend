@@ -1,6 +1,9 @@
 import React, { useState, useMemo } from "react";
 import { Cpu, Layers, Search, X } from "lucide-react";
-import type { DeviceDetail, Application } from "./types";
+import type {
+  DeviceDetail,
+  Application,
+} from "@/features/devices/components/types";
 
 interface ApplicationsTabProps {
   device: DeviceDetail;

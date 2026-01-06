@@ -13,7 +13,7 @@ export default defineConfig({
     allowedHosts: ["dev.noneweb.online"],
   },
   vite: {
-    envPrefix: "OIDC_",
+    envPrefix: "PUBLIC_",
     plugins: [tailwindcss()],
   },
   integrations: [react()],

@@ -1,6 +1,6 @@
 import React from "react";
 import { Network, ChevronRight } from "lucide-react";
-import type { DeviceDetail } from "./types";
+import type { DeviceDetail } from "@/features/devices/components/types";
 
 interface DiscoveryTabProps {
   device: DeviceDetail;
