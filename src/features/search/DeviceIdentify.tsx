@@ -62,63 +62,57 @@ const DeviceIdentify: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 max-w-5xl mx-auto">
+    <div className="space-y-8 animate-in fade-in duration-500 w-full">
       {/* Identity Console Card */}
-      <div className="bg-neutral-900/40 border border-white/10 shadow-2xl overflow-hidden">
-        {/* Internal Tabs */}
-        <div className="flex border-b border-white/10 bg-white/5">
-          <button
-            onClick={() => setMode('ip')}
-            className={`flex-1 flex items-center justify-center gap-2 py-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${
-              mode === 'ip'
-                ? 'bg-white text-black'
-                : 'text-neutral-500 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Network className="w-4 h-4" />
-            Identify_by_IP
-          </button>
-          <button
-            onClick={() => setMode('mac')}
-            className={`flex-1 flex items-center justify-center gap-2 py-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${
-              mode === 'mac'
-                ? 'bg-white text-black'
-                : 'text-neutral-500 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Fingerprint className="w-4 h-4" />
-            Identify_by_MAC
-          </button>
-        </div>
-
-        {/* Input Area */}
-        <div className="p-8 space-y-6">
-          <div className="space-y-2">
-            <h2 className="text-lg font-bold tracking-tighter uppercase flex items-center gap-2">
-              <div className="w-1 h-4 bg-white" />
-              Identity.Resolver()
-            </h2>
+      <div className="bg-neutral-900/20 border border-white/10 shadow-sm overflow-hidden">
+        {/* Header - Dashboard Style */}
+        <div className="flex justify-between items-center border-b border-white/10 p-6 bg-white/[0.02]">
+          <div className="space-y-1">
+            <h3 className="text-xs font-bold uppercase tracking-[0.3em] flex items-center gap-2">
+              <Fingerprint className="w-4 h-4" /> Identity.Resolver()
+            </h3>
             <p className="text-[10px] text-neutral-500 uppercase tracking-widest">
-              Identify managed equipment by cross-referencing {mode.toUpperCase()} signatures in the
-              system database.
+              Database signature cross-reference
             </p>
           </div>
 
+          <div className="flex bg-black border border-white/10 p-1">
+            <button
+              onClick={() => setMode('ip')}
+              className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all ${
+                mode === 'ip' ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'
+              }`}
+            >
+              IP_Mode
+            </button>
+            <button
+              onClick={() => setMode('mac')}
+              className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all ${
+                mode === 'mac' ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'
+              }`}
+            >
+              MAC_Mode
+            </button>
+          </div>
+        </div>
+
+        {/* Input Area */}
+        <div className="p-8">
           <form onSubmit={handleIdentify} className="flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={mode === 'ip' ? '172.19.X.X' : '00:AA:BB...'}
-                className="w-full bg-black border border-white/10 pl-10 pr-4 py-4 text-sm focus:outline-none focus:border-white/40 uppercase font-mono transition-all placeholder:text-neutral-800"
+                placeholder={mode === 'ip' ? 'INPUT_IP_ADDRESS...' : 'INPUT_MAC_ADDRESS...'}
+                className="w-full bg-black/50 border border-white/10 pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-white/30 uppercase font-mono transition-all placeholder:text-neutral-700"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="px-10 bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-neutral-200 transition-all disabled:opacity-50 flex items-center justify-center min-w-[160px]"
+              className="px-8 bg-white text-black text-[11px] font-bold uppercase tracking-widest hover:bg-neutral-200 transition-all disabled:opacity-50 flex items-center justify-center min-w-[140px]"
             >
               {loading ? <RefreshCcw className="w-4 h-4 animate-spin" /> : 'Identify_Now'}
             </button>
@@ -127,7 +121,7 @@ const DeviceIdentify: React.FC = () => {
       </div>
 
       {error && (
-        <div className="p-4 border border-red-500/50 bg-red-500/5 flex items-center gap-3 text-red-500 text-[10px] font-bold uppercase tracking-widest animate-in slide-in-from-top-2">
+        <div className="p-4 border border-red-500/50 bg-red-500/5 flex items-center gap-3 text-red-500 text-[11px] font-bold uppercase tracking-widest animate-in slide-in-from-top-2">
           <ShieldAlert className="w-4 h-4" /> {error}
         </div>
       )}
@@ -148,11 +142,11 @@ const DeviceIdentify: React.FC = () => {
                   <h3 className="text-lg font-black text-white uppercase tracking-tighter italic">
                     {device.name || device.sysName || 'UNKNOWN_DEVICE'}
                   </h3>
-                  <span className="px-2 py-0.5 bg-white text-black text-[8px] font-black uppercase tracking-widest">
+                  <span className="px-2 py-0.5 bg-white text-black text-[10px] font-black uppercase tracking-widest">
                     ID: {device.id}
                   </span>
                 </div>
-                <div className="flex items-center gap-4 text-[10px] font-mono text-neutral-500">
+                <div className="flex items-center gap-4 text-[11px] font-mono text-neutral-400">
                   <span className="flex items-center gap-1.5">
                     <Network className="w-3 h-3" /> {device.managementIp}
                   </span>
@@ -166,10 +160,10 @@ const DeviceIdentify: React.FC = () => {
 
             <div className="flex items-center gap-4">
               <div className="text-right hidden md:block">
-                <div className="text-[8px] text-neutral-600 uppercase font-black tracking-[0.2em]">
+                <div className="text-[10px] text-neutral-500 uppercase font-black tracking-[0.2em]">
                   Verified_Identity
                 </div>
-                <div className="text-[10px] text-emerald-500 font-bold uppercase">
+                <div className="text-[11px] text-emerald-500 font-bold uppercase">
                   System.Managed
                 </div>
               </div>
