@@ -68,19 +68,33 @@ const SnmpAuthManager: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
     setSubmitting(true)
+
     try {
-      if (editingId) {
-        await axios.patch(`/api/v1/snmp/auth/${editingId}`, formData)
-      } else {
-        await axios.post(`/api/v1/snmp/auth`, formData)
+      // Ensure community is at least an empty string if not provided (required by API schema)
+
+      const payload = {
+        ...formData,
+
+        community: formData.community || '',
       }
+
+      if (editingId) {
+        await axios.patch(`/api/v1/snmp/auth/${editingId}`, payload)
+      } else {
+        await axios.post(`/api/v1/snmp/auth`, payload)
+      }
+
       setShowForm(false)
+
       setEditingId(null)
+
       setFormData({ version: 'v2c', port: 161, community: 'public' })
+
       await fetchAuths()
     } catch (err: any) {
-      alert(err.message || 'Failed to save configuration')
+      alert(err.response?.data?.message || err.message || 'Failed to save configuration')
     } finally {
       setSubmitting(false)
     }
@@ -148,10 +162,10 @@ const SnmpAuthManager: React.FC = () => {
             className="group relative border border-white/10 bg-neutral-900/20 p-6 space-y-4 hover:border-white/30 transition-all"
           >
             <div className="flex justify-between items-start">
-              <div className="px-2 py-1 bg-white/10 text-[9px] font-bold uppercase tracking-widest text-white">
+              <div className="px-2 py-1 bg-white/10 text-[10px] font-bold uppercase tracking-widest text-white">
                 {auth.version}
               </div>
-              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex gap-2">
                 <button
                   onClick={() => handleEdit(auth)}
                   className="p-1 text-neutral-500 hover:text-white transition-colors"
@@ -168,26 +182,26 @@ const SnmpAuthManager: React.FC = () => {
             </div>
 
             <div className="space-y-3">
-              <div className="flex items-center gap-3 text-neutral-400">
+              <div className="flex items-center gap-3 text-neutral-300">
                 <Shield className="w-4 h-4" />
                 <span className="text-xs font-bold uppercase tracking-tighter">
-                  {auth.community || auth.v3User}
+                  {auth.version === 'v3' ? auth.v3User : auth.community}
                 </span>
               </div>
-              <div className="flex items-center gap-3 text-neutral-600">
+              <div className="flex items-center gap-3 text-neutral-500">
                 <Hash className="w-4 h-4" />
-                <span className="text-[10px]">Port: {auth.port}</span>
+                <span className="text-[11px]">Port: {auth.port}</span>
               </div>
               {auth.version === 'v3' && (
                 <div className="pt-2 border-t border-white/5 space-y-2">
-                  <div className="flex items-center gap-2 text-[9px] text-neutral-500 uppercase">
+                  <div className="flex items-center gap-2 text-[10px] text-neutral-400 uppercase">
                     <Lock className="w-3 h-3" /> {auth.v3Level}
                   </div>
                   <div className="flex gap-2">
-                    <span className="text-[8px] px-1 border border-white/10 text-neutral-600 uppercase">
+                    <span className="text-[9px] px-1 border border-white/10 text-neutral-400 uppercase">
                       {auth.v3AuthProtocol || 'no-auth'}
                     </span>
-                    <span className="text-[8px] px-1 border border-white/10 text-neutral-600 uppercase">
+                    <span className="text-[9px] px-1 border border-white/10 text-neutral-400 uppercase">
                       {auth.v3PrivProtocol || 'no-priv'}
                     </span>
                   </div>
@@ -200,8 +214,12 @@ const SnmpAuthManager: React.FC = () => {
 
       {/* Modal Form */}
       {showForm && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md bg-neutral-950 border border-white/20 shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden">
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/90 backdrop-blur-sm transition-opacity"
+            onClick={() => setShowForm(false)}
+          />
+          <div className="relative w-full max-w-md bg-neutral-950 border border-white/20 shadow-[0_0_50px_-12px_rgba(255,255,255,0.3)] animate-in zoom-in-95 duration-200 overflow-hidden">
             {/* Modal Header */}
             <div className="flex justify-between items-center p-4 border-b border-white/10 bg-white/5">
               <div className="flex items-center gap-2">
