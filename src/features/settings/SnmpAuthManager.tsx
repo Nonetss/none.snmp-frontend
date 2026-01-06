@@ -13,6 +13,8 @@ import {
   Key,
   User,
   Hash,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 
 interface SnmpAuth {
@@ -35,6 +37,11 @@ const SnmpAuthManager: React.FC = () => {
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
+
+  // Visibility states
+  const [showCommunity, setShowCommunity] = useState(false)
+  const [showAuthKey, setShowAuthKey] = useState(false)
+  const [showPrivKey, setShowPrivKey] = useState(false)
 
   const [formData, setFormData] = useState<Partial<SnmpAuth>>({
     version: 'v2c',
@@ -249,13 +256,24 @@ const SnmpAuthManager: React.FC = () => {
                   <div className="relative">
                     <Shield className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-600" />
                     <input
-                      type="text"
+                      type={showCommunity ? 'text' : 'password'}
                       value={formData.community}
                       onChange={(e) => setFormData({ ...formData, community: e.target.value })}
-                      className="w-full bg-black border border-white/10 pl-9 pr-3 py-2 text-xs focus:outline-none focus:border-white/40 font-mono"
+                      className="w-full bg-black border border-white/10 pl-9 pr-10 py-2 text-xs focus:outline-none focus:border-white/40 font-mono"
                       placeholder="public"
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowCommunity(!showCommunity)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-600 hover:text-white transition-colors"
+                    >
+                      {showCommunity ? (
+                        <EyeOff className="w-3.5 h-3.5" />
+                      ) : (
+                        <Eye className="w-3.5 h-3.5" />
+                      )}
+                    </button>
                   </div>
                 </div>
               )}
@@ -311,12 +329,27 @@ const SnmpAuthManager: React.FC = () => {
                         <label className="text-[10px] text-neutral-500 uppercase font-bold tracking-tighter">
                           Auth Key
                         </label>
-                        <input
-                          type="password"
-                          value={formData.v3AuthKey}
-                          onChange={(e) => setFormData({ ...formData, v3AuthKey: e.target.value })}
-                          className="w-full bg-black border border-white/10 p-2 text-xs focus:outline-none focus:border-white/40 font-mono"
-                        />
+                        <div className="relative">
+                          <input
+                            type={showAuthKey ? 'text' : 'password'}
+                            value={formData.v3AuthKey}
+                            onChange={(e) =>
+                              setFormData({ ...formData, v3AuthKey: e.target.value })
+                            }
+                            className="w-full bg-black border border-white/10 pl-2 pr-10 py-2 text-xs focus:outline-none focus:border-white/40 font-mono"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowAuthKey(!showAuthKey)}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-600 hover:text-white transition-colors"
+                          >
+                            {showAuthKey ? (
+                              <EyeOff className="w-3.5 h-3.5" />
+                            ) : (
+                              <Eye className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -342,12 +375,27 @@ const SnmpAuthManager: React.FC = () => {
                         <label className="text-[10px] text-neutral-500 uppercase font-bold tracking-tighter">
                           Priv Key
                         </label>
-                        <input
-                          type="password"
-                          value={formData.v3PrivKey}
-                          onChange={(e) => setFormData({ ...formData, v3PrivKey: e.target.value })}
-                          className="w-full bg-black border border-white/10 p-2 text-xs focus:outline-none focus:border-white/40 font-mono"
-                        />
+                        <div className="relative">
+                          <input
+                            type={showPrivKey ? 'text' : 'password'}
+                            value={formData.v3PrivKey}
+                            onChange={(e) =>
+                              setFormData({ ...formData, v3PrivKey: e.target.value })
+                            }
+                            className="w-full bg-black border border-white/10 pl-2 pr-10 py-2 text-xs focus:outline-none focus:border-white/40 font-mono"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPrivKey(!showPrivKey)}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-600 hover:text-white transition-colors"
+                          >
+                            {showPrivKey ? (
+                              <EyeOff className="w-3.5 h-3.5" />
+                            ) : (
+                              <Eye className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}
