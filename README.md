@@ -4,40 +4,50 @@
 
 A modern, high-performance network monitoring dashboard built with Astro, React, and Tailwind CSS. Designed with a terminal-inspired aesthetic for high-density information display.
 
-## 🚀 Features
+## 📖 ¿Qué es none.snmp?
 
-- **Global Dashboard**: Real-time metrics on device health, subnet distribution, and interface status.
-- **Topology View**: Visual representation of network infrastructure and device interconnections.
-- **Device Inventory**: Comprehensive management of discovered nodes with deep SNMP inspection.
-- **Task Scheduler**: Automated subnet scanning and periodic SNMP polling using cron expressions.
-- **Docker Ready**: Multi-stage build process optimized for production deployment.
+none.snmp es una herramienta de **inteligencia de red** diseñada para administradores que necesitan visibilidad total sobre su infraestructura sin complicaciones. No es solo un panel de gráficas; es un motor de descubrimiento y auditoría que entiende cómo están conectados tus dispositivos.
 
-## 🛠️ Stack
+## 🛠️ Capacidades del Sistema
+
+Con este proyecto puedes realizar las siguientes operaciones críticas:
+
+- **Descubrimiento Autónomo**: Escanea rangos de red (CIDR) completos para encontrar dispositivos vivos e identificarlos automáticamente mediante perfiles SNMP.
+- **Localización de Dispositivos (Trace Origin)**: ¿No sabes dónde está pinchado un equipo? Introduce su IP o MAC y el sistema rastrea las tablas ARP y FDB de tus switches para decirte el Switch y el Puerto exacto donde se encuentra.
+- **Inventario Profundo**: Inspecciona especificaciones de hardware (CPU, RAM, Discos), versiones de software, números de serie y estados de interfaces de red en tiempo real.
+- **Mapeo de Topología**: Gracias a la integración con protocolos de vecinos (LLDP/CDP), el sistema entiende la jerarquía de tu red y cómo se interconectan los nodos core.
+- **Automatización Programada**: Configura tareas recurrentes mediante expresiones Cron para mantener el inventario siempre actualizado y realizar auditorías nocturnas de salud.
+- **Identificación por Firmas**: Resuelve la identidad de equipos desconocidos cruzando firmas digitales y direcciones de gestión registradas.
+
+## 🚀 Stack Tecnológico
 
 - **Frontend**: Astro, React, Tailwind CSS (v4), Lucide Icons.
-- **Charts**: Recharts for high-performance data visualization.
-- **Tooling**: Bun (runtime), Docker & Docker Compose.
+- **Visualización**: Recharts para monitorización de rendimiento.
+- **Runtime**: Bun + Node.js (Adapter).
+- **Despliegue**: Docker & Docker Compose.
 
 ## 📝 TODO / Roadmap
 
-- [ ] **Authentication & Access Control**: Implement secure login system and session management.
-- [ ] **ICMP Monitoring**: Ping-based status tracking for legacy devices without SNMP support.
-- [ ] **Windows GPO Integration**: Active Directory integration for automated configuration and policy alignment.
-- [ ] **Interactive Topology**: Enhance the network graph with real-time connection status.
-- [ ] **Alerting Engine**: Configurable notifications (Webhooks/Telegram) for device downtime.
-- [ ] **Export Module**: Generate PDF/CSV reports of network inventory and health history.
-- [ ] **V3 Security Audit**: Deeper validation of SNMP v3 encryption profiles.
-- [ ] **Theme Customization**: Support for multiple "hacker-style" color schemes.
+- [ ] **Dashboard UI/UX Overhaul**: Rediseñar la pantalla principal para que los datos mostrados tengan una jerarquía más lógica y útil para la toma de decisiones.
+- [ ] **Authentication & Access Control**: Implementar sistema de login seguro y gestión de sesiones.
+- [ ] **ICMP Monitoring**: Monitorización por ping para dispositivos que no soportan SNMP.
+- [ ] **Windows GPO Integration**: Integración con políticas de grupo para despliegue y configuración automática.
+- [ ] **Alerting Engine**: Notificaciones en tiempo real (Webhooks/Telegram) ante caídas de servicio.
+- [ ] **Interactive Topology**: Mejorar el grafo de red con estados de conexión en tiempo real.
 
-## 📦 Deployment
+## 📦 Despliegue Rápido
 
-1. Build and run with Docker Compose:
+1. Define tu URL de backend:
+
+```bash
+export PUBLIC_BACKEND_URL=http://tu-api:3000
+```
+
+2. Levanta con Docker:
 
 ```bash
 docker-compose up --build
 ```
-
-2. Access the dashboard at `http://localhost:4321`.
 
 ---
 
