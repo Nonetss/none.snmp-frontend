@@ -106,19 +106,31 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false, pathname = '/' }) =
       } transition-all duration-300 h-screen bg-black border-r border-white/10 flex flex-col items-center py-6 z-[100] group overflow-hidden font-mono shrink-0`}
     >
       {/* Header & Toggle */}
-      <div className="w-full px-4 mb-10 flex items-center h-8 relative">
+      <div
+        className={`w-full ${isExpanded ? 'px-4' : 'px-0'} mb-10 flex items-center h-8 relative`}
+      >
         <div
-          className={`flex items-center gap-3 transition-all duration-300 ${isExpanded ? 'justify-start' : 'mx-auto absolute left-1 '}`}
+          className={`flex items-center transition-all duration-300 ${isExpanded ? 'justify-start gap-3' : 'w-full justify-center gap-0'}`}
         >
-          <div className="w-15 h-15 shrink-0 flex items-center justify-center">
-            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+          <div
+            className={`${isExpanded ? 'w-10 h-10' : 'w-8 h-8'} shrink-0 flex items-center justify-center transition-all duration-300`}
+          >
+            <img
+              src="/logo.svg?v=2"
+              alt="SNV Logo"
+              className="w-full h-full object-contain pointer-events-none"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement
+                target.src = '/logo.png?v=2' // Fallback to PNG if SVG fails
+              }}
+            />
           </div>
           <div
             className={`text-xs font-black text-white tracking-[0.3em] uppercase whitespace-nowrap transition-all duration-300 overflow-hidden ${
-              isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0 ml-0'
+              isExpanded ? 'w-auto opacity-100 ml-3' : 'w-0 opacity-0 ml-0'
             }`}
           >
-            none.snmp
+            snmp.none
           </div>
         </div>
 
