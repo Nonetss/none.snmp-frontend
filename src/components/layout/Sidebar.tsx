@@ -130,7 +130,7 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false, pathname = '/' }) =
               isExpanded ? 'w-auto opacity-100 ml-3' : 'w-0 opacity-0 ml-0'
             }`}
           >
-            snmp.none
+            none.snmp
           </div>
         </div>
 
