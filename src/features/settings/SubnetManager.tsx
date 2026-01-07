@@ -11,6 +11,7 @@ import {
   Activity,
   Play,
   Edit2,
+  Check,
 } from 'lucide-react'
 
 interface SubnetInfo {
@@ -28,6 +29,15 @@ const SubnetManager: React.FC = () => {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [scanningId, setScanningId] = useState<number | null>(null)
+  const [toast, setToast] = useState<{ message: string; visible: boolean }>({
+    message: '',
+    visible: false,
+  })
+
+  const showToast = (message: string) => {
+    setToast({ message, visible: true })
+    setTimeout(() => setToast((prev) => ({ ...prev, visible: false })), 5000)
+  }
 
   const [formData, setFormData] = useState({
     cidr: '',
@@ -90,9 +100,9 @@ const SubnetManager: React.FC = () => {
         cidr: subnet.cidr,
         subnetName: subnet.name,
       })
-      alert(`Scan triggered for ${subnet.cidr}`)
+      showToast(`Scan initiated successfully for ${subnet.cidr}`)
     } catch (err: any) {
-      alert(err.message || 'Failed to trigger scan')
+      showToast(err.message || 'Failed to trigger scan')
     } finally {
       setScanningId(null)
     }
@@ -266,6 +276,33 @@ const SubnetManager: React.FC = () => {
                 configured profiles.
               </p>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Toast Notification */}
+      {toast.visible && (
+        <div className="fixed bottom-8 right-8 z-[300] animate-in slide-in-from-right-full duration-500">
+          <div className="bg-black border border-white/20 p-4 min-w-[300px] shadow-2xl flex items-center gap-4">
+            <div className="w-8 h-8 rounded-none border border-emerald-500/50 flex items-center justify-center bg-emerald-500/10">
+              <Check className="w-4 h-4 text-emerald-500" />
+            </div>
+            <div className="flex-1">
+              <div className="text-[10px] font-black text-white uppercase tracking-widest mb-0.5">
+                System.Notification
+              </div>
+              <div className="text-[11px] text-neutral-400 uppercase tracking-tighter">
+                {toast.message}
+              </div>
+            </div>
+            <button
+              onClick={() => setToast((prev) => ({ ...prev, visible: false }))}
+              className="p-1 hover:bg-white/5 text-neutral-600 hover:text-white transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <div className="h-0.5 bg-neutral-800 w-full overflow-hidden">
+            <div className="h-full bg-white animate-progress-shrink origin-left" />
           </div>
         </div>
       )}
