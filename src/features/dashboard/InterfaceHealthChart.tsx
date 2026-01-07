@@ -13,58 +13,72 @@ interface InterfaceHealthChartProps {
 export const InterfaceHealthChart: React.FC<InterfaceHealthChartProps> = ({ stats }) => {
   const interfaceData = [
     { name: 'UP', value: stats?.up || 0, color: '#FFFFFF' },
-    { name: 'DOWN', value: stats?.down || 0, color: '#A3A3A3' },
-    { name: 'OTHER', value: stats?.other || 0, color: '#525252' },
+    { name: 'DOWN', value: stats?.down || 0, color: '#404040' },
+    { name: 'OTHER', value: stats?.other || 0, color: '#1A1A1A' },
   ]
 
   return (
-    <div className="bg-neutral-900/20 border border-white/10 p-6 space-y-6">
-      <div className="flex justify-between items-center border-b border-white/10 pb-4">
-        <h3 className="text-xs font-bold uppercase tracking-[0.3em] flex items-center gap-2">
-          <Zap className="w-3.5 h-3.5" /> Interface_Health
-        </h3>
+    <div className="bg-neutral-900/10 border border-white/5 p-6 flex flex-col items-center justify-center space-y-8 min-h-full">
+      <div className="flex flex-col items-center gap-2 border-b border-white/5 pb-4 w-full">
+        <Zap className="w-5 h-5 text-white" />
+        <h3 className="text-[10px] font-bold uppercase tracking-[0.4em]">Interface_Health</h3>
       </div>
-      <div className="h-[250px] relative">
+
+      <div className="h-[250px] w-full relative">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={interfaceData}
               cx="50%"
               cy="50%"
-              innerRadius={60}
-              outerRadius={80}
-              paddingAngle={5}
+              innerRadius={70}
+              outerRadius={90}
+              paddingAngle={4}
               dataKey="value"
+              stroke="none"
             >
               {interfaceData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+                <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
             <Tooltip
-              contentStyle={{
-                backgroundColor: '#000',
-                border: '1px solid #333',
-                fontSize: '11px',
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  return (
+                    <div className="bg-black border border-white/10 p-2 font-mono text-[10px]">
+                      <span className="text-white uppercase font-bold">
+                        {payload[0].name}: {payload[0].value}
+                      </span>
+                    </div>
+                  )
+                }
+                return null
               }}
-              itemStyle={{ color: '#fff' }}
             />
           </PieChart>
         </ResponsiveContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-2xl font-bold tracking-tighter">{stats?.up}</span>
-          <span className="text-[10px] text-neutral-400 uppercase">Active.Ports</span>
+          <span className="text-3xl font-black tracking-tighter text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+            {stats?.up}
+          </span>
+          <span className="text-[9px] text-neutral-500 uppercase font-black tracking-widest">
+            Online.Ports
+          </span>
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-2 pt-2">
+
+      <div className="flex flex-wrap justify-center gap-6 w-full pt-4">
         {interfaceData.map((item) => (
-          <div
-            key={item.name}
-            className="flex justify-between items-center text-[11px] border-b border-white/5 pb-1"
-          >
-            <span className="text-neutral-400 flex items-center gap-2 uppercase tracking-widest">
-              <div className="w-1.5 h-1.5" style={{ backgroundColor: item.color }} /> {item.name}
+          <div key={item.name} className="flex flex-col items-center gap-1.5">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.color }} />
+              <span className="text-[9px] text-white font-black uppercase tracking-widest">
+                {item.value}
+              </span>
+            </div>
+            <span className="text-[8px] text-neutral-600 uppercase font-bold tracking-tighter">
+              {item.name}
             </span>
-            <span className="font-bold">{item.value}</span>
           </div>
         ))}
       </div>
