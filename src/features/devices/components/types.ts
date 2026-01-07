@@ -7,6 +7,7 @@ export type TabId =
   | 'inventory'
   | 'services'
   | 'applications'
+  | 'hikvision'
 
 export type DeviceDetail = Root2
 
@@ -28,6 +29,64 @@ export interface Root2 {
   applications: Application[]
   services: Service[]
   bridge: Bridge
+  hikvision?: Hikvision | null
+}
+
+export interface Hikvision {
+  id: number
+  deviceId: number
+  hikIp?: string | null
+  hikPort?: number | null
+  hikEntityIndex?: number | null
+  hikEntityType?: number | null
+  hikEntitySubType?: number | null
+  hikOnline?: number | null
+  hikService?: number | null
+  hikCMSDefType?: number | null
+  hikObjectID?: string | null
+  hikObjectName?: string | null
+  hikTrapHostIp1?: string | null
+  hikCPUNum?: number | null
+  hikCPUFrequency?: number | null
+  hikMemoryCapability?: number | null
+  hikMemoryUsage?: number | null
+  hikDeviceStatus?: number | null
+  hikDeviceLanguage?: number | null
+  hikDiskNum?: number | null
+  deviceType?: string | null
+  hardwVersion?: string | null
+  softwVersion?: string | null
+  macAddr?: string | null
+  deviceID?: string | null
+  manufacturer?: string | null
+  cpuPercent?: string | null
+  diskSize?: string | null
+  diskPercent?: string | null
+  memSize?: string | null
+  memUsed?: string | null
+  restartDev?: number | null
+  dynIpAddr?: string | null
+  dynNetMask?: string | null
+  dynGateway?: string | null
+  staticIpAddr?: string | null
+  staticNetMask?: string | null
+  staticGateway?: string | null
+  sysTime?: string | null
+  videoInChanNum?: number | null
+  videoEncode?: string | null
+  videoNetTrans?: string | null
+  audioAbility?: number | null
+  audioInNum?: number | null
+  videoOutNum?: number | null
+  clarityChanNum?: number | null
+  localStorage?: number | null
+  rtspPlayBack?: number | null
+  netAccessType?: string | null
+  alarmInChanNum?: number | null
+  alarmOutChanNum?: number | null
+  manageServAddr?: string | null
+  ntpServIpAddr?: string | null
+  managePort?: number | null
 }
 
 export interface Subnet {
