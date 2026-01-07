@@ -78,10 +78,19 @@ const SubnetManager: React.FC = () => {
     return [...filtered].sort((a, b) => a.id - b.id)
   }, [subnets, searchQuery])
 
+  const sanitizeMask = (m: any): string => {
+    const s = String(m).trim()
+    if (!s || s === 'undefined' || s === 'null' || s === '') return '24'
+    return s
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
-    const fullCidr = `${formData.cidr}/${formData.mask}`
+    const maskValue = sanitizeMask(formData.mask)
+    const cleanIp = formData.cidr.split('/')[0].trim()
+    const fullCidr = `${cleanIp}/${maskValue}`
+
     try {
       if (editingId) {
         await axios.patch(`/api/v0/snmp/subnet/${editingId}`, {
@@ -107,11 +116,15 @@ const SubnetManager: React.FC = () => {
 
   const handleEdit = (subnet: SubnetInfo) => {
     setEditingId(subnet.id)
-    const [ip, mask] = subnet.cidr.split('/')
+    const fullCidr = subnet.cidr || ''
+    const parts = fullCidr.split('/')
+    const ip = parts[0] || ''
+    const mask = sanitizeMask(parts[1])
+
     setFormData({
-      cidr: ip || subnet.cidr,
-      mask: mask || '24',
-      subnetName: subnet.name,
+      cidr: ip,
+      mask: mask,
+      subnetName: subnet.name || '',
     })
     setShowForm(true)
   }
