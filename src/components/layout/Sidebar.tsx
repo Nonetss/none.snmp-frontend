@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 import {
   LayoutDashboard,
   Share2,
@@ -10,6 +11,11 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
+  Activity,
+  RefreshCcw,
+  Zap,
+  Check,
+  X,
 } from 'lucide-react'
 
 interface Props {
@@ -20,6 +26,56 @@ interface Props {
 const Sidebar: React.FC<Props> = ({ initialExpanded = false, pathname = '/' }) => {
   const [currentPath, setCurrentPath] = useState(pathname)
   const [isExpanded, setIsExpanded] = useState(initialExpanded)
+
+  // Action States
+  const [pinging, setPinging] = useState(false)
+  const [scanning, setScanning] = useState(false)
+  const [polling, setPolling] = useState(false)
+  const [toast, setToast] = useState<{ message: string; visible: boolean }>({
+    message: '',
+    visible: false,
+  })
+
+  const showToast = (message: string) => {
+    setToast({ message, visible: true })
+    setTimeout(() => setToast((prev) => ({ ...prev, visible: false })), 5000)
+  }
+
+  const handleGlobalPing = async () => {
+    setPinging(true)
+    try {
+      await axios.post('/api/v0/search/device/status/ping')
+      showToast('Global Ping sequence completed')
+    } catch (err: any) {
+      showToast('Ping failed: ' + (err.message || 'Unknown error'))
+    } finally {
+      setPinging(false)
+    }
+  }
+
+  const handleGlobalScan = async () => {
+    setScanning(true)
+    try {
+      await axios.post('/api/v0/snmp/scan/all')
+      showToast('Global Subnet Scan initiated')
+    } catch (err: any) {
+      showToast('Scan failed: ' + (err.message || 'Unknown error'))
+    } finally {
+      setScanning(false)
+    }
+  }
+
+  const handleGlobalPoll = async () => {
+    setPolling(true)
+    try {
+      await axios.post('/api/v0/snmp/poll/all/all')
+      showToast('Global SNMP Poll completed')
+    } catch (err: any) {
+      showToast('Poll failed: ' + (err.message || 'Unknown error'))
+    } finally {
+      setPolling(false)
+    }
+  }
 
   useEffect(() => {
     // Keep it in sync if client-side navigation happens without full reload
@@ -114,6 +170,82 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false, pathname = '/' }) =
       </nav>
       {/* Bottom Navigation (Settings & Status) */}
       <div className="w-full px-3 space-y-4 pt-4 border-t border-white/5">
+        {/* Global Actions Section */}
+        <div className="space-y-1">
+          <div
+            className={`text-[8px] font-black text-neutral-600 uppercase tracking-[0.3em] mb-2 px-2.5 transition-all duration-300 overflow-hidden ${isExpanded ? 'opacity-100' : 'opacity-0'}`}
+          >
+            Global_Ops
+          </div>
+
+          <button
+            onClick={handleGlobalPing}
+            disabled={pinging}
+            title="Ping all devices"
+            className={`w-full flex items-center h-10 px-2.5 transition-all relative group overflow-hidden ${
+              pinging
+                ? 'bg-emerald-500/10 text-emerald-500'
+                : 'text-neutral-500 hover:bg-neutral-900 hover:text-white'
+            }`}
+          >
+            <Activity
+              className={`w-4 h-4 min-w-[16px] shrink-0 ${pinging ? 'animate-pulse' : ''}`}
+            />
+            <span
+              className={`ml-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 overflow-hidden ${
+                isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
+              }`}
+            >
+              {pinging ? 'Pinging...' : 'Ping.All'}
+            </span>
+            {pinging && (
+              <div className="absolute bottom-0 left-0 h-[1px] bg-emerald-500 animate-[shimmer_2s_infinite]" />
+            )}
+          </button>
+
+          <button
+            onClick={handleGlobalScan}
+            disabled={scanning}
+            title="Rescan all subnets"
+            className={`w-full flex items-center h-10 px-2.5 transition-all relative group overflow-hidden ${
+              scanning
+                ? 'bg-blue-500/10 text-blue-500'
+                : 'text-neutral-500 hover:bg-neutral-900 hover:text-white'
+            }`}
+          >
+            <RefreshCcw
+              className={`w-4 h-4 min-w-[16px] shrink-0 ${scanning ? 'animate-spin' : ''}`}
+            />
+            <span
+              className={`ml-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 overflow-hidden ${
+                isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
+              }`}
+            >
+              {scanning ? 'Scanning...' : 'Scan_All'}
+            </span>
+          </button>
+
+          <button
+            onClick={handleGlobalPoll}
+            disabled={polling}
+            title="Poll all devices"
+            className={`w-full flex items-center h-10 px-2.5 transition-all relative group overflow-hidden ${
+              polling
+                ? 'bg-amber-500/10 text-amber-500'
+                : 'text-neutral-500 hover:bg-neutral-900 hover:text-white'
+            }`}
+          >
+            <Zap className={`w-4 h-4 min-w-[16px] shrink-0 ${polling ? 'animate-bounce' : ''}`} />
+            <span
+              className={`ml-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 overflow-hidden ${
+                isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
+              }`}
+            >
+              {polling ? 'Polling...' : 'Poll_All'}
+            </span>
+          </button>
+        </div>
+
         <a
           href="/settings/snmp"
           className={`flex items-center h-11 px-2.5 transition-all relative ${
@@ -131,40 +263,35 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false, pathname = '/' }) =
             System_Settings
           </span>
         </a>
+      </div>
 
-        <div className="flex flex-col items-center overflow-hidden">
-          <div
-            className={`w-full flex items-center gap-4 px-2.5 py-3 bg-white/5 border border-white/5 transition-all ${isExpanded ? 'justify-start' : 'justify-center'}`}
-          >
-            <ShieldCheck className="w-4 h-4 text-neutral-400" />
-            <div
-              className={`flex flex-col transition-all duration-300 overflow-hidden ${
-                isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
-              }`}
-            >
-              <span className="text-[10px] text-neutral-400 uppercase font-black whitespace-nowrap">
-                Auth.Session
-              </span>
-              <span className="text-[11px] text-white font-bold uppercase truncate whitespace-nowrap">
-                Admin_Root
-              </span>
+      {/* Global Toast */}
+      {toast.visible && (
+        <div className="fixed bottom-8 right-8 z-[300] animate-in slide-in-from-right-full duration-500">
+          <div className="bg-black border border-white/20 p-4 min-w-[300px] shadow-2xl flex items-center gap-4">
+            <div className="w-8 h-8 rounded-none border border-white/20 flex items-center justify-center bg-white/5">
+              <Check className="w-4 h-4 text-white" />
             </div>
+            <div className="flex-1">
+              <div className="text-[10px] font-black text-white uppercase tracking-widest mb-0.5">
+                Global.Ops.Status
+              </div>
+              <div className="text-[11px] text-neutral-400 uppercase tracking-tighter">
+                {toast.message}
+              </div>
+            </div>
+            <button
+              onClick={() => setToast((prev) => ({ ...prev, visible: false }))}
+              className="p-1 hover:bg-white/5 text-neutral-600 hover:text-white transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <div className="h-0.5 bg-neutral-800 w-full overflow-hidden">
+            <div className="h-full bg-white animate-progress-shrink origin-left" />
           </div>
         </div>
-
-        <div
-          className={`flex items-center h-8 transition-all ${isExpanded ? 'px-2.5' : 'justify-center'}`}
-        >
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-          <span
-            className={`ml-3 text-[10px] text-neutral-400 uppercase tracking-widest font-black transition-all duration-300 overflow-hidden ${
-              isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
-            }`}
-          >
-            System.Online
-          </span>
-        </div>
-      </div>{' '}
+      )}
     </aside>
   )
 }
