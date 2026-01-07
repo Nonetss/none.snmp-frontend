@@ -187,27 +187,69 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = true, pathname = '/' }) =>
       <div className="w-full px-3 space-y-4 pt-4 border-t border-white/5">
         {/* Global Actions Section */}
         <div className="space-y-1">
-          <button
-            onClick={() => setShowActions(!showActions)}
-            className={`w-full flex items-center justify-between px-2.5 mb-2 group transition-all duration-300 ${!isExpanded ? 'justify-center' : ''}`}
-          >
-            <div
-              className={`text-[8px] font-black text-neutral-600 uppercase tracking-[0.3em] transition-all duration-300 overflow-hidden ${isExpanded ? 'opacity-100' : 'opacity-0 w-0'}`}
+          {/* Header with toggle - only shown when sidebar is expanded */}
+          {isExpanded && (
+            <button
+              onClick={() => setShowActions(!showActions)}
+              className="w-full flex items-center justify-between px-2.5 mb-2 group transition-all duration-300"
             >
-              Global_Ops
-            </div>
-            {!isExpanded && (
-              <Activity className="w-3.5 h-3.5 text-neutral-600 group-hover:text-neutral-400" />
-            )}
-            {isExpanded &&
-              (showActions ? (
+              <div className="text-[8px] font-black text-neutral-600 uppercase tracking-[0.3em]">
+                Global_Ops
+              </div>
+              {showActions ? (
                 <ChevronUp className="w-3 h-3 text-neutral-600" />
               ) : (
                 <ChevronDown className="w-3 h-3 text-neutral-600" />
-              ))}
-          </button>
+              )}
+            </button>
+          )}
 
-          {showActions ? (
+          {/* When sidebar is collapsed: always show icons vertically */}
+          {!isExpanded && (
+            <div className="space-y-1">
+              <button
+                onClick={handleGlobalPing}
+                disabled={pinging}
+                title="Ping all devices"
+                className={`w-full flex items-center justify-center h-10 transition-all ${
+                  pinging
+                    ? 'bg-emerald-500/10 text-emerald-500'
+                    : 'text-neutral-500 hover:bg-neutral-900 hover:text-white'
+                }`}
+              >
+                <Activity className={`w-4 h-4 ${pinging ? 'animate-pulse' : ''}`} />
+              </button>
+
+              <button
+                onClick={handleGlobalScan}
+                disabled={scanning}
+                title="Rescan all subnets"
+                className={`w-full flex items-center justify-center h-10 transition-all ${
+                  scanning
+                    ? 'bg-blue-500/10 text-blue-500'
+                    : 'text-neutral-500 hover:bg-neutral-900 hover:text-white'
+                }`}
+              >
+                <RefreshCcw className={`w-4 h-4 ${scanning ? 'animate-spin' : ''}`} />
+              </button>
+
+              <button
+                onClick={handleGlobalPoll}
+                disabled={polling}
+                title="Poll all devices"
+                className={`w-full flex items-center justify-center h-10 transition-all ${
+                  polling
+                    ? 'bg-amber-500/10 text-amber-500'
+                    : 'text-neutral-500 hover:bg-neutral-900 hover:text-white'
+                }`}
+              >
+                <Zap className={`w-4 h-4 ${polling ? 'animate-bounce' : ''}`} />
+              </button>
+            </div>
+          )}
+
+          {/* When sidebar is expanded: show based on showActions state */}
+          {isExpanded && showActions && (
             <div className="space-y-1 animate-in slide-in-from-top-1 duration-200">
               <button
                 onClick={handleGlobalPing}
@@ -222,11 +264,7 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = true, pathname = '/' }) =>
                 <Activity
                   className={`w-4 h-4 min-w-[16px] shrink-0 ${pinging ? 'animate-pulse' : ''}`}
                 />
-                <span
-                  className={`ml-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 overflow-hidden ${
-                    isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
-                  }`}
-                >
+                <span className="ml-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
                   {pinging ? 'Pinging...' : 'Ping.All'}
                 </span>
                 {pinging && (
@@ -247,11 +285,7 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = true, pathname = '/' }) =>
                 <RefreshCcw
                   className={`w-4 h-4 min-w-[16px] shrink-0 ${scanning ? 'animate-spin' : ''}`}
                 />
-                <span
-                  className={`ml-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 overflow-hidden ${
-                    isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
-                  }`}
-                >
+                <span className="ml-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
                   {scanning ? 'Scanning...' : 'Scan.All'}
                 </span>
               </button>
@@ -269,20 +303,16 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = true, pathname = '/' }) =>
                 <Zap
                   className={`w-4 h-4 min-w-[16px] shrink-0 ${polling ? 'animate-bounce' : ''}`}
                 />
-                <span
-                  className={`ml-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 overflow-hidden ${
-                    isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
-                  }`}
-                >
+                <span className="ml-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
                   {polling ? 'Polling...' : 'Poll.All'}
                 </span>
               </button>
             </div>
-          ) : (
-            /* Collapsed state: show icons horizontally */
-            <div
-              className={`flex items-center gap-1 animate-in fade-in duration-200 ${isExpanded ? 'justify-start px-2.5' : 'justify-center'}`}
-            >
+          )}
+
+          {/* When sidebar is expanded but actions collapsed: show icons horizontally */}
+          {isExpanded && !showActions && (
+            <div className="flex items-center gap-1 animate-in fade-in duration-200 justify-start px-2.5">
               <button
                 onClick={handleGlobalPing}
                 disabled={pinging}
