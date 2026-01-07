@@ -33,7 +33,7 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = true, pathname = '/' }) =>
   const [pinging, setPinging] = useState(false)
   const [scanning, setScanning] = useState(false)
   const [polling, setPolling] = useState(false)
-  const [showActions, setShowActions] = useState(true)
+  const [showActions, setShowActions] = useState(false)
   const [toast, setToast] = useState<{ message: string; visible: boolean }>({
     message: '',
     visible: false,
