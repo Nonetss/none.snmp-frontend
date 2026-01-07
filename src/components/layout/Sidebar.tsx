@@ -207,7 +207,7 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = true, pathname = '/' }) =>
               ))}
           </button>
 
-          {showActions && (
+          {showActions ? (
             <div className="space-y-1 animate-in slide-in-from-top-1 duration-200">
               <button
                 onClick={handleGlobalPing}
@@ -276,6 +276,50 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = true, pathname = '/' }) =>
                 >
                   {polling ? 'Polling...' : 'Poll.All'}
                 </span>
+              </button>
+            </div>
+          ) : (
+            /* Collapsed state: show icons horizontally */
+            <div
+              className={`flex items-center gap-1 animate-in fade-in duration-200 ${isExpanded ? 'justify-start px-2.5' : 'justify-center'}`}
+            >
+              <button
+                onClick={handleGlobalPing}
+                disabled={pinging}
+                title="Ping all devices"
+                className={`p-2 transition-all rounded-sm ${
+                  pinging
+                    ? 'bg-emerald-500/10 text-emerald-500'
+                    : 'text-neutral-500 hover:bg-neutral-900 hover:text-white'
+                }`}
+              >
+                <Activity className={`w-4 h-4 ${pinging ? 'animate-pulse' : ''}`} />
+              </button>
+
+              <button
+                onClick={handleGlobalScan}
+                disabled={scanning}
+                title="Rescan all subnets"
+                className={`p-2 transition-all rounded-sm ${
+                  scanning
+                    ? 'bg-blue-500/10 text-blue-500'
+                    : 'text-neutral-500 hover:bg-neutral-900 hover:text-white'
+                }`}
+              >
+                <RefreshCcw className={`w-4 h-4 ${scanning ? 'animate-spin' : ''}`} />
+              </button>
+
+              <button
+                onClick={handleGlobalPoll}
+                disabled={polling}
+                title="Poll all devices"
+                className={`p-2 transition-all rounded-sm ${
+                  polling
+                    ? 'bg-amber-500/10 text-amber-500'
+                    : 'text-neutral-500 hover:bg-neutral-900 hover:text-white'
+                }`}
+              >
+                <Zap className={`w-4 h-4 ${polling ? 'animate-bounce' : ''}`} />
               </button>
             </div>
           )}
