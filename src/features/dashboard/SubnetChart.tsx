@@ -38,7 +38,7 @@ export const SubnetChart: React.FC<SubnetChartProps> = ({ data }) => {
         </div>
       </div>
 
-      <div className="w-full overflow-y-auto max-h-[500px] custom-scrollbar pr-4">
+      <div className="w-full overflow-y-auto max-h-[500px] custom-scrollbar pr-2">
         <div style={{ height: `${dynamicHeight}px`, width: '100%' }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
@@ -77,14 +77,14 @@ export const SubnetChart: React.FC<SubnetChartProps> = ({ data }) => {
                   if (active && payload && payload.length) {
                     const d = payload[0].payload
                     return (
-                      <div className="bg-[#050505] border border-white/10 p-4 shadow-2xl backdrop-blur-md">
+                      <div className="bg-[#080808] border border-white/10 p-4 shadow-2xl backdrop-blur-md ring-1 ring-white/5">
                         <div className="flex items-center gap-3 mb-3 border-b border-white/5 pb-2">
                           <div className="w-1 h-3 bg-white" />
                           <span className="text-[11px] text-white font-black uppercase tracking-widest">
                             {d.subnetName || label}
                           </span>
                         </div>
-                        <div className="space-y-2.5 min-w-[140px]">
+                        <div className="space-y-2.5 min-w-[150px]">
                           <div className="flex justify-between items-center text-[10px]">
                             <span className="text-neutral-500 font-bold uppercase tracking-tighter">
                               Total Nodes
@@ -93,7 +93,7 @@ export const SubnetChart: React.FC<SubnetChartProps> = ({ data }) => {
                           </div>
                           <div className="flex justify-between items-center text-[10px]">
                             <div className="flex items-center gap-2">
-                              <div className="w-1 h-1 rounded-full bg-white" />
+                              <div className="w-1 h-1 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
                               <span className="text-neutral-400 uppercase tracking-tighter">
                                 Online
                               </span>
@@ -120,15 +120,14 @@ export const SubnetChart: React.FC<SubnetChartProps> = ({ data }) => {
                 dataKey="upCount"
                 stackId="a"
                 fill="#ffffff"
-                barSize={14}
+                barSize={12}
                 radius={[0, 0, 0, 0]}
               />
-              {/* Offline devices bar - stacked under the online bar */}
               <Bar
                 dataKey="downCount"
                 stackId="a"
-                fill="#444444"
-                barSize={14}
+                fill="#1a1a1a"
+                barSize={12}
                 radius={[0, 1, 1, 0]}
               />
             </BarChart>
