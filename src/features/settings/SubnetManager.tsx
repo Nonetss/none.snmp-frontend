@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import axios from 'axios'
 import {
   Network,
@@ -12,6 +12,8 @@ import {
   Play,
   Edit2,
   Check,
+  Search,
+  Filter,
 } from 'lucide-react'
 
 interface SubnetInfo {
@@ -29,6 +31,7 @@ const SubnetManager: React.FC = () => {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [scanningId, setScanningId] = useState<number | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
   const [toast, setToast] = useState<{ message: string; visible: boolean }>({
     message: '',
     visible: false,
@@ -60,6 +63,18 @@ const SubnetManager: React.FC = () => {
   useEffect(() => {
     fetchData()
   }, [])
+
+  const processedSubnets = useMemo(() => {
+    let filtered = subnets
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase()
+      filtered = subnets.filter(
+        (s) => s.name.toLowerCase().includes(q) || s.cidr.toLowerCase().includes(q)
+      )
+    }
+    // Sort by ID ascending
+    return [...filtered].sort((a, b) => a.id - b.id)
+  }, [subnets, searchQuery])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -128,16 +143,28 @@ const SubnetManager: React.FC = () => {
             IP Address Space & Discovery
           </p>
         </div>
-        <button
-          onClick={() => {
-            setEditingId(null)
-            setFormData({ cidr: '', subnetName: '' })
-            setShowForm(true)
-          }}
-          className="flex items-center gap-2 px-4 py-2 border border-white text-xs font-bold hover:bg-white hover:text-black transition-all uppercase"
-        >
-          <Plus className="w-4 h-4" /> Add_Subnet_Scan
-        </button>
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
+            <input
+              type="text"
+              placeholder="FILTER_SUBNETS..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-neutral-900/50 border border-white/10 px-10 py-2 text-xs focus:outline-none focus:border-white/30 w-64 uppercase placeholder:text-neutral-500 font-mono"
+            />
+          </div>
+          <button
+            onClick={() => {
+              setEditingId(null)
+              setFormData({ cidr: '', subnetName: '' })
+              setShowForm(true)
+            }}
+            className="flex items-center gap-2 px-4 py-2 border border-white text-xs font-bold hover:bg-white hover:text-black transition-all uppercase"
+          >
+            <Plus className="w-4 h-4" /> Add_Subnet_Scan
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -148,7 +175,7 @@ const SubnetManager: React.FC = () => {
 
       {/* Subnet List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {subnets.map((subnet) => (
+        {processedSubnets.map((subnet) => (
           <div
             key={subnet.id}
             className="group relative border border-white/10 bg-neutral-900/20 p-6 space-y-4 hover:border-white/30 transition-all"
@@ -205,6 +232,15 @@ const SubnetManager: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {processedSubnets.length === 0 && !loading && (
+        <div className="p-12 text-center border border-white/10 bg-neutral-900/5">
+          <div className="flex flex-col items-center gap-3 opacity-30">
+            <Filter className="w-8 h-8" />
+            <span className="text-[10px] uppercase tracking-[0.3em]">No_Subnets_Match_Query</span>
+          </div>
+        </div>
+      )}
 
       {/* Modal Form */}
       {showForm && (
