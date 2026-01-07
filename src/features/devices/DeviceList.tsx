@@ -22,6 +22,7 @@ interface Device {
   sysLocation: string | null
   sysDescr: string | null
   macAddress: string | null
+  status: boolean
 }
 
 interface SubnetWithDevices {
@@ -194,6 +195,9 @@ const DeviceList: React.FC = () => {
                         ID
                       </th>
                       <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
+                        Status
+                      </th>
+                      <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
                         Device_Identity
                       </th>
                       <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
@@ -214,6 +218,24 @@ const DeviceList: React.FC = () => {
                     {subnet.devices.map((device) => (
                       <tr key={device.id} className="hover:bg-white/[0.02] group transition-colors">
                         <td className="p-4 text-[11px] text-neutral-500 font-bold">#{device.id}</td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className={`w-1.5 h-1.5 rounded-full ${
+                                device.status
+                                  ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
+                                  : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'
+                              }`}
+                            />
+                            <span
+                              className={`text-[9px] font-bold uppercase tracking-tighter ${
+                                device.status ? 'text-emerald-500/80' : 'text-red-500/80'
+                              }`}
+                            >
+                              {device.status ? 'Online' : 'Offline'}
+                            </span>
+                          </div>
+                        </td>
                         <td className="p-4">
                           <div className="flex flex-col">
                             <span className="text-xs font-bold text-neutral-300 uppercase tracking-wider group-hover:text-white transition-colors">

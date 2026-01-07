@@ -12,6 +12,7 @@ import { InventoryTab } from '@/features/devices/components/InventoryTab'
 import { BridgeTab } from '@/features/devices/components/BridgeTab'
 import { ServicesTab } from '@/features/devices/components/ServicesTab'
 import { ApplicationsTab } from '@/features/devices/components/ApplicationsTab'
+import { HikvisionTab } from '@/features/devices/components/HikvisionTab'
 import type { DeviceDetail, TabId } from '@/features/devices/components/types'
 
 interface Props {
@@ -92,6 +93,8 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
     device.neighbor_discovery?.outbound?.length > 0 ||
     device.neighbor_discovery?.inbound?.length > 0
 
+  const hasHikvision = !!device.hikvision
+
   return (
     <div className="bg-black text-white font-mono min-h-screen w-full flex flex-col">
       <Header
@@ -101,7 +104,7 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
         onRescan={() => fetchDevice()}
       />
 
-      <TabsNav activeTab={activeTab} setActiveTab={setActiveTab} />
+      <TabsNav activeTab={activeTab} setActiveTab={setActiveTab} hasHikvision={hasHikvision} />
 
       <div className="p-8 space-y-8 max-w-[1800px] mx-auto w-full flex-grow">
         {activeTab === 'dashboard' && (
@@ -114,6 +117,7 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
         {activeTab === 'inventory' && <InventoryTab device={device} />}
         {activeTab === 'services' && <ServicesTab device={device} />}
         {activeTab === 'applications' && <ApplicationsTab device={device} />}
+        {activeTab === 'hikvision' && <HikvisionTab device={device} />}
       </div>
     </div>
   )

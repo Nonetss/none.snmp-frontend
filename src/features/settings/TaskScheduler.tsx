@@ -21,7 +21,7 @@ import {
 interface TaskSchedule {
   id: number
   name: string
-  type: 'SCAN_SUBNET' | 'SCAN_ALL_SUBNETS' | 'POLL_ALL' | 'POLL_DEVICE'
+  type: 'SCAN_SUBNET' | 'SCAN_ALL_SUBNETS' | 'POLL_ALL' | 'POLL_DEVICE' | 'PING_ALL'
   targetId: number | null
   cronExpression: string
   enabled: boolean
@@ -47,7 +47,7 @@ const TaskScheduler: React.FC = () => {
 
   const [formData, setFormData] = useState({
     name: '',
-    type: 'SCAN_SUBNET' as const,
+    type: 'SCAN_SUBNET' as TaskSchedule['type'],
     targetId: '',
     cronExpression: '0 0 * * *',
     enabled: true,
@@ -78,7 +78,10 @@ const TaskScheduler: React.FC = () => {
     e.preventDefault()
     setSubmitting(true)
     try {
-      const isSystemWide = formData.type === 'POLL_ALL' || formData.type === 'SCAN_ALL_SUBNETS'
+      const isSystemWide =
+        formData.type === 'POLL_ALL' ||
+        formData.type === 'SCAN_ALL_SUBNETS' ||
+        formData.type === 'PING_ALL'
       const payload = {
         ...formData,
         cronExpression: formData.cronExpression.trim(),
@@ -151,6 +154,7 @@ const TaskScheduler: React.FC = () => {
       case 'SCAN_ALL_SUBNETS':
         return <NetworkIcon className="w-4 h-4" />
       case 'POLL_ALL':
+      case 'PING_ALL':
         return <Activity className="w-4 h-4" />
       case 'POLL_DEVICE':
         return <Server className="w-4 h-4" />
@@ -340,7 +344,10 @@ const TaskScheduler: React.FC = () => {
                     value={formData.type}
                     onChange={(e) => {
                       const newType = e.target.value as any
-                      const isSystemWide = newType === 'POLL_ALL' || newType === 'SCAN_ALL_SUBNETS'
+                      const isSystemWide =
+                        newType === 'POLL_ALL' ||
+                        newType === 'SCAN_ALL_SUBNETS' ||
+                        newType === 'PING_ALL'
                       setFormData({
                         ...formData,
                         type: newType,
@@ -353,6 +360,7 @@ const TaskScheduler: React.FC = () => {
                     <option value="SCAN_ALL_SUBNETS">Scan All Subnets</option>
                     <option value="POLL_ALL">Poll All Devices</option>
                     <option value="POLL_DEVICE">Poll Specific Device</option>
+                    <option value="PING_ALL">Ping All Devices</option>
                   </select>
                 </div>
 
@@ -381,12 +389,16 @@ const TaskScheduler: React.FC = () => {
                       onChange={(e) => setFormData({ ...formData, targetId: e.target.value })}
                       className="w-full bg-black border border-white/10 p-2.5 text-xs focus:outline-none focus:border-white/40 font-mono"
                       placeholder={
-                        formData.type === 'SCAN_ALL_SUBNETS' || formData.type === 'POLL_ALL'
+                        formData.type === 'SCAN_ALL_SUBNETS' ||
+                        formData.type === 'POLL_ALL' ||
+                        formData.type === 'PING_ALL'
                           ? 'N/A'
                           : 'ID'
                       }
                       disabled={
-                        formData.type === 'SCAN_ALL_SUBNETS' || formData.type === 'POLL_ALL'
+                        formData.type === 'SCAN_ALL_SUBNETS' ||
+                        formData.type === 'POLL_ALL' ||
+                        formData.type === 'PING_ALL'
                       }
                     />
                   )}
