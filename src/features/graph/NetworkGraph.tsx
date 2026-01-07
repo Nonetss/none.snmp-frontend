@@ -283,7 +283,7 @@ const NetworkGraph: React.FC = () => {
       />
 
       {/* HUD: Legend */}
-      <div className="absolute bottom-20 left-8 z-50 flex flex-col gap-3 bg-black/60 backdrop-blur-md border border-white/10 p-4 pointer-events-none">
+      <div className="absolute bottom-20 left-4 md:left-8 z-50 hidden md:flex flex-col gap-3 bg-black/60 backdrop-blur-md border border-white/10 p-4 pointer-events-none">
         <div className="text-[8px] font-black text-neutral-500 uppercase tracking-[0.2em] mb-1">
           Topology_Legend
         </div>
@@ -320,28 +320,28 @@ const NetworkGraph: React.FC = () => {
       </div>
 
       {/* HUD: Status Bar */}
-      <div className="absolute bottom-0 left-0 w-full z-50 bg-black/80 backdrop-blur-md border-t border-white/10 p-3 flex items-center justify-between px-8">
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-2">
+      <div className="absolute bottom-0 left-0 w-full z-50 bg-black/80 backdrop-blur-md border-t border-white/10 p-3 flex items-center justify-between px-4 md:px-8">
+        <div className="flex items-center gap-4 md:gap-8 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-2 shrink-0">
             <Activity className="w-3.5 h-3.5 text-emerald-500" />
             <span className="text-[10px] font-black text-white uppercase tracking-widest">
               Engine: Active
             </span>
           </div>
-          <div className="flex items-center gap-2 text-neutral-500">
+          <div className="flex items-center gap-2 text-neutral-500 shrink-0">
             <Box className="w-3.5 h-3.5" />
             <span className="text-[10px] font-bold uppercase tracking-widest">
               Nodes: {processedData.nodes.length}
             </span>
           </div>
-          <div className="flex items-center gap-2 text-neutral-500">
+          <div className="flex items-center gap-2 text-neutral-500 shrink-0">
             <Share2 className="w-3.5 h-3.5" />
             <span className="text-[10px] font-bold uppercase tracking-widest">
               Edges: {processedData.links.length}
             </span>
           </div>
         </div>
-        <div className="text-[9px] text-neutral-600 font-bold uppercase tracking-widest italic">
+        <div className="text-[9px] text-neutral-600 font-bold uppercase tracking-widest italic hidden lg:block">
           Resolution: D3-Force Realtime Simulation
         </div>
       </div>

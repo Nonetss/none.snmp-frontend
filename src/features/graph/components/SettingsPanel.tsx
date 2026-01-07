@@ -31,7 +31,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   setLinkDistance,
 }) => {
   return (
-    <div className="bg-black/95 border border-white/20 p-4 shadow-lg space-y-5 animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-md fixed top-16 right-4 font-mono z-50">
+    <div className="bg-black/95 border border-white/20 p-4 shadow-lg space-y-5 animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-md fixed top-16 right-4 left-4 md:left-auto md:w-[400px] font-mono z-50">
       <div className="flex items-center justify-between border-b border-white/20 pb-2">
         <span className="text-[9px] font-bold text-neutral-500 uppercase tracking-[0.2em]">
           sys.config
