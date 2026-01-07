@@ -100,7 +100,7 @@ const DeviceList: React.FC = () => {
 
   if (loading)
     return (
-      <div className="flex items-center justify-center h-full bg-black text-white font-mono">
+      <div className="flex items-center justify-center min-h-screen bg-black text-white font-mono">
         <div className="flex flex-col items-center gap-4">
           <RefreshCcw className="w-8 h-8 animate-spin text-white" />
           <span className="text-[10px] tracking-[0.3em] uppercase">Inventory.Loading()</span>

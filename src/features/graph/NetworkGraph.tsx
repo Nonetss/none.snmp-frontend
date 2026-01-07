@@ -28,7 +28,7 @@ const NetworkGraph: React.FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
 
   const containerRef = useRef<HTMLDivElement>(null)
-  const fgRef = useRef<any>()
+  const fgRef = useRef<any>(null)
   const [dimensions, setDimensions] = useState({
     width: typeof window !== 'undefined' ? window.innerWidth : 800,
     height: typeof window !== 'undefined' ? window.innerHeight : 600,
