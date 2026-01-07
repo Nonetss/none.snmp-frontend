@@ -41,7 +41,7 @@ const DeviceList: React.FC = () => {
   const fetchDevices = async () => {
     setLoading(true)
     try {
-      const response = await axios.get(`/api/v1/search/device/list`)
+      const response = await axios.get(`/api/v0/search/device/list`)
       setData(response.data)
       setError(null)
     } catch (err: any) {
