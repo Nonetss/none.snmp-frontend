@@ -37,7 +37,7 @@ const SubnetManager: React.FC = () => {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const response = await axios.get(`/api/v1/snmp/subnet`)
+      const response = await axios.get(`/api/v0/snmp/subnet`)
       setSubnets(response.data || [])
       setError(null)
     } catch (err: any) {
@@ -56,12 +56,12 @@ const SubnetManager: React.FC = () => {
     setSubmitting(true)
     try {
       if (editingId) {
-        await axios.patch(`/api/v1/snmp/subnet/${editingId}`, {
+        await axios.patch(`/api/v0/snmp/subnet/${editingId}`, {
           cidr: formData.cidr,
           name: formData.subnetName,
         })
       } else {
-        await axios.post(`/api/v1/snmp/scan`, formData)
+        await axios.post(`/api/v0/snmp/scan`, formData)
       }
       setShowForm(false)
       setEditingId(null)
@@ -86,7 +86,7 @@ const SubnetManager: React.FC = () => {
   const handleTriggerScan = async (subnet: SubnetInfo) => {
     setScanningId(subnet.id)
     try {
-      await axios.post(`/api/v1/snmp/scan`, {
+      await axios.post(`/api/v0/snmp/scan`, {
         cidr: subnet.cidr,
         subnetName: subnet.name,
       })

@@ -70,7 +70,7 @@ const ServiceSearch: React.FC = () => {
   const fetchInventory = async () => {
     setInventoryLoading(true)
     try {
-      const response = await axios.get(`/api/v1/search/service/inventory`, {
+      const response = await axios.get(`/api/v0/search/service/inventory`, {
         params: { page: invPage, pageSize: PAGE_SIZE },
       })
       setInventory(response.data.data || [])
@@ -88,7 +88,7 @@ const ServiceSearch: React.FC = () => {
 
     setFuzzyLoading(true)
     try {
-      const response = await axios.get(`/api/v1/search/service/fuzzy`, {
+      const response = await axios.get(`/api/v0/search/service/fuzzy`, {
         params: { name: fuzzyQuery, page: newPage, pageSize: PAGE_SIZE },
       })
       setFuzzyResults(response.data.data || [])
@@ -108,7 +108,7 @@ const ServiceSearch: React.FC = () => {
     setLoading(true)
     setDirectError(null)
     try {
-      const response = await axios.get(`/api/v1/search/service/service`, {
+      const response = await axios.get(`/api/v0/search/service/service`, {
         params: { name: svcName, running: isRunning ? 'true' : 'false' },
       })
       setResults(response.data)

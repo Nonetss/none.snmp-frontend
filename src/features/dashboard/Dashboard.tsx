@@ -19,7 +19,7 @@ const Dashboard: React.FC = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get(`/api/v1/search/stats`)
+      const response = await axios.get(`/api/v0/search/stats`)
       setStats(response.data)
       setError(null)
     } catch (err: any) {
