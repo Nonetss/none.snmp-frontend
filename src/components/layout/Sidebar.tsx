@@ -10,6 +10,8 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Menu,
   Activity,
   RefreshCcw,
@@ -31,6 +33,7 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false, pathname = '/' }) =
   const [pinging, setPinging] = useState(false)
   const [scanning, setScanning] = useState(false)
   const [polling, setPolling] = useState(false)
+  const [showActions, setShowActions] = useState(true)
   const [toast, setToast] = useState<{ message: string; visible: boolean }>({
     message: '',
     visible: false,
@@ -172,78 +175,98 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false, pathname = '/' }) =
       <div className="w-full px-3 space-y-4 pt-4 border-t border-white/5">
         {/* Global Actions Section */}
         <div className="space-y-1">
-          <div
-            className={`text-[8px] font-black text-neutral-600 uppercase tracking-[0.3em] mb-2 px-2.5 transition-all duration-300 overflow-hidden ${isExpanded ? 'opacity-100' : 'opacity-0'}`}
-          >
-            Global_Ops
-          </div>
-
           <button
-            onClick={handleGlobalPing}
-            disabled={pinging}
-            title="Ping all devices"
-            className={`w-full flex items-center h-10 px-2.5 transition-all relative group overflow-hidden ${
-              pinging
-                ? 'bg-emerald-500/10 text-emerald-500'
-                : 'text-neutral-500 hover:bg-neutral-900 hover:text-white'
-            }`}
+            onClick={() => setShowActions(!showActions)}
+            className={`w-full flex items-center justify-between px-2.5 mb-2 group transition-all duration-300 ${!isExpanded ? 'justify-center' : ''}`}
           >
-            <Activity
-              className={`w-4 h-4 min-w-[16px] shrink-0 ${pinging ? 'animate-pulse' : ''}`}
-            />
-            <span
-              className={`ml-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 overflow-hidden ${
-                isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
-              }`}
+            <div
+              className={`text-[8px] font-black text-neutral-600 uppercase tracking-[0.3em] transition-all duration-300 overflow-hidden ${isExpanded ? 'opacity-100' : 'opacity-0 w-0'}`}
             >
-              {pinging ? 'Pinging...' : 'Ping.All'}
-            </span>
-            {pinging && (
-              <div className="absolute bottom-0 left-0 h-[1px] bg-emerald-500 animate-[shimmer_2s_infinite]" />
+              Global_Ops
+            </div>
+            {!isExpanded && (
+              <Activity className="w-3.5 h-3.5 text-neutral-600 group-hover:text-neutral-400" />
             )}
+            {isExpanded &&
+              (showActions ? (
+                <ChevronUp className="w-3 h-3 text-neutral-600" />
+              ) : (
+                <ChevronDown className="w-3 h-3 text-neutral-600" />
+              ))}
           </button>
 
-          <button
-            onClick={handleGlobalScan}
-            disabled={scanning}
-            title="Rescan all subnets"
-            className={`w-full flex items-center h-10 px-2.5 transition-all relative group overflow-hidden ${
-              scanning
-                ? 'bg-blue-500/10 text-blue-500'
-                : 'text-neutral-500 hover:bg-neutral-900 hover:text-white'
-            }`}
-          >
-            <RefreshCcw
-              className={`w-4 h-4 min-w-[16px] shrink-0 ${scanning ? 'animate-spin' : ''}`}
-            />
-            <span
-              className={`ml-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 overflow-hidden ${
-                isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
-              }`}
-            >
-              {scanning ? 'Scanning...' : 'Scan_All'}
-            </span>
-          </button>
+          {showActions && (
+            <div className="space-y-1 animate-in slide-in-from-top-1 duration-200">
+              <button
+                onClick={handleGlobalPing}
+                disabled={pinging}
+                title="Ping all devices"
+                className={`w-full flex items-center h-10 px-2.5 transition-all relative group overflow-hidden ${
+                  pinging
+                    ? 'bg-emerald-500/10 text-emerald-500'
+                    : 'text-neutral-500 hover:bg-neutral-900 hover:text-white'
+                }`}
+              >
+                <Activity
+                  className={`w-4 h-4 min-w-[16px] shrink-0 ${pinging ? 'animate-pulse' : ''}`}
+                />
+                <span
+                  className={`ml-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 overflow-hidden ${
+                    isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
+                  }`}
+                >
+                  {pinging ? 'Pinging...' : 'Ping.All'}
+                </span>
+                {pinging && (
+                  <div className="absolute bottom-0 left-0 h-[1px] bg-emerald-500 animate-[shimmer_2s_infinite]" />
+                )}
+              </button>
 
-          <button
-            onClick={handleGlobalPoll}
-            disabled={polling}
-            title="Poll all devices"
-            className={`w-full flex items-center h-10 px-2.5 transition-all relative group overflow-hidden ${
-              polling
-                ? 'bg-amber-500/10 text-amber-500'
-                : 'text-neutral-500 hover:bg-neutral-900 hover:text-white'
-            }`}
-          >
-            <Zap className={`w-4 h-4 min-w-[16px] shrink-0 ${polling ? 'animate-bounce' : ''}`} />
-            <span
-              className={`ml-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 overflow-hidden ${
-                isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
-              }`}
-            >
-              {polling ? 'Polling...' : 'Poll_All'}
-            </span>
-          </button>
+              <button
+                onClick={handleGlobalScan}
+                disabled={scanning}
+                title="Rescan all subnets"
+                className={`w-full flex items-center h-10 px-2.5 transition-all relative group overflow-hidden ${
+                  scanning
+                    ? 'bg-blue-500/10 text-blue-500'
+                    : 'text-neutral-500 hover:bg-neutral-900 hover:text-white'
+                }`}
+              >
+                <RefreshCcw
+                  className={`w-4 h-4 min-w-[16px] shrink-0 ${scanning ? 'animate-spin' : ''}`}
+                />
+                <span
+                  className={`ml-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 overflow-hidden ${
+                    isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
+                  }`}
+                >
+                  {scanning ? 'Scanning...' : 'Scan.All'}
+                </span>
+              </button>
+
+              <button
+                onClick={handleGlobalPoll}
+                disabled={polling}
+                title="Poll all devices"
+                className={`w-full flex items-center h-10 px-2.5 transition-all relative group overflow-hidden ${
+                  polling
+                    ? 'bg-amber-500/10 text-amber-500'
+                    : 'text-neutral-500 hover:bg-neutral-900 hover:text-white'
+                }`}
+              >
+                <Zap
+                  className={`w-4 h-4 min-w-[16px] shrink-0 ${polling ? 'animate-bounce' : ''}`}
+                />
+                <span
+                  className={`ml-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 overflow-hidden ${
+                    isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
+                  }`}
+                >
+                  {polling ? 'Polling...' : 'Poll.All'}
+                </span>
+              </button>
+            </div>
+          )}
         </div>
 
         <a
