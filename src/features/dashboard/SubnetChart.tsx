@@ -3,28 +3,41 @@ import { BarChart3 } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 interface SubnetChartProps {
-  data: Array<{ cidr: string; deviceCount: number }>
+  data: Array<{
+    cidr: string
+    deviceCount: number
+    upCount: number
+    downCount: number
+    subnetName?: string
+  }>
 }
 
 export const SubnetChart: React.FC<SubnetChartProps> = ({ data }) => {
-  // Ordenar por número de dispositivos para mejor visualización
   const sortedData = [...data].sort((a, b) => b.deviceCount - a.deviceCount)
-
-  // Calcular altura dinámica: mínimo 300px, o 30px por cada subred
-  const dynamicHeight = Math.max(300, sortedData.length * 35)
+  const dynamicHeight = Math.max(300, sortedData.length * 40)
 
   return (
-    <div className="lg:col-span-2 bg-neutral-900/20 border border-white/10 p-6 space-y-6">
-      <div className="flex justify-between items-center border-b border-white/10 pb-4">
-        <h3 className="text-xs font-bold uppercase tracking-[0.3em] flex items-center gap-2">
-          <BarChart3 className="w-3.5 h-3.5" /> Subnet_Capacity_Map
+    <div className="lg:col-span-2 bg-neutral-900/10 border border-white/5 p-6 space-y-6">
+      <div className="flex justify-between items-center border-b border-white/5 pb-4">
+        <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] flex items-center gap-3">
+          <BarChart3 className="w-4 h-4 text-white" /> Subnet_Capacity_Map
         </h3>
-        <span className="text-[10px] text-neutral-400 tracking-widest">
-          Y-AXIS: CIDR / X-AXIS: NODES
-        </span>
+        <div className="flex gap-6">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-white" />
+            <span className="text-[9px] text-neutral-500 uppercase font-black tracking-widest">
+              Online
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-neutral-800" />
+            <span className="text-[9px] text-neutral-600 uppercase font-black tracking-widest">
+              Offline
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Contenedor con scroll si hay demasiadas subredes */}
       <div className="w-full overflow-y-auto max-h-[500px] custom-scrollbar pr-4">
         <div style={{ height: `${dynamicHeight}px`, width: '100%' }}>
           <ResponsiveContainer width="100%" height="100%">
@@ -32,52 +45,91 @@ export const SubnetChart: React.FC<SubnetChartProps> = ({ data }) => {
               data={sortedData}
               layout="vertical"
               margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
+              barGap={0}
             >
               <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="#1f1f1f"
+                strokeDasharray="2 2"
+                stroke="#ffffff05"
                 horizontal={true}
                 vertical={false}
               />
               <XAxis
                 type="number"
-                stroke="#444"
+                stroke="#222"
                 fontSize={9}
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: '#666' }}
+                tick={{ fill: '#444', fontVariant: 'tabular-nums' }}
               />
               <YAxis
                 dataKey="cidr"
                 type="category"
-                stroke="#888"
+                stroke="#444"
                 fontSize={10}
                 tickLine={false}
                 axisLine={false}
                 width={100}
-                tick={{ fill: '#888', fontWeight: 'bold' }}
+                tick={{ fill: '#666', fontWeight: 'bold', fontFamily: 'monospace' }}
               />
               <Tooltip
-                contentStyle={{
-                  backgroundColor: '#000',
-                  border: '1px solid #333',
-                  fontSize: '11px',
-                  fontFamily: 'monospace',
+                cursor={{ fill: 'rgba(255,255,255,0.03)' }}
+                content={({ active, payload, label }) => {
+                  if (active && payload && payload.length) {
+                    const d = payload[0].payload
+                    return (
+                      <div className="bg-[#050505] border border-white/10 p-4 shadow-2xl backdrop-blur-md">
+                        <div className="flex items-center gap-3 mb-3 border-b border-white/5 pb-2">
+                          <div className="w-1 h-3 bg-white" />
+                          <span className="text-[11px] text-white font-black uppercase tracking-widest">
+                            {d.subnetName || label}
+                          </span>
+                        </div>
+                        <div className="space-y-2.5 min-w-[140px]">
+                          <div className="flex justify-between items-center text-[10px]">
+                            <span className="text-neutral-500 font-bold uppercase tracking-tighter">
+                              Total Nodes
+                            </span>
+                            <span className="text-white font-mono">{d.deviceCount}</span>
+                          </div>
+                          <div className="flex justify-between items-center text-[10px]">
+                            <div className="flex items-center gap-2">
+                              <div className="w-1 h-1 rounded-full bg-white" />
+                              <span className="text-neutral-400 uppercase tracking-tighter">
+                                Online
+                              </span>
+                            </div>
+                            <span className="text-white font-mono font-bold">{d.upCount}</span>
+                          </div>
+                          <div className="flex justify-between items-center text-[10px]">
+                            <div className="flex items-center gap-2">
+                              <div className="w-1 h-1 rounded-full bg-neutral-800" />
+                              <span className="text-neutral-600 uppercase tracking-tighter">
+                                Offline
+                              </span>
+                            </div>
+                            <span className="text-neutral-400 font-mono">{d.downCount}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  }
+                  return null
                 }}
-                itemStyle={{ color: '#fff' }}
-                cursor={{ fill: 'rgba(255,255,255,0.05)' }}
               />
               <Bar
-                dataKey="deviceCount"
+                dataKey="upCount"
+                stackId="a"
                 fill="#ffffff"
-                radius={[0, 2, 2, 0]}
-                barSize={20}
-                label={{
-                  position: 'right',
-                  fill: '#444',
-                  fontSize: 9,
-                  formatter: (val: number) => (val > 0 ? val : ''),
-                }}
+                barSize={14}
+                radius={[0, 0, 0, 0]}
+              />
+              {/* Offline devices bar - stacked under the online bar */}
+              <Bar
+                dataKey="downCount"
+                stackId="a"
+                fill="#444444"
+                barSize={14}
+                radius={[0, 1, 1, 0]}
               />
             </BarChart>
           </ResponsiveContainer>

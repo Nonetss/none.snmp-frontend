@@ -73,12 +73,37 @@ const Dashboard: React.FC = () => {
       <Header currentTime={currentTime} />
 
       {/* Main Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
           title="Total Devices"
           value={stats.devices.totalManaged + stats.devices.totalExternal}
           icon={Server}
           subtext={`${stats.devices.totalManaged} Managed / ${stats.devices.totalExternal} External`}
+        />
+        <StatCard
+          title="Operational Status"
+          value={
+            <div className="flex items-center gap-2">
+              <span className="text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]">
+                {stats.devices.up}
+              </span>
+              <span className="text-neutral-700 text-sm">/</span>
+              <span className="text-red-500/50 text-xl">{stats.devices.down}</span>
+            </div>
+          }
+          icon={Activity}
+          subtext={
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-emerald-500/80 font-bold">{stats.devices.up} UP</span>
+              </div>
+              <div className="flex items-center gap-1 border-l border-white/5 pl-3">
+                <div className="w-1 h-1 rounded-full bg-red-500" />
+                <span className="text-red-500/80 font-bold">{stats.devices.down} DOWN</span>
+              </div>
+            </div>
+          }
         />
         <StatCard
           title="Network Edges"
@@ -95,7 +120,7 @@ const Dashboard: React.FC = () => {
         <StatCard
           title="24H Activity"
           value={stats.activity.updatedNeighbors24h + stats.activity.arpDiscoveries24h}
-          icon={Activity}
+          icon={Database}
           subtext={`${stats.activity.arpDiscoveries24h} ARP New Discoveries`}
         />
       </div>

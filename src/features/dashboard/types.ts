@@ -2,6 +2,8 @@ export interface DashboardStats {
   devices: {
     totalManaged: number
     totalExternal: number
+    up: number
+    down: number
   }
   topology: {
     resolvedLinks: number
@@ -23,6 +25,9 @@ export interface DashboardStats {
   subnetsDistribution: Array<{
     cidr: string
     deviceCount: number
+    upCount: number
+    downCount: number
+    subnetName?: string
   }>
   interfaceStatus: {
     up: number

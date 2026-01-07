@@ -3,9 +3,9 @@ import type { LucideIcon } from 'lucide-react'
 
 interface StatCardProps {
   title: string
-  value: string | number
+  value: React.ReactNode
   icon: LucideIcon
-  subtext?: string
+  subtext?: React.ReactNode
 }
 
 export const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, subtext }) => (
