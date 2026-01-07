@@ -22,10 +22,15 @@ import {
 
 interface Props {
   initialExpanded?: boolean
+  initialShowActions?: boolean
   pathname?: string
 }
 
-const Sidebar: React.FC<Props> = ({ initialExpanded = true, pathname = '/' }) => {
+const Sidebar: React.FC<Props> = ({
+  initialExpanded = true,
+  initialShowActions = false,
+  pathname = '/',
+}) => {
   const [currentPath, setCurrentPath] = useState(pathname)
   const [isExpanded, setIsExpanded] = useState(initialExpanded)
 
@@ -33,7 +38,7 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = true, pathname = '/' }) =>
   const [pinging, setPinging] = useState(false)
   const [scanning, setScanning] = useState(false)
   const [polling, setPolling] = useState(false)
-  const [showActions, setShowActions] = useState(false)
+  const [showActions, setShowActions] = useState(initialShowActions)
   const [toast, setToast] = useState<{ message: string; visible: boolean }>({
     message: '',
     visible: false,
@@ -83,6 +88,17 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = true, pathname = '/' }) =>
   useEffect(() => {
     // Keep it in sync if client-side navigation happens without full reload
     setCurrentPath(window.location.pathname)
+
+    // Listen for Astro View Transitions navigation
+    const handleNavigation = () => {
+      setCurrentPath(window.location.pathname)
+    }
+
+    document.addEventListener('astro:after-swap', handleNavigation)
+
+    return () => {
+      document.removeEventListener('astro:after-swap', handleNavigation)
+    }
   }, [])
 
   const toggleSidebar = () => {
@@ -90,6 +106,13 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = true, pathname = '/' }) =>
     setIsExpanded(newState)
     // Set cookie for server-side persistence (valid for 1 year)
     document.cookie = `sidebar-expanded=${newState}; path=/; max-age=31536000`
+  }
+
+  const toggleShowActions = () => {
+    const newState = !showActions
+    setShowActions(newState)
+    // Set cookie for server-side persistence (valid for 1 year)
+    document.cookie = `sidebar-show-actions=${newState}; path=/; max-age=31536000`
   }
 
   const menuItems = [
@@ -116,12 +139,12 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = true, pathname = '/' }) =>
             className={`${isExpanded ? 'w-10 h-10' : 'w-8 h-8'} shrink-0 flex items-center justify-center transition-all duration-300`}
           >
             <img
-              src="/logo.svg?v=2"
+              src="/logo.svg"
               alt="SNV Logo"
               className="w-full h-full object-contain pointer-events-none"
               onError={(e) => {
                 const target = e.target as HTMLImageElement
-                target.src = '/logo.png?v=2' // Fallback to PNG if SVG fails
+                target.src = '/logo.png' // Fallback to PNG if SVG fails
               }}
             />
           </div>
@@ -190,7 +213,7 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = true, pathname = '/' }) =>
           {/* Header with toggle - only shown when sidebar is expanded */}
           {isExpanded && (
             <button
-              onClick={() => setShowActions(!showActions)}
+              onClick={toggleShowActions}
               className="w-full flex items-center justify-between px-2.5 mb-2 group transition-all duration-300"
             >
               <div className="text-[8px] font-black text-neutral-600 uppercase tracking-[0.3em]">

@@ -1,11 +1,16 @@
 ---
 import '@/styles/global.css'
 import Sidebar from '@/components/layout/Sidebar'
+import { ViewTransitions } from 'astro:transitions'
 const { title } = Astro.props
 
 // Get sidebar state from cookies
 const sidebarCookie = Astro.cookies.get('sidebar-expanded')
 const initialExpanded = sidebarCookie ? sidebarCookie.value === 'true' : true
+
+const showActionsCookie = Astro.cookies.get('sidebar-show-actions')
+const initialShowActions = showActionsCookie ? showActionsCookie.value === 'true' : false
+
 const pathname = Astro.url.pathname
 ---
 
@@ -14,11 +19,20 @@ const pathname = Astro.url.pathname
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/logo.webp" />
+    <!-- Preload logo to prevent flickering -->
+    <link rel="preload" href="/logo.svg" as="image" type="image/svg+xml" />
     <title>{title}</title>
+    <ViewTransitions />
   </head>
   <body class="bg-black text-white selection:bg-white selection:text-black overflow-hidden">
     <div class="flex h-screen w-screen">
-      <Sidebar client:load initialExpanded={initialExpanded} pathname={pathname} />
+      <Sidebar
+        transition:persist
+        client:load
+        initialExpanded={initialExpanded}
+        initialShowActions={initialShowActions}
+        pathname={pathname}
+      />
       <div class="flex-1 h-full overflow-y-auto">
         <slot />
       </div>
