@@ -64,23 +64,31 @@ const DeviceList: React.FC = () => {
   }
 
   const processedData = useMemo(() => {
-    if (!searchQuery) return data
+    let result = data
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      result = data
+        .map((subnet) => ({
+          ...subnet,
+          devices: subnet.devices.filter(
+            (device) =>
+              device.ipv4.toLowerCase().includes(query) ||
+              (device.name?.toLowerCase().includes(query) ?? false) ||
+              (device.sysName?.toLowerCase().includes(query) ?? false) ||
+              (device.sysLocation?.toLowerCase().includes(query) ?? false) ||
+              (device.sysDescr?.toLowerCase().includes(query) ?? false) ||
+              (device.macAddress?.toLowerCase().includes(query) ?? false)
+          ),
+        }))
+        .filter((subnet) => subnet.devices.length > 0)
+    }
 
-    const query = searchQuery.toLowerCase()
-    return data
-      .map((subnet) => ({
-        ...subnet,
-        devices: subnet.devices.filter(
-          (device) =>
-            device.ipv4.toLowerCase().includes(query) ||
-            (device.name?.toLowerCase().includes(query) ?? false) ||
-            (device.sysName?.toLowerCase().includes(query) ?? false) ||
-            (device.sysLocation?.toLowerCase().includes(query) ?? false) ||
-            (device.sysDescr?.toLowerCase().includes(query) ?? false) ||
-            (device.macAddress?.toLowerCase().includes(query) ?? false)
-        ),
-      }))
-      .filter((subnet) => subnet.devices.length > 0)
+    // Sort alphabetically by subnet name
+    return [...result].sort((a, b) => {
+      const nameA = a.name || `Subnet_${a.id}`
+      const nameB = b.name || `Subnet_${b.id}`
+      return nameA.localeCompare(nameB)
+    })
   }, [data, searchQuery])
 
   // Auto-expand on search
