@@ -25,7 +25,7 @@ interface Props {
   pathname?: string
 }
 
-const Sidebar: React.FC<Props> = ({ initialExpanded = false, pathname = '/' }) => {
+const Sidebar: React.FC<Props> = ({ initialExpanded = true, pathname = '/' }) => {
   const [currentPath, setCurrentPath] = useState(pathname)
   const [isExpanded, setIsExpanded] = useState(initialExpanded)
 

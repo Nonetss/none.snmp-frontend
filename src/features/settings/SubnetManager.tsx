@@ -14,6 +14,7 @@ import {
   Check,
   Search,
   Filter,
+  ChevronDown,
 } from 'lucide-react'
 
 interface SubnetInfo {
@@ -44,6 +45,7 @@ const SubnetManager: React.FC = () => {
 
   const [formData, setFormData] = useState({
     cidr: '',
+    mask: '24',
     subnetName: '',
   })
 
@@ -69,7 +71,7 @@ const SubnetManager: React.FC = () => {
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
       filtered = subnets.filter(
-        (s) => s.name.toLowerCase().includes(q) || s.cidr.toLowerCase().includes(q)
+        (s) => (s.name?.toLowerCase().includes(q) ?? false) || s.cidr.toLowerCase().includes(q)
       )
     }
     // Sort by ID ascending
@@ -79,18 +81,22 @@ const SubnetManager: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
+    const fullCidr = `${formData.cidr}/${formData.mask}`
     try {
       if (editingId) {
         await axios.patch(`/api/v0/snmp/subnet/${editingId}`, {
-          cidr: formData.cidr,
+          cidr: fullCidr,
           name: formData.subnetName,
         })
       } else {
-        await axios.post(`/api/v0/snmp/scan`, formData)
+        await axios.post(`/api/v0/snmp/scan`, {
+          cidr: fullCidr,
+          subnetName: formData.subnetName,
+        })
       }
       setShowForm(false)
       setEditingId(null)
-      setFormData({ cidr: '', subnetName: '' })
+      setFormData({ cidr: '', mask: '24', subnetName: '' })
       await fetchData()
     } catch (err: any) {
       alert(err.message || 'Operation failed')
@@ -101,8 +107,10 @@ const SubnetManager: React.FC = () => {
 
   const handleEdit = (subnet: SubnetInfo) => {
     setEditingId(subnet.id)
+    const [ip, mask] = subnet.cidr.split('/')
     setFormData({
-      cidr: subnet.cidr,
+      cidr: ip || subnet.cidr,
+      mask: mask || '24',
       subnetName: subnet.name,
     })
     setShowForm(true)
@@ -125,8 +133,9 @@ const SubnetManager: React.FC = () => {
 
   if (loading && subnets.length === 0)
     return (
-      <div className="flex items-center justify-center h-64 bg-black text-white font-mono">
-        <RefreshCcw className="w-8 h-8 animate-spin text-white" />
+      <div className="flex flex-col items-center justify-center h-[60vh] bg-black text-white font-mono">
+        <RefreshCcw className="w-8 h-8 animate-spin text-white mb-4" />
+        <span className="text-[10px] tracking-[0.3em] uppercase opacity-50">Loading.Subnets()</span>
       </div>
     )
 
@@ -264,18 +273,40 @@ const SubnetManager: React.FC = () => {
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               <div className="space-y-1.5">
                 <label className="text-[10px] text-neutral-500 uppercase font-bold tracking-tighter">
-                  CIDR Range
+                  Network Address Range
                 </label>
-                <div className="relative flex items-center">
-                  <Globe className="absolute mx-2 w-3.5 h-3.5 text-neutral-600" />
-                  <input
-                    type="text"
-                    value={formData.cidr}
-                    onChange={(e) => setFormData({ ...formData, cidr: e.target.value })}
-                    className="w-full bg-black border border-white/10 pl-9 pr-3 py-2 text-xs focus:outline-none focus:border-white/40 font-mono"
-                    placeholder="192.168.1.0/24"
-                    required
-                  />
+                <div className="grid grid-cols-4 gap-2">
+                  <div className="col-span-3 relative flex items-center">
+                    <Globe className="absolute mx-2 w-3.5 h-3.5 text-neutral-600" />
+                    <input
+                      type="text"
+                      value={formData.cidr}
+                      onChange={(e) => setFormData({ ...formData, cidr: e.target.value })}
+                      className="w-full bg-black border border-white/10 pl-9 pr-3 py-2 text-xs focus:outline-none focus:border-white/40 font-mono"
+                      placeholder="192.168.1.0"
+                      required
+                    />
+                  </div>
+                  <div className="col-span-1 relative flex items-center">
+                    <span className="absolute left-2 text-neutral-600 text-xs font-bold">/</span>
+                    <select
+                      value={formData.mask}
+                      onChange={(e) => setFormData({ ...formData, mask: e.target.value })}
+                      className="w-full bg-black border border-white/10 pl-5 pr-2 py-2 text-xs focus:outline-none focus:border-white/40 font-mono appearance-none cursor-pointer"
+                    >
+                      <option value="24">24</option>
+                      {Array.from({ length: 25 }, (_, i) => (32 - i).toString())
+                        .filter((m) => m !== '24')
+                        .map((m) => (
+                          <option key={m} value={m}>
+                            {m}
+                          </option>
+                        ))}
+                    </select>
+                    <div className="absolute right-2 pointer-events-none text-neutral-600">
+                      <ChevronDown className="w-3 h-3" />
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -296,7 +327,7 @@ const SubnetManager: React.FC = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full bg-white text-black py-2.5 text-xs font-bold uppercase tracking-widest hover:bg-neutral-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2 py-2"
+                  className="w-full bg-white text-black py-2.5 text-xs font-bold uppercase tracking-widest hover:bg-neutral-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {submitting && <RefreshCcw className="w-3 h-3 animate-spin" />}
                   {submitting
