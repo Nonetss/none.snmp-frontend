@@ -108,14 +108,14 @@ const Sidebar: React.FC<Props> = ({ initialExpanded = false, pathname = '/' }) =
       {/* Header & Toggle */}
       <div className="w-full px-4 mb-10 flex items-center h-8 relative">
         <div
-          className={`flex items-center gap-3 transition-all duration-300 ${isExpanded ? 'justify-start' : 'mx-auto'}`}
+          className={`flex items-center gap-3 transition-all duration-300 ${isExpanded ? 'justify-start' : 'mx-auto absolute left-1 '}`}
         >
-          <div className="w-8 h-8 shrink-0 border border-white flex items-center justify-center bg-white/5">
-            <Cpu className="w-5 h-5 text-white" />
+          <div className="w-15 h-15 shrink-0 flex items-center justify-center">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <div
             className={`text-xs font-black text-white tracking-[0.3em] uppercase whitespace-nowrap transition-all duration-300 overflow-hidden ${
-              isExpanded ? 'w-auto opacity-100 ml-3' : 'w-0 opacity-0 ml-0'
+              isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0 ml-0'
             }`}
           >
             none.snmp
