@@ -14,6 +14,7 @@ const TagManager: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [toast, setToast] = useState<{ message: string; visible: boolean }>({
@@ -87,14 +88,22 @@ const TagManager: React.FC = () => {
     setShowForm(true)
   }
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this tag?')) return
+  const handleDelete = (id: number) => {
+    setDeleteConfirmId(id)
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmId) return
+    setSubmitting(true)
     try {
-      await axios.delete(`/api/v0/tag/${id}`)
+      await axios.delete(`/api/v0/tag/${deleteConfirmId}`)
       showToast('Tag deleted successfully')
+      setDeleteConfirmId(null)
       await fetchData()
     } catch (err: any) {
       alert(err.message || 'Delete failed')
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -286,6 +295,61 @@ const TagManager: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/95 backdrop-blur-md p-4">
+          <div className="w-full max-w-sm bg-neutral-950 border border-red-500/30 shadow-[0_0_50px_-12px_rgba(239,68,68,0.3)] animate-in zoom-in-95 duration-200 overflow-hidden">
+            <div className="flex justify-between items-center p-4 border-b border-red-500/20 bg-red-500/5">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-500" />
+                <h2 className="text-sm font-bold uppercase tracking-widest text-red-500">
+                  Delete.Confirmation
+                </h2>
+              </div>
+              <button
+                onClick={() => setDeleteConfirmId(null)}
+                className="p-1 hover:bg-white/10 text-neutral-500 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              <div className="space-y-2 text-center">
+                <p className="text-xs text-neutral-200 font-bold uppercase tracking-tight">
+                  Are you absolutely sure?
+                </p>
+                <p className="text-[10px] text-neutral-500 uppercase leading-relaxed">
+                  This tag will be permanently removed from all assigned devices. This action cannot
+                  be undone.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeleteConfirmId(null)}
+                  className="flex-1 border border-white/10 py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all text-neutral-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  disabled={submitting}
+                  className="flex-1 bg-red-600 text-white py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-red-500 transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(220,38,38,0.3)]"
+                >
+                  {submitting ? (
+                    <RefreshCcw className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-3.5 h-3.5" />
+                  )}
+                  Permanently_Delete
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
