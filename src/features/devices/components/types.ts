@@ -30,6 +30,7 @@ export interface Root2 {
   services: Service[]
   bridge: Bridge
   hikvision?: Hikvision | null
+  tags?: Array<{ id: number; name: string; color: string }>
 }
 
 export interface Hikvision {
