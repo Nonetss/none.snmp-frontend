@@ -120,30 +120,40 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
 
   const chartData = useMemo(() => {
     if (!filteredData) return []
-    const timePoints = new Set<string>()
+
+    // Find the maximum number of history points among all devices/ports in filtered data
+    let maxPoints = 0
     filteredData.ports.forEach((port) => {
       port.devices.forEach((dev) => {
-        dev.history.forEach((h) => timePoints.add(h.checkTime))
+        if (dev.history.length > maxPoints) maxPoints = dev.history.length
       })
     })
 
-    return Array.from(timePoints)
-      .sort()
-      .map((time) => {
-        const point: any = {
-          time: new Date(time).toLocaleString([], { hour: '2-digit', minute: '2-digit' }),
-          fullTime: new Date(time).toLocaleString(),
-        }
-        filteredData.ports.forEach((port) => {
-          port.devices.forEach((dev) => {
-            const historyPoint = dev.history.find((h) => h.checkTime === time)
-            point[`${dev.name}_${port.port}`] = historyPoint?.status
+    return Array.from({ length: maxPoints }).map((_, idx) => {
+      const point: any = { index: idx }
+      let timeSet = false
+
+      filteredData.ports.forEach((port) => {
+        port.devices.forEach((dev) => {
+          // Access history from oldest to newest
+          const historyIdx = dev.history.length - 1 - (maxPoints - 1 - idx)
+          const historyPoint = dev.history[historyIdx]
+
+          if (historyPoint) {
+            point[`${dev.name}_${port.port}`] = historyPoint.status
               ? historyPoint.responseTime
               : null
-          })
+            if (!timeSet) {
+              const dt = new Date(historyPoint.checkTime)
+              point.time = dt.toLocaleString([], { hour: '2-digit', minute: '2-digit' })
+              point.fullTime = dt.toLocaleString()
+              timeSet = true
+            }
+          }
         })
-        return point
       })
+      return point
+    })
   }, [filteredData])
 
   const stats = useMemo(() => {

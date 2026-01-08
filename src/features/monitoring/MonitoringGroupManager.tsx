@@ -12,6 +12,8 @@ import {
   Check,
   Server,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react'
 import type { MonitoringGroup, MonitoringDevice } from './types'
 import { MonitoringGroupDevicesModal } from './components/MonitoringGroupDevicesModal'
@@ -25,6 +27,7 @@ const MonitoringGroupManager: React.FC = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   // Device Modal State
   const [deviceModal, setDeviceModal] = useState<{
@@ -157,103 +160,122 @@ const MonitoringGroupManager: React.FC = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header */}
       <div className="flex justify-between items-end border-b border-white/10 pb-6">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-4 bg-white" />
-            <h1 className="text-2xl font-bold tracking-tighter uppercase">DEVICE.GROUPS</h1>
-          </div>
-          <p className="text-[9px] text-neutral-500 uppercase tracking-[0.4em]">
-            Device Clusters for Custom Monitoring Rules
-          </p>
-        </div>
         <div className="flex items-center gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
-            <input
-              type="text"
-              placeholder="FILTER_GROUPS..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-neutral-900/50 border border-white/10 px-10 py-2 text-xs focus:outline-none focus:border-white/30 w-64 uppercase placeholder:text-neutral-500 font-mono"
-            />
-          </div>
           <button
-            onClick={() => {
-              setEditingGroup(null)
-              setFormData({ name: '', description: '' })
-              setShowForm(true)
-            }}
-            className="flex items-center gap-2 px-4 py-2 border border-white text-xs font-bold hover:bg-white hover:text-black transition-all uppercase"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-1 hover:bg-white/5 transition-colors"
           >
-            <Plus className="w-4 h-4" /> Add_New_Group
+            {isCollapsed ? (
+              <ChevronRight className="w-5 h-5 text-white" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-white" />
+            )}
           </button>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-4 bg-white" />
+              <h1 className="text-2xl font-bold tracking-tighter uppercase">DEVICE.GROUPS</h1>
+            </div>
+            {!isCollapsed && (
+              <p className="text-[9px] text-neutral-500 uppercase tracking-[0.4em] animate-in fade-in duration-300">
+                Device Clusters for Custom Monitoring Rules
+              </p>
+            )}
+          </div>
         </div>
+
+        {!isCollapsed && (
+          <div className="flex items-center gap-4 animate-in fade-in slide-in-from-right-2 duration-300">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
+              <input
+                type="text"
+                placeholder="FILTER_GROUPS..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-neutral-900/50 border border-white/10 px-10 py-2 text-xs focus:outline-none focus:border-white/30 w-64 uppercase placeholder:text-neutral-500 font-mono"
+              />
+            </div>
+            <button
+              onClick={() => {
+                setEditingGroup(null)
+                setFormData({ name: '', description: '' })
+                setShowForm(true)
+              }}
+              className="flex items-center gap-2 px-4 py-2 border border-white text-xs font-bold hover:bg-white hover:text-black transition-all uppercase"
+            >
+              <Plus className="w-4 h-4" /> Add_New_Group
+            </button>
+          </div>
+        )}
       </div>
 
-      {error && (
-        <div className="p-4 border border-red-500/50 bg-red-500/10 flex items-center gap-3 text-red-500 text-xs uppercase">
+      {error && !isCollapsed && (
+        <div className="p-4 border border-red-500/50 bg-red-500/10 flex items-center gap-3 text-red-500 text-xs uppercase animate-in fade-in">
           <AlertCircle className="w-4 h-4" /> {error}
         </div>
       )}
 
       {/* Groups Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {processedGroups.map((group) => (
-          <div
-            key={group.id}
-            className="group relative border border-white/10 bg-neutral-900/20 p-6 flex flex-col justify-between min-h-[160px] hover:border-white/30 transition-all"
-          >
-            <div className="flex justify-between items-start">
-              <div className="space-y-1">
+      {!isCollapsed && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in slide-in-from-top-2 duration-500">
+          {processedGroups.map((group) => (
+            <div
+              key={group.id}
+              className="group relative border border-white/10 bg-neutral-900/20 p-6 flex flex-col justify-between min-h-[160px] hover:border-white/30 transition-all"
+            >
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-neutral-400" />
+                    <span className="text-sm font-black uppercase tracking-widest text-white">
+                      {group.name}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-neutral-500 line-clamp-2 uppercase leading-relaxed">
+                    {group.description || 'No description provided'}
+                  </p>
+                </div>
+
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => handleEdit(group)}
+                    className="p-1.5 text-neutral-500 hover:text-white hover:bg-white/5 transition-colors"
+                    title="Edit Group"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(group.id)}
+                    className="p-1.5 text-neutral-500 hover:text-red-500 hover:bg-red-500/5 transition-colors"
+                    title="Delete Group"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t border-white/5">
                 <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-neutral-400" />
-                  <span className="text-sm font-black uppercase tracking-widest text-white">
-                    {group.name}
+                  <Server className="w-3 h-3 text-neutral-600" />
+                  <span className="text-[10px] font-bold text-neutral-400">
+                    {group.deviceCount ?? 0} DEVICES
                   </span>
                 </div>
-                <p className="text-[10px] text-neutral-500 line-clamp-2 uppercase leading-relaxed">
-                  {group.description || 'No description provided'}
-                </p>
-              </div>
-
-              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
-                  onClick={() => handleEdit(group)}
-                  className="p-1.5 text-neutral-500 hover:text-white hover:bg-white/5 transition-colors"
-                  title="Edit Group"
+                  onClick={() => openDeviceModal(group)}
+                  className="text-[10px] font-black uppercase tracking-[0.2em] text-white hover:underline flex items-center gap-1"
                 >
-                  <Edit2 className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => handleDelete(group.id)}
-                  className="p-1.5 text-neutral-500 hover:text-red-500 hover:bg-red-500/5 transition-colors"
-                  title="Delete Group"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  Manage_Devices <ChevronRight className="w-3 h-3" />
                 </button>
               </div>
             </div>
+          ))}
+        </div>
+      )}
 
-            <div className="flex items-center justify-between pt-4 border-t border-white/5">
-              <div className="flex items-center gap-2">
-                <Server className="w-3 h-3 text-neutral-600" />
-                <span className="text-[10px] font-bold text-neutral-400">
-                  {group.deviceCount ?? 0} DEVICES
-                </span>
-              </div>
-              <button
-                onClick={() => openDeviceModal(group)}
-                className="text-[10px] font-black uppercase tracking-[0.2em] text-white hover:underline flex items-center gap-1"
-              >
-                Manage_Devices <ChevronRight className="w-3 h-3" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {processedGroups.length === 0 && !loading && (
-        <div className="p-12 text-center border border-white/10 bg-neutral-900/5">
+      {!isCollapsed && processedGroups.length === 0 && !loading && (
+        <div className="p-12 text-center border border-white/10 bg-neutral-900/5 animate-in fade-in">
           <div className="flex flex-col items-center gap-3 opacity-30">
             <Users className="w-8 h-8" />
             <span className="text-[10px] uppercase tracking-[0.3em]">

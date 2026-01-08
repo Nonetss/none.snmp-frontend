@@ -16,6 +16,9 @@ import {
   Hash,
   Activity,
   Calendar,
+  ChevronDown,
+  ChevronUp,
+  ChevronRight,
 } from 'lucide-react'
 import type { MonitoringRule, MonitoringGroup, PortGroup } from './types'
 
@@ -29,6 +32,7 @@ const MonitoringRuleManager: React.FC = () => {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   const [toast, setToast] = useState<{ message: string; visible: boolean }>({
     message: '',
@@ -171,162 +175,183 @@ const MonitoringRuleManager: React.FC = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header */}
       <div className="flex justify-between items-end border-b border-white/10 pb-6">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-4 bg-white" />
-            <h1 className="text-2xl font-bold tracking-tighter uppercase">RULES</h1>
-          </div>
-          <p className="text-[9px] text-neutral-500 uppercase tracking-[0.4em]">
-            Automation Policies & Health Check Intervals
-          </p>
-        </div>
         <div className="flex items-center gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
-            <input
-              type="text"
-              placeholder="FILTER_RULES..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-neutral-900/50 border border-white/10 px-10 py-2 text-xs focus:outline-none focus:border-white/30 w-64 uppercase placeholder:text-neutral-500 font-mono"
-            />
-          </div>
           <button
-            onClick={() => {
-              setEditingId(null)
-              setShowForm(true)
-            }}
-            className="flex items-center gap-2 px-4 py-2 border border-white text-xs font-bold hover:bg-white hover:text-black transition-all uppercase"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-1 hover:bg-white/5 transition-colors"
           >
-            <Plus className="w-4 h-4" /> Create_New_Rule
+            {isCollapsed ? (
+              <ChevronRight className="w-5 h-5 text-white" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-white" />
+            )}
           </button>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-4 bg-white" />
+              <h1 className="text-2xl font-bold tracking-tighter uppercase">RULES</h1>
+            </div>
+            {!isCollapsed && (
+              <p className="text-[9px] text-neutral-500 uppercase tracking-[0.4em] animate-in fade-in duration-300">
+                Automation Policies & Health Check Intervals
+              </p>
+            )}
+          </div>
         </div>
+
+        {!isCollapsed && (
+          <div className="flex items-center gap-4 animate-in fade-in slide-in-from-right-2 duration-300">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
+              <input
+                type="text"
+                placeholder="FILTER_RULES..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-neutral-900/50 border border-white/10 px-10 py-2 text-xs focus:outline-none focus:border-white/30 w-64 uppercase placeholder:text-neutral-500 font-mono"
+              />
+            </div>
+            <button
+              onClick={() => {
+                setEditingId(null)
+                setShowForm(true)
+              }}
+              className="flex items-center gap-2 px-4 py-2 border border-white text-xs font-bold hover:bg-white hover:text-black transition-all uppercase"
+            >
+              <Plus className="w-4 h-4" /> Create_New_Rule
+            </button>
+          </div>
+        )}
       </div>
 
-      {error && (
+      {error && !isCollapsed && (
         <div className="p-4 border border-red-500/50 bg-red-500/10 flex items-center gap-3 text-red-500 text-xs uppercase">
           <AlertCircle className="w-4 h-4" /> {error}
         </div>
       )}
 
       {/* Rules Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {processedRules.map((rule) => (
-          <div
-            key={rule.id}
-            className={`group relative border ${
-              rule.enabled ? 'border-white/10' : 'border-white/5 opacity-60'
-            } bg-neutral-900/20 p-6 flex flex-col justify-between min-h-[160px] hover:border-white/30 transition-all`}
-          >
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex items-center gap-4">
-                <div
-                  className={`p-3 border transition-colors ${rule.enabled ? 'bg-white/5 border-white/10 text-white' : 'bg-black border-white/5 text-neutral-700'}`}
-                >
-                  <Shield className="w-5 h-5" />
+      {!isCollapsed && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in slide-in-from-top-2 duration-500">
+          {processedRules.map((rule) => (
+            <div
+              key={rule.id}
+              className={`group relative border ${
+                rule.enabled ? 'border-white/10' : 'border-white/5 opacity-60'
+              } bg-neutral-900/20 p-6 flex flex-col justify-between min-h-[160px] hover:border-white/30 transition-all`}
+            >
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`p-3 border transition-colors ${rule.enabled ? 'bg-white/5 border-white/10 text-white' : 'bg-black border-white/5 text-neutral-700'}`}
+                  >
+                    <Shield className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-white uppercase tracking-widest">
+                      {rule.name}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div
+                        className={`w-1.5 h-1.5 rounded-full ${rule.enabled ? 'bg-emerald-500 animate-pulse' : 'bg-neutral-700'}`}
+                      />
+                      <span className="text-[9px] text-neutral-500 uppercase font-bold tracking-widest">
+                        {rule.enabled ? 'ACTIVE_DAEMON' : 'PAUSED_DAEMON'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-sm font-black text-white uppercase tracking-widest">
-                    {rule.name}
-                  </h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div
-                      className={`w-1.5 h-1.5 rounded-full ${rule.enabled ? 'bg-emerald-500 animate-pulse' : 'bg-neutral-700'}`}
-                    />
-                    <span className="text-[9px] text-neutral-500 uppercase font-bold tracking-widest">
-                      {rule.enabled ? 'ACTIVE_DAEMON' : 'PAUSED_DAEMON'}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEdit(rule)}
+                    className="p-1.5 text-neutral-600 hover:text-white transition-colors border border-transparent hover:border-white/10 bg-white/0 hover:bg-white/5"
+                    title="Edit Rule"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => handleToggle(rule)}
+                    className={`p-1.5 transition-colors border border-transparent hover:border-white/10 bg-white/0 hover:bg-white/5 ${
+                      rule.enabled ? 'text-emerald-500' : 'text-neutral-600 hover:text-white'
+                    }`}
+                    title={rule.enabled ? 'Disable Rule' : 'Enable Rule'}
+                  >
+                    {rule.enabled ? (
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                    ) : (
+                      <Circle className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleDelete(rule.id)}
+                    className="p-1.5 text-neutral-600 hover:text-red-500 transition-colors border border-transparent hover:border-red-500/10 bg-white/0 hover:bg-red-500/5"
+                    title="Delete Rule"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2 p-3 bg-black/40 border border-white/5">
+                  <div className="flex items-center gap-2 text-neutral-600">
+                    <Users className="w-3 h-3" />
+                    <span className="text-[8px] font-black uppercase tracking-widest">
+                      Target Group
                     </span>
+                  </div>
+                  <div className="text-[10px] text-white font-bold uppercase truncate">
+                    {rule.deviceGroup?.name || `Group #${rule.deviceGroupId}`}
+                  </div>
+                </div>
+                <div className="space-y-2 p-3 bg-black/40 border border-white/5">
+                  <div className="flex items-center gap-2 text-neutral-600">
+                    <Hash className="w-3 h-3" />
+                    <span className="text-[8px] font-black uppercase tracking-widest">
+                      Port Set
+                    </span>
+                  </div>
+                  <div className="text-[10px] text-white font-bold uppercase truncate">
+                    {rule.portGroup?.name || `Ports #${rule.portGroupId}`}
                   </div>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleEdit(rule)}
-                  className="p-1.5 text-neutral-600 hover:text-white transition-colors border border-transparent hover:border-white/10 bg-white/0 hover:bg-white/5"
-                  title="Edit Rule"
-                >
-                  <Edit2 className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => handleToggle(rule)}
-                  className={`p-1.5 transition-colors border border-transparent hover:border-white/10 bg-white/0 hover:bg-white/5 ${
-                    rule.enabled ? 'text-emerald-500' : 'text-neutral-600 hover:text-white'
-                  }`}
-                  title={rule.enabled ? 'Disable Rule' : 'Enable Rule'}
-                >
-                  {rule.enabled ? (
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                  ) : (
-                    <Circle className="w-3.5 h-3.5" />
-                  )}
-                </button>
-                <button
-                  onClick={() => handleDelete(rule.id)}
-                  className="p-1.5 text-neutral-600 hover:text-red-500 transition-colors border border-transparent hover:border-red-500/10 bg-white/0 hover:bg-red-500/5"
-                  title="Delete Rule"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2 p-3 bg-black/40 border border-white/5">
-                <div className="flex items-center gap-2 text-neutral-600">
-                  <Users className="w-3 h-3" />
-                  <span className="text-[8px] font-black uppercase tracking-widest">
-                    Target Group
+              <div className="grid grid-cols-2 gap-4 pt-2 border-t border-white/5">
+                <div className="space-y-1">
+                  <span className="text-[8px] text-neutral-600 uppercase font-black tracking-widest">
+                    Schedule_Cron
                   </span>
+                  <div className="flex items-center gap-2 text-[10px] text-emerald-500 font-mono">
+                    <Calendar className="w-3 h-3 opacity-50" />
+                    {rule.cronExpression}
+                  </div>
                 </div>
-                <div className="text-[10px] text-white font-bold uppercase truncate">
-                  {rule.deviceGroup?.name || `Group #${rule.deviceGroupId}`}
-                </div>
-              </div>
-              <div className="space-y-2 p-3 bg-black/40 border border-white/5">
-                <div className="flex items-center gap-2 text-neutral-600">
-                  <Hash className="w-3 h-3" />
-                  <span className="text-[8px] font-black uppercase tracking-widest">Port Set</span>
-                </div>
-                <div className="text-[10px] text-white font-bold uppercase truncate">
-                  {rule.portGroup?.name || `Ports #${rule.portGroupId}`}
+                <div className="space-y-1">
+                  <span className="text-[8px] text-neutral-600 uppercase font-black tracking-widest">
+                    Next_Run
+                  </span>
+                  <div className="flex items-center gap-2 text-[10px] text-neutral-400 font-mono">
+                    <Clock className="w-3 h-3 opacity-50" />
+                    {rule.nextRun ? new Date(rule.nextRun).toLocaleTimeString() : 'WAITING'}
+                  </div>
                 </div>
               </div>
             </div>
+          ))}
+        </div>
+      )}
 
-            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-white/5">
-              <div className="space-y-1">
-                <span className="text-[8px] text-neutral-600 uppercase font-black tracking-widest">
-                  Schedule_Cron
-                </span>
-                <div className="flex items-center gap-2 text-[10px] text-emerald-500 font-mono">
-                  <Calendar className="w-3 h-3 opacity-50" />
-                  {rule.cronExpression}
-                </div>
-              </div>
-              <div className="space-y-1">
-                <span className="text-[8px] text-neutral-600 uppercase font-black tracking-widest">
-                  Next_Run
-                </span>
-                <div className="flex items-center gap-2 text-[10px] text-neutral-400 font-mono">
-                  <Clock className="w-3 h-3 opacity-50" />
-                  {rule.nextRun ? new Date(rule.nextRun).toLocaleTimeString() : 'WAITING'}
-                </div>
-              </div>
-            </div>
+      {!isCollapsed && rules.length === 0 && !loading && (
+        <div className="lg:col-span-2 p-20 text-center border border-dashed border-white/10 bg-neutral-900/5">
+          <div className="flex flex-col items-center gap-4 opacity-20">
+            <Activity className="w-12 h-12" />
+            <span className="text-[10px] uppercase tracking-[0.5em]">
+              No_Monitoring_Rules_Defined
+            </span>
           </div>
-        ))}
-
-        {rules.length === 0 && !loading && (
-          <div className="lg:col-span-2 p-20 text-center border border-dashed border-white/10 bg-neutral-900/5">
-            <div className="flex flex-col items-center gap-4 opacity-20">
-              <Activity className="w-12 h-12" />
-              <span className="text-[10px] uppercase tracking-[0.5em]">
-                No_Monitoring_Rules_Defined
-              </span>
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Modal Form */}
       {showForm && (
