@@ -1,5 +1,5 @@
 import React from 'react'
-import LocationManager from '@/features/settings/LocationManager'
+import LocationManager from '@/features/locations/LocationManager'
 
 interface Props {
   locationId?: string
