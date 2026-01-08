@@ -14,7 +14,7 @@ export const Header: React.FC<HeaderProps> = ({ currentTime }) => (
         </h1>
       </div>
       <p className="text-[11px] text-neutral-400 uppercase tracking-[0.4em]">
-        Autonomous Monitoring System v0.3.2
+        Autonomous Monitoring System v0.4.0
       </p>
     </div>
     <div className="text-right">
