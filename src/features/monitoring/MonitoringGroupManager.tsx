@@ -15,8 +15,8 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react'
-import type { MonitoringGroup, MonitoringDevice } from './types'
-import { MonitoringGroupDevicesModal } from './components/MonitoringGroupDevicesModal'
+import type { MonitoringGroup } from './types'
+import { MonitoringGroupFormModal } from './components/MonitoringGroupFormModal'
 
 const MonitoringGroupManager: React.FC = () => {
   const [groups, setGroups] = useState<MonitoringGroup[]>([])
@@ -29,23 +29,9 @@ const MonitoringGroupManager: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [isCollapsed, setIsCollapsed] = useState(false)
 
-  // Device Modal State
-  const [deviceModal, setDeviceModal] = useState<{
-    show: boolean
-    group: MonitoringGroup | null
-  }>({
-    show: false,
-    group: null,
-  })
-
   const [toast, setToast] = useState<{ message: string; visible: boolean }>({
     message: '',
     visible: false,
-  })
-
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
   })
 
   const showToast = (message: string) => {
@@ -81,34 +67,17 @@ const MonitoringGroupManager: React.FC = () => {
     return [...filtered].sort((a, b) => a.id - b.id)
   }, [groups, searchQuery])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSubmitting(true)
-
+  const handleEdit = async (group: MonitoringGroup) => {
     try {
-      if (editingGroup) {
-        await axios.patch(`/api/v0/monitor/group/${editingGroup.id}`, formData)
-        showToast('Group updated successfully')
-      } else {
-        await axios.post(`/api/v0/monitor/group`, formData)
-        showToast('Group created successfully')
-      }
-      handleCloseForm()
-      await fetchData()
+      setLoading(true)
+      const response = await axios.get(`/api/v0/monitor/group/${group.id}`)
+      setEditingGroup(response.data)
+      setShowForm(true)
     } catch (err: any) {
-      alert(err.response?.data?.message || err.message || 'Operation failed')
+      alert('Failed to fetch group details')
     } finally {
-      setSubmitting(false)
+      setLoading(false)
     }
-  }
-
-  const handleEdit = (group: MonitoringGroup) => {
-    setEditingGroup(group)
-    setFormData({
-      name: group.name,
-      description: group.description,
-    })
-    setShowForm(true)
   }
 
   const handleDelete = (id: number) => {
@@ -133,19 +102,6 @@ const MonitoringGroupManager: React.FC = () => {
   const handleCloseForm = () => {
     setShowForm(false)
     setEditingGroup(null)
-    setFormData({ name: '', description: '' })
-  }
-
-  const openDeviceModal = async (group: MonitoringGroup) => {
-    try {
-      setLoading(true)
-      const response = await axios.get(`/api/v0/monitor/group/${group.id}`)
-      setDeviceModal({ show: true, group: response.data })
-    } catch (err: any) {
-      alert('Failed to fetch group details')
-    } finally {
-      setLoading(false)
-    }
   }
 
   if (loading && groups.length === 0)
@@ -199,7 +155,6 @@ const MonitoringGroupManager: React.FC = () => {
             <button
               onClick={() => {
                 setEditingGroup(null)
-                setFormData({ name: '', description: '' })
                 setShowForm(true)
               }}
               className="flex items-center gap-2 px-4 py-2 border border-white text-xs font-bold hover:bg-white hover:text-black transition-all uppercase"
@@ -263,10 +218,10 @@ const MonitoringGroupManager: React.FC = () => {
                   </span>
                 </div>
                 <button
-                  onClick={() => openDeviceModal(group)}
+                  onClick={() => handleEdit(group)}
                   className="text-[10px] font-black uppercase tracking-[0.2em] text-white hover:underline flex items-center gap-1"
                 >
-                  Manage_Devices <ChevronRight className="w-3 h-3" />
+                  Manage_Group <ChevronRight className="w-3 h-3" />
                 </button>
               </div>
             </div>
@@ -285,65 +240,16 @@ const MonitoringGroupManager: React.FC = () => {
         </div>
       )}
 
-      {/* Modal Form */}
+      {/* Unified Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
-          <div className="w-full max-w-sm bg-neutral-950 border border-white/20 shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden">
-            <div className="flex justify-between items-center p-4 border-b border-white/10 bg-white/5">
-              <div className="flex items-center gap-2">
-                <div className="w-1 h-4 bg-white" />
-                <h2 className="text-sm font-bold uppercase tracking-widest">
-                  {editingGroup ? 'Edit.Group' : 'Create.New.Group'}
-                </h2>
-              </div>
-              <button
-                onClick={handleCloseForm}
-                className="p-1 hover:bg-white/10 text-neutral-500 hover:text-white transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-6 space-y-5">
-              <div className="space-y-1.5">
-                <label className="text-[10px] text-neutral-500 uppercase font-bold tracking-tighter">
-                  Group Name
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-black border border-white/10 p-2.5 text-xs focus:outline-none focus:border-white/40 font-mono uppercase"
-                  placeholder="E.G. CORE_SWITCHES"
-                  required
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] text-neutral-500 uppercase font-bold tracking-tighter">
-                  Description
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full bg-black border border-white/10 p-2.5 text-xs focus:outline-none focus:border-white/40 font-mono uppercase min-h-[100px]"
-                  placeholder="E.G. CRITICAL INFRASTRUCTURE MONITORING"
-                />
-              </div>
-
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full bg-white text-black py-3 text-xs font-bold uppercase tracking-widest hover:bg-neutral-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {submitting && <RefreshCcw className="w-4 h-4 animate-spin" />}
-                  {submitting ? 'Processing...' : editingGroup ? 'Update_Group' : 'Create_Group'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <MonitoringGroupFormModal
+          group={editingGroup}
+          onClose={handleCloseForm}
+          onSuccess={() => {
+            showToast(editingGroup ? 'Group updated successfully' : 'Group created successfully')
+            fetchData()
+          }}
+        />
       )}
 
       {/* Delete Confirmation Modal */}
@@ -398,17 +304,6 @@ const MonitoringGroupManager: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
-
-      {/* Device Modal */}
-      {deviceModal.show && deviceModal.group && (
-        <MonitoringGroupDevicesModal
-          group={deviceModal.group}
-          onClose={() => {
-            setDeviceModal({ show: false, group: null })
-            fetchData()
-          }}
-        />
       )}
 
       {/* Toast Notification */}
