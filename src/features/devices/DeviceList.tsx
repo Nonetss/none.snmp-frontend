@@ -16,7 +16,7 @@ import {
   Plus,
   Check,
 } from 'lucide-react'
-import { TagSelectorModal } from './components/TagSelectorModal'
+import { BulkAssignmentModal } from './components/BulkAssignmentModal'
 
 interface Device {
   id: number
@@ -63,19 +63,21 @@ const DeviceList: React.FC = () => {
   // Bulk Selection State
   const [selectedBulkDeviceIds, setSelectedBulkDeviceIds] = useState<number[]>([])
 
-  // Tag Assignment State
-  const [tagModal, setTagModal] = useState<{
+  // Assignment Modal State
+  const [assignModal, setAssignModal] = useState<{
     show: boolean
     deviceIds: number[]
     deviceName: string
     currentTagIds: number[]
+    currentLocationId: number | null
   }>({
     show: false,
     deviceIds: [],
     deviceName: '',
     currentTagIds: [],
+    currentLocationId: null,
   })
-  const [tagSubmitting, setTagSubmitting] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   const fetchData = async () => {
     setLoading(true)
@@ -101,7 +103,7 @@ const DeviceList: React.FC = () => {
   }, [])
 
   const handleAssignTags = async (deviceIds: number[], tagIds: number[]) => {
-    setTagSubmitting(true)
+    setSubmitting(true)
     try {
       // If it's a single device, we do the add/remove logic
       if (deviceIds.length === 1) {
@@ -128,22 +130,39 @@ const DeviceList: React.FC = () => {
         }
       } else {
         // Bulk assignment: we just ensure these tags are assigned to all selected devices
-        // Usually bulk unassign is a separate flow, but for now let's just support assigning
         await axios.post('/api/v0/tag/assign', {
           deviceIds: deviceIds,
           tagIds: tagIds,
         })
       }
 
-      setTagModal((prev) => ({ ...prev, show: false }))
+      setAssignModal((prev) => ({ ...prev, show: false }))
       setSelectedBulkDeviceIds([])
-      // Refresh devices to show new tags
-      const devicesRes = await axios.get(`/api/v0/search/device/list`)
-      setData(devicesRes.data)
+      // Refresh devices
+      fetchData()
     } catch (err: any) {
       alert(err.response?.data?.message || err.message || 'Tag assignment failed')
     } finally {
-      setTagSubmitting(false)
+      setSubmitting(false)
+    }
+  }
+
+  const handleAssignLocation = async (locationId: number) => {
+    if (assignModal.deviceIds.length === 0) return
+    setSubmitting(true)
+    try {
+      await axios.post('/api/v0/location/assign', {
+        locationId,
+        deviceIds: assignModal.deviceIds,
+        force: true, // Always force when manual selecting
+      })
+      setAssignModal((prev) => ({ ...prev, show: false }))
+      setSelectedBulkDeviceIds([])
+      fetchData()
+    } catch (err: any) {
+      alert(err.response?.data?.message || err.message || 'Location assignment failed')
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -153,14 +172,15 @@ const DeviceList: React.FC = () => {
     )
   }
 
-  const handleBulkTagAssign = () => {
+  const handleBulkAction = () => {
     if (selectedBulkDeviceIds.length === 0) return
 
-    setTagModal({
+    setAssignModal({
       show: true,
       deviceIds: selectedBulkDeviceIds,
       deviceName: `${selectedBulkDeviceIds.length} Selected Devices`,
-      currentTagIds: [], // Start fresh for bulk
+      currentTagIds: [],
+      currentLocationId: null,
     })
   }
 
@@ -506,15 +526,16 @@ const DeviceList: React.FC = () => {
                             ))}
                             <button
                               onClick={() =>
-                                setTagModal({
+                                setAssignModal({
                                   show: true,
                                   deviceIds: [device.id],
                                   deviceName: device.name || device.ipv4,
                                   currentTagIds: device.tags?.map((t) => t.id) || [],
+                                  currentLocationId: device.location?.id || null,
                                 })
                               }
                               className="p-1 border border-dashed border-white/10 text-neutral-600 hover:text-white hover:border-white/30 transition-all"
-                              title="Manage Tags"
+                              title="Manage Classification & Location"
                             >
                               <Plus className="w-3 h-3" />
                             </button>
@@ -569,10 +590,10 @@ const DeviceList: React.FC = () => {
 
             <div className="flex gap-3">
               <button
-                onClick={handleBulkTagAssign}
+                onClick={handleBulkAction}
                 className="flex items-center gap-2 px-4 py-2 bg-white text-black text-[10px] font-bold uppercase hover:bg-neutral-200 transition-all"
               >
-                <TagIcon className="w-3.5 h-3.5" /> Assign_Tags
+                <TagIcon className="w-3.5 h-3.5" /> Manage_Selection
               </button>
               <button
                 onClick={() => setSelectedBulkDeviceIds([])}
@@ -585,16 +606,19 @@ const DeviceList: React.FC = () => {
         </div>
       )}
 
-      {/* Tag Assignment Modal */}
-      <TagSelectorModal
-        show={tagModal.show}
-        deviceId={tagModal.deviceIds[0] || 0}
-        deviceName={tagModal.deviceName}
+      {/* Unified Assignment Modal */}
+      <BulkAssignmentModal
+        show={assignModal.show}
+        deviceIds={assignModal.deviceIds}
+        deviceName={assignModal.deviceName}
         availableTags={availableTags}
-        currentTagIds={tagModal.currentTagIds}
-        submitting={tagSubmitting}
-        onClose={() => setTagModal((prev) => ({ ...prev, show: false }))}
-        onAssign={(id, tagIds) => handleAssignTags(tagModal.deviceIds, tagIds)}
+        availableLocations={availableLocations}
+        currentTagIds={assignModal.currentTagIds}
+        currentLocationId={assignModal.currentLocationId}
+        submitting={submitting}
+        onClose={() => setAssignModal((prev) => ({ ...prev, show: false }))}
+        onAssignTags={handleAssignTags}
+        onAssignLocation={handleAssignLocation}
         onTagCreated={fetchData}
       />
 
