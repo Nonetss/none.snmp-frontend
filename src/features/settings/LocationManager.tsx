@@ -15,6 +15,7 @@ import {
   Layers,
   Link as LinkIcon,
   CheckCircle2,
+  Globe,
 } from 'lucide-react'
 
 interface Location {
@@ -46,7 +47,8 @@ interface Device {
 }
 
 interface DetailedLocation extends Location {
-  devices: Device[]
+  subnets: Subnet[]
+  children: Location[]
 }
 
 interface Props {
@@ -83,6 +85,8 @@ const LocationManager: React.FC<Props> = ({ initialViewingId = null }) => {
   const [subnetSearchQuery, setSubnetSearchQuery] = useState('')
 
   const [expandedSubnetsInModal, setExpandedSubnetsInModal] = useState<number[]>([])
+
+  const [expandedSubnetsInView, setExpandedSubnetsInView] = useState<number[]>([])
 
   const [conflictData, setConflictData] = useState<{ message: string; devices: any[] } | null>(null)
 
@@ -213,7 +217,8 @@ const LocationManager: React.FC<Props> = ({ initialViewingId = null }) => {
   }, [locations, searchQuery, viewingLocationId])
 
   const locationDevices = useMemo(() => {
-    return currentLocationDetails?.devices || []
+    if (!currentLocationDetails?.subnets) return []
+    return currentLocationDetails.subnets.flatMap((s) => s.devices || [])
   }, [currentLocationDetails])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -603,80 +608,105 @@ const LocationManager: React.FC<Props> = ({ initialViewingId = null }) => {
             </div>
           </div>
 
-          <div className="border border-white/10 bg-neutral-900/10 overflow-hidden">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-white/5 bg-black/40">
-                  <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500 w-16">
-                    ID
-                  </th>
-
-                  <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
-                    Identity
-                  </th>
-
-                  <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
-                    IP_Address
-                  </th>
-
-                  <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
-                    Sys_Location
-                  </th>
-
-                  <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500 text-right">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-white/5">
-                {locationDevices.map((device) => (
-                  <tr key={device.id} className="hover:bg-white/[0.02] group transition-colors">
-                    <td className="p-4 text-[11px] text-neutral-500 font-bold">#{device.id}</td>
-
-                    <td className="p-4">
-                      <div className="flex flex-col">
-                        <span className="text-xs font-bold text-neutral-300 uppercase tracking-wider group-hover:text-white transition-colors">
-                          {device.name || device.sysName || 'UNKNOWN_NODE'}
-                        </span>
-                      </div>
-                    </td>
-
-                    <td className="p-4">
-                      <span className="text-xs font-bold text-neutral-400 group-hover:text-neutral-300 font-mono transition-colors">
-                        {device.ipv4}
+          <div className="space-y-4">
+            {currentLocationDetails?.subnets.map((subnet) => (
+              <div
+                key={subnet.id}
+                className="border border-white/10 bg-neutral-900/10 overflow-hidden"
+              >
+                <button
+                  onClick={() => {
+                    setExpandedSubnetsInView((prev) =>
+                      prev.includes(subnet.id)
+                        ? prev.filter((id) => id !== subnet.id)
+                        : [...prev, subnet.id]
+                    )
+                  }}
+                  className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 transition-colors group"
+                >
+                  <div className="flex items-center gap-3">
+                    <Globe className="w-4 h-4 text-neutral-500 group-hover:text-white transition-colors" />
+                    <div className="text-left">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white">
+                        {subnet.name || 'Unnamed'} ({subnet.cidr})
                       </span>
-                    </td>
+                    </div>
+                    <span className="px-2 py-0.5 bg-white/5 text-[8px] text-neutral-500 uppercase font-bold border border-white/5">
+                      {subnet.devices?.length || 0} Units
+                    </span>
+                  </div>
+                  {expandedSubnetsInView.includes(subnet.id) ? (
+                    <ChevronDown className="w-4 h-4 text-neutral-600" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-neutral-600" />
+                  )}
+                </button>
 
-                    <td className="p-4">
-                      <span className="text-[10px] text-neutral-500 uppercase italic">
-                        {device.sysLocation || 'N/A'}
-                      </span>
-                    </td>
-
-                    <td className="p-4 text-right">
-                      <a
-                        href={`/devices/${device.id}`}
-                        className="inline-block p-1.5 border border-white/5 text-neutral-700 hover:text-white hover:border-white/40 transition-all"
-                      >
-                        <ChevronRight className="w-4 h-4" />
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-
-                {locationDevices.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="p-12 text-center text-[10px] text-neutral-600 uppercase tracking-widest"
-                    >
-                      No devices directly assigned to this location
-                    </td>
-                  </tr>
+                {expandedSubnetsInView.includes(subnet.id) && (
+                  <div className="overflow-x-auto animate-in slide-in-from-top-1 duration-200 border-t border-white/10">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-white/5 bg-black/40">
+                          <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500 w-16">
+                            ID
+                          </th>
+                          <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
+                            Identity
+                          </th>
+                          <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
+                            IP_Address
+                          </th>
+                          <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500 text-right">
+                            Action
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {subnet.devices?.map((device) => (
+                          <tr
+                            key={device.id}
+                            className="hover:bg-white/[0.02] group transition-colors"
+                          >
+                            <td className="p-4 text-[11px] text-neutral-500 font-bold">
+                              #{device.id}
+                            </td>
+                            <td className="p-4">
+                              <span className="text-xs font-bold text-neutral-300 uppercase tracking-wider group-hover:text-white transition-colors">
+                                {device.name || 'UNKNOWN_NODE'}
+                              </span>
+                            </td>
+                            <td className="p-4">
+                              <span className="text-xs font-bold text-neutral-400 group-hover:text-neutral-300 font-mono transition-colors">
+                                {device.ipv4}
+                              </span>
+                            </td>
+                            <td className="p-4 text-right">
+                              <a
+                                href={`/devices/${device.id}`}
+                                className="inline-block p-1.5 border border-white/5 text-neutral-700 hover:text-white hover:border-white/40 transition-all"
+                              >
+                                <ChevronRight className="w-4 h-4" />
+                              </a>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 )}
-              </tbody>
-            </table>
+              </div>
+            ))}
+
+            {locationDevices.length === 0 && !detailsLoading && (
+              <div className="p-12 text-center border border-white/10 bg-neutral-900/5">
+                <div className="flex flex-col items-center gap-3 opacity-30">
+                  <Search className="w-8 h-8" />
+                  <span className="text-[10px] uppercase tracking-[0.3em]">
+                    No_Devices_Assigned
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
