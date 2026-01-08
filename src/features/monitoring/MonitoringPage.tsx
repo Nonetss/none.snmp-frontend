@@ -1,10 +1,11 @@
 import React from 'react'
 import { Activity, Terminal } from 'lucide-react'
 import MonitoringGroupManager from './MonitoringGroupManager'
+import PortGroupManager from './PortGroupManager'
 
 const MonitoringPage: React.FC = () => {
   return (
-    <div className="p-8 bg-black text-white font-mono min-h-screen space-y-8 w-full">
+    <div className="p-8 bg-black text-white font-mono min-h-screen space-y-12 w-full">
       {/* Header */}
       <div className="flex flex-col gap-2 border-b border-white/10 pb-6">
         <div className="flex items-center gap-3">
@@ -18,6 +19,9 @@ const MonitoringPage: React.FC = () => {
 
       {/* Monitoring Group Manager Section */}
       <MonitoringGroupManager />
+
+      {/* Port Group Manager Section */}
+      <PortGroupManager />
 
       {/* Console Section */}
       <div className="border border-white/10 bg-black/60 p-4 font-mono">

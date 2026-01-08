@@ -20,6 +20,19 @@ export interface MonitoringDevice {
   subnetName?: string
 }
 
+export interface PortGroup {
+  id: number
+  name: string
+  description: string
+  items?: PortGroupItem[]
+}
+
+export interface PortGroupItem {
+  id?: number
+  port: number
+  expectedStatus: boolean
+}
+
 export interface CreateMonitoringGroupDto {
   name: string
   description: string
