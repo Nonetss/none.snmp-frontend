@@ -41,7 +41,7 @@ const MonitoringPage: React.FC = () => {
             </div>
           )}
 
-          <div className="flex p-1 bg-white/5 border border-white/5 rounded-sm">
+          <div className="flex p-1 bg-white/5 border border-white/5">
             <button
               onClick={() => setActiveTab('status')}
               className={`flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${

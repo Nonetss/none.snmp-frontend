@@ -159,7 +159,7 @@ const MonitoringStatusView: React.FC<Props> = ({ autoRefresh, setAutoRefresh }) 
                     Deep.Analysis
                   </span>
                 </a>
-                <div className="flex items-center gap-2 px-2 py-0.5 bg-black/40 border border-white/5 rounded-full">
+                <div className="flex items-center gap-2 px-2 py-0.5 bg-black/40 border border-white/5">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="text-[8px] font-black text-neutral-400 uppercase tracking-tighter">
                     Monitoring {rule.ports.reduce((acc, p) => acc + p.devices.length, 0)} Targets
