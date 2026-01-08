@@ -54,7 +54,10 @@ const MonitoringStatusView: React.FC = () => {
   }, [autoRefresh])
 
   const toggleRule = (id: number) => {
-    setExpandedRules((prev) => ({ ...prev, [id]: !prev[id] }))
+    setExpandedRules((prev) => ({
+      ...prev,
+      [id]: !(prev[id] ?? true),
+    }))
   }
 
   // Pre-process data for a specific rule and port to work with Recharts
@@ -170,7 +173,7 @@ const MonitoringStatusView: React.FC = () => {
                     Monitoring {rule.ports.reduce((acc, p) => acc + p.devices.length, 0)} Nodes
                   </span>
                 </div>
-                {expandedRules[rule.id] ? (
+                {(expandedRules[rule.id] ?? true) ? (
                   <ChevronUp className="w-4 h-4 text-neutral-600" />
                 ) : (
                   <ChevronDown className="w-4 h-4 text-neutral-600" />
@@ -178,7 +181,7 @@ const MonitoringStatusView: React.FC = () => {
               </div>
             </button>
 
-            {(!expandedRules.hasOwnProperty(rule.id) || expandedRules[rule.id]) && (
+            {(expandedRules[rule.id] ?? true) && (
               <div className="p-6 space-y-12 animate-in slide-in-from-top-2 duration-300">
                 {rule.ports.map((port) => {
                   const chartData = getChartData(rule, port.port)
