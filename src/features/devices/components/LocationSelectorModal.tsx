@@ -11,17 +11,17 @@ interface LocationItem {
 
 interface Props {
   show: boolean
-  deviceId: number
+  deviceIds: number[]
   deviceName: string
   currentLocationId: number | null
   submitting: boolean
   onClose: () => void
-  onAssign: (locationId: number) => Promise<void>
+  onAssign: (locationId: number, deviceIds: number[]) => Promise<void>
 }
 
 export const LocationSelectorModal: React.FC<Props> = ({
   show,
-  deviceId,
+  deviceIds,
   deviceName,
   currentLocationId,
   submitting,
@@ -150,7 +150,7 @@ export const LocationSelectorModal: React.FC<Props> = ({
               Cancel
             </button>
             <button
-              onClick={() => selectedId && onAssign(selectedId)}
+              onClick={() => selectedId && onAssign(selectedId, deviceIds)}
               disabled={submitting || !selectedId || selectedId === currentLocationId}
               className="flex-2 bg-white text-black py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >

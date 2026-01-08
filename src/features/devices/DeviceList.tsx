@@ -16,7 +16,8 @@ import {
   Plus,
   Check,
 } from 'lucide-react'
-import { BulkAssignmentModal } from './components/BulkAssignmentModal'
+import { TagSelectorModal } from './components/TagSelectorModal'
+import { LocationSelectorModal } from './components/LocationSelectorModal'
 
 interface Device {
   id: number
@@ -63,20 +64,32 @@ const DeviceList: React.FC = () => {
   // Bulk Selection State
   const [selectedBulkDeviceIds, setSelectedBulkDeviceIds] = useState<number[]>([])
 
-  // Assignment Modal State
-  const [assignModal, setAssignModal] = useState<{
+  // Tag Modal State
+  const [tagModal, setTagModal] = useState<{
     show: boolean
     deviceIds: number[]
     deviceName: string
     currentTagIds: number[]
-    currentLocationId: number | null
   }>({
     show: false,
     deviceIds: [],
     deviceName: '',
     currentTagIds: [],
+  })
+
+  // Location Modal State
+  const [locModal, setLocModal] = useState<{
+    show: boolean
+    deviceIds: number[]
+    deviceName: string
+    currentLocationId: number | null
+  }>({
+    show: false,
+    deviceIds: [],
+    deviceName: '',
     currentLocationId: null,
   })
+
   const [submitting, setSubmitting] = useState(false)
 
   const fetchData = async () => {
@@ -129,16 +142,15 @@ const DeviceList: React.FC = () => {
           })
         }
       } else {
-        // Bulk assignment: we just ensure these tags are assigned to all selected devices
+        // Bulk assignment
         await axios.post('/api/v0/tag/assign', {
           deviceIds: deviceIds,
           tagIds: tagIds,
         })
       }
 
-      setAssignModal((prev) => ({ ...prev, show: false }))
+      setTagModal((prev) => ({ ...prev, show: false }))
       setSelectedBulkDeviceIds([])
-      // Refresh devices
       fetchData()
     } catch (err: any) {
       alert(err.response?.data?.message || err.message || 'Tag assignment failed')
@@ -147,16 +159,15 @@ const DeviceList: React.FC = () => {
     }
   }
 
-  const handleAssignLocation = async (locationId: number) => {
-    if (assignModal.deviceIds.length === 0) return
+  const handleAssignLocation = async (locationId: number, deviceIds: number[]) => {
     setSubmitting(true)
     try {
       await axios.post('/api/v0/location/assign', {
         locationId,
-        deviceIds: assignModal.deviceIds,
+        deviceIds: deviceIds,
         force: true, // Always force when manual selecting
       })
-      setAssignModal((prev) => ({ ...prev, show: false }))
+      setLocModal((prev) => ({ ...prev, show: false }))
       setSelectedBulkDeviceIds([])
       fetchData()
     } catch (err: any) {
@@ -170,18 +181,6 @@ const DeviceList: React.FC = () => {
     setSelectedBulkDeviceIds((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     )
-  }
-
-  const handleBulkAction = () => {
-    if (selectedBulkDeviceIds.length === 0) return
-
-    setAssignModal({
-      show: true,
-      deviceIds: selectedBulkDeviceIds,
-      deviceName: `${selectedBulkDeviceIds.length} Selected Devices`,
-      currentTagIds: [],
-      currentLocationId: null,
-    })
   }
 
   const toggleSubnet = (id: number) => {
@@ -524,21 +523,36 @@ const DeviceList: React.FC = () => {
                                 </span>
                               </div>
                             ))}
-                            <button
-                              onClick={() =>
-                                setAssignModal({
-                                  show: true,
-                                  deviceIds: [device.id],
-                                  deviceName: device.name || device.ipv4,
-                                  currentTagIds: device.tags?.map((t) => t.id) || [],
-                                  currentLocationId: device.location?.id || null,
-                                })
-                              }
-                              className="p-1 border border-dashed border-white/10 text-neutral-600 hover:text-white hover:border-white/30 transition-all"
-                              title="Manage Classification & Location"
-                            >
-                              <Plus className="w-3 h-3" />
-                            </button>
+                            <div className="flex items-center gap-1 ml-auto">
+                              <button
+                                onClick={() =>
+                                  setLocModal({
+                                    show: true,
+                                    deviceIds: [device.id],
+                                    deviceName: device.name || device.ipv4,
+                                    currentLocationId: device.location?.id || null,
+                                  })
+                                }
+                                className="p-1 border border-dashed border-white/10 text-neutral-600 hover:text-white hover:border-white/30 transition-all"
+                                title="Set Location"
+                              >
+                                <MapPin className="w-3 h-3" />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  setTagModal({
+                                    show: true,
+                                    deviceIds: [device.id],
+                                    deviceName: device.name || device.ipv4,
+                                    currentTagIds: device.tags?.map((t) => t.id) || [],
+                                  })
+                                }
+                                className="p-1 border border-dashed border-white/10 text-neutral-600 hover:text-white hover:border-white/30 transition-all"
+                                title="Manage Tags"
+                              >
+                                <TagIcon className="w-3 h-3" />
+                              </button>
+                            </div>
                           </div>
                         </td>
                         <td className="p-4 text-right">
@@ -590,10 +604,30 @@ const DeviceList: React.FC = () => {
 
             <div className="flex gap-3">
               <button
-                onClick={handleBulkAction}
+                onClick={() =>
+                  setLocModal({
+                    show: true,
+                    deviceIds: selectedBulkDeviceIds,
+                    deviceName: `${selectedBulkDeviceIds.length} Selected Devices`,
+                    currentLocationId: null,
+                  })
+                }
                 className="flex items-center gap-2 px-4 py-2 bg-white text-black text-[10px] font-bold uppercase hover:bg-neutral-200 transition-all"
               >
-                <TagIcon className="w-3.5 h-3.5" /> Manage_Selection
+                <MapPin className="w-3.5 h-3.5" /> Assign_Location
+              </button>
+              <button
+                onClick={() =>
+                  setTagModal({
+                    show: true,
+                    deviceIds: selectedBulkDeviceIds,
+                    deviceName: `${selectedBulkDeviceIds.length} Selected Devices`,
+                    currentTagIds: [],
+                  })
+                }
+                className="flex items-center gap-2 px-4 py-2 bg-white text-black text-[10px] font-bold uppercase hover:bg-neutral-200 transition-all"
+              >
+                <TagIcon className="w-3.5 h-3.5" /> Assign_Tags
               </button>
               <button
                 onClick={() => setSelectedBulkDeviceIds([])}
@@ -606,20 +640,28 @@ const DeviceList: React.FC = () => {
         </div>
       )}
 
-      {/* Unified Assignment Modal */}
-      <BulkAssignmentModal
-        show={assignModal.show}
-        deviceIds={assignModal.deviceIds}
-        deviceName={assignModal.deviceName}
+      {/* Tag Assignment Modal */}
+      <TagSelectorModal
+        show={tagModal.show}
+        deviceIds={tagModal.deviceIds}
+        deviceName={tagModal.deviceName}
         availableTags={availableTags}
-        availableLocations={availableLocations}
-        currentTagIds={assignModal.currentTagIds}
-        currentLocationId={assignModal.currentLocationId}
+        currentTagIds={tagModal.currentTagIds}
         submitting={submitting}
-        onClose={() => setAssignModal((prev) => ({ ...prev, show: false }))}
-        onAssignTags={handleAssignTags}
-        onAssignLocation={handleAssignLocation}
+        onClose={() => setTagModal((prev) => ({ ...prev, show: false }))}
+        onAssign={handleAssignTags}
         onTagCreated={fetchData}
+      />
+
+      {/* Location Assignment Modal */}
+      <LocationSelectorModal
+        show={locModal.show}
+        deviceIds={locModal.deviceIds}
+        deviceName={locModal.deviceName}
+        currentLocationId={locModal.currentLocationId}
+        submitting={submitting}
+        onClose={() => setLocModal((prev) => ({ ...prev, show: false }))}
+        onAssign={handleAssignLocation}
       />
 
       {/* Footer System Info */}

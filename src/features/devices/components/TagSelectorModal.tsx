@@ -10,19 +10,19 @@ interface TagItem {
 
 interface Props {
   show: boolean
-  deviceId: number
+  deviceIds: number[]
   deviceName: string
   availableTags: TagItem[]
   currentTagIds: number[]
   submitting: boolean
   onClose: () => void
-  onAssign: (deviceId: number, tagIds: number[]) => Promise<void>
+  onAssign: (deviceIds: number[], tagIds: number[]) => Promise<void>
   onTagCreated: () => Promise<void>
 }
 
 export const TagSelectorModal: React.FC<Props> = ({
   show,
-  deviceId,
+  deviceIds,
   deviceName,
   availableTags,
   currentTagIds,
@@ -227,7 +227,7 @@ export const TagSelectorModal: React.FC<Props> = ({
           {!showCreateForm && (
             <div className="pt-4 border-t border-white/5">
               <button
-                onClick={() => onAssign(deviceId, selectedIds)}
+                onClick={() => onAssign(deviceIds, selectedIds)}
                 disabled={submitting}
                 className="w-full bg-white text-black py-3 text-xs font-bold uppercase tracking-widest hover:bg-neutral-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
