@@ -217,12 +217,12 @@ const MonitoringStatusView: React.FC<Props> = ({ autoRefresh, setAutoRefresh }) 
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f" vertical={false} />
                         <XAxis
-                          dataKey="time"
+                          dataKey="index"
                           stroke="#404040"
                           fontSize={8}
                           tickLine={false}
                           axisLine={false}
-                          minTickGap={20}
+                          tick={false}
                         />
                         <YAxis
                           stroke="#404040"
@@ -239,6 +239,14 @@ const MonitoringStatusView: React.FC<Props> = ({ autoRefresh, setAutoRefresh }) 
                             fontFamily: 'monospace',
                           }}
                           itemStyle={{ padding: '1px 0' }}
+                          labelFormatter={(val, items) => {
+                            if (items && items.length > 0) {
+                              return items[0].payload.time
+                            }
+                            return val
+                          }}
+                          isAnimationActive={false}
+                          cursor={{ stroke: '#ffffff', strokeWidth: 0.5, strokeDasharray: '4 4' }}
                         />
                         <Legend
                           verticalAlign="top"

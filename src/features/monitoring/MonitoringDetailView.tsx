@@ -402,8 +402,10 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
                   fontSize: '11px',
                   fontFamily: 'monospace',
                 }}
-                labelFormatter={(idx) => chartData[idx]?.fullTime || ''}
+                labelFormatter={(idx) => chartData[Number(idx)]?.fullTime || ''}
                 itemStyle={{ padding: '1px 0' }}
+                isAnimationActive={false}
+                cursor={{ stroke: '#ffffff', strokeWidth: 0.5, strokeDasharray: '4 4' }}
               />
               <Legend
                 verticalAlign="top"
