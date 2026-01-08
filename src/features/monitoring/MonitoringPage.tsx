@@ -2,6 +2,7 @@ import React from 'react'
 import { Activity, Terminal } from 'lucide-react'
 import MonitoringGroupManager from './MonitoringGroupManager'
 import PortGroupManager from './PortGroupManager'
+import MonitoringRuleManager from './MonitoringRuleManager'
 
 const MonitoringPage: React.FC = () => {
   return (
@@ -22,6 +23,9 @@ const MonitoringPage: React.FC = () => {
 
       {/* Port Group Manager Section */}
       <PortGroupManager />
+
+      {/* Monitoring Rule Manager Section */}
+      <MonitoringRuleManager />
 
       {/* Console Section */}
       <div className="border border-white/10 bg-black/60 p-4 font-mono">

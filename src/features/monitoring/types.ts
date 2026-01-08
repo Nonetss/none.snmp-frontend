@@ -33,6 +33,19 @@ export interface PortGroupItem {
   expectedStatus: boolean
 }
 
+export interface MonitoringRule {
+  id: number
+  name: string
+  deviceGroupId: number
+  portGroupId: number
+  enabled: boolean
+  cronExpression: string
+  deviceGroup?: MonitoringGroup
+  portGroup?: PortGroup
+  lastRun?: string | null
+  nextRun?: string | null
+}
+
 export interface CreateMonitoringGroupDto {
   name: string
   description: string
