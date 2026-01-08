@@ -28,6 +28,12 @@ interface Device {
   macAddress: string | null
   status: boolean
   tags?: Array<{ id: number; name: string; color: string }>
+  location?: {
+    id: number
+    name: string
+    description: string | null
+    parentId: number | null
+  } | null
 }
 
 interface TagItem {
@@ -46,9 +52,12 @@ interface SubnetWithDevices {
 const DeviceList: React.FC = () => {
   const [data, setData] = useState<SubnetWithDevices[]>([])
   const [availableTags, setAvailableTags] = useState<TagItem[]>([])
+  const [availableLocations, setAvailableLocations] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedTagFilter, setSelectedTagFilter] = useState<number | null>(null)
+  const [selectedLocationFilter, setSelectedLocationFilter] = useState<number | null>(null)
   const [expandedSubnets, setExpandedSubnets] = useState<Record<number, boolean>>({})
 
   // Bulk Selection State
@@ -71,12 +80,14 @@ const DeviceList: React.FC = () => {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const [devicesRes, tagsRes] = await Promise.all([
+      const [devicesRes, tagsRes, locationsRes] = await Promise.all([
         axios.get(`/api/v0/search/device/list`),
         axios.get(`/api/v0/tag`),
+        axios.get(`/api/v0/location`),
       ])
       setData(devicesRes.data)
       setAvailableTags(tagsRes.data || [])
+      setAvailableLocations(locationsRes.data || [])
       setError(null)
     } catch (err: any) {
       setError(err.message || 'Failed to fetch data')
@@ -162,42 +173,55 @@ const DeviceList: React.FC = () => {
 
   const processedData = useMemo(() => {
     let result = data
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      result = data
-        .map((subnet) => ({
-          ...subnet,
-          devices: subnet.devices.filter(
-            (device) =>
-              device.ipv4.toLowerCase().includes(query) ||
-              (device.name?.toLowerCase().includes(query) ?? false) ||
-              (device.sysName?.toLowerCase().includes(query) ?? false) ||
-              (device.sysLocation?.toLowerCase().includes(query) ?? false) ||
-              (device.sysDescr?.toLowerCase().includes(query) ?? false) ||
-              (device.macAddress?.toLowerCase().includes(query) ?? false)
-          ),
-        }))
-        .filter((subnet) => subnet.devices.length > 0)
-    }
+    const query = searchQuery.toLowerCase()
+
+    result = data.map((subnet) => ({
+      ...subnet,
+      devices: subnet.devices.filter((device) => {
+        // Search Query filter
+        const matchesQuery =
+          !searchQuery ||
+          device.ipv4.toLowerCase().includes(query) ||
+          (device.name?.toLowerCase().includes(query) ?? false) ||
+          (device.sysName?.toLowerCase().includes(query) ?? false) ||
+          (device.sysLocation?.toLowerCase().includes(query) ?? false) ||
+          (device.location?.name?.toLowerCase().includes(query) ?? false) ||
+          (device.sysDescr?.toLowerCase().includes(query) ?? false) ||
+          (device.macAddress?.toLowerCase().includes(query) ?? false)
+
+        // Tag filter
+        const matchesTag =
+          !selectedTagFilter || (device.tags?.some((t) => t.id === selectedTagFilter) ?? false)
+
+        // Location filter
+        const matchesLocation =
+          !selectedLocationFilter || device.location?.id === selectedLocationFilter
+
+        return matchesQuery && matchesTag && matchesLocation
+      }),
+    }))
+
+    // Filter out subnets with no matching devices
+    const filteredResult = result.filter((subnet) => subnet.devices.length > 0)
 
     // Sort alphabetically by subnet name
-    return [...result].sort((a, b) => {
+    return [...filteredResult].sort((a, b) => {
       const nameA = a.name || `Subnet_${a.id}`
       const nameB = b.name || `Subnet_${b.id}`
       return nameA.localeCompare(nameB)
     })
-  }, [data, searchQuery])
+  }, [data, searchQuery, selectedTagFilter, selectedLocationFilter])
 
-  // Auto-expand on search
+  // Auto-expand on search or filters
   useEffect(() => {
-    if (searchQuery) {
+    if (searchQuery || selectedTagFilter || selectedLocationFilter) {
       const newExpanded: Record<number, boolean> = {}
       processedData.forEach((s) => {
         newExpanded[s.id] = true
       })
       setExpandedSubnets(newExpanded)
     }
-  }, [searchQuery, processedData])
+  }, [searchQuery, selectedTagFilter, selectedLocationFilter, processedData])
 
   const totalDevices = useMemo(() => {
     return data.reduce((acc, subnet) => acc + subnet.devices.length, 0)
@@ -243,6 +267,44 @@ const DeviceList: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-4">
+          {/* Tag Filter */}
+          <div className="relative">
+            <select
+              value={selectedTagFilter || ''}
+              onChange={(e) =>
+                setSelectedTagFilter(e.target.value ? parseInt(e.target.value) : null)
+              }
+              className="bg-neutral-900/50 border border-white/10 px-4 py-2 text-xs focus:outline-none focus:border-white/30 uppercase font-mono appearance-none pr-8 cursor-pointer text-neutral-400"
+            >
+              <option value="">Filter_By_Tag</option>
+              {availableTags.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+            <TagIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-neutral-600 pointer-events-none" />
+          </div>
+
+          {/* Location Filter */}
+          <div className="relative">
+            <select
+              value={selectedLocationFilter || ''}
+              onChange={(e) =>
+                setSelectedLocationFilter(e.target.value ? parseInt(e.target.value) : null)
+              }
+              className="bg-neutral-900/50 border border-white/10 px-4 py-2 text-xs focus:outline-none focus:border-white/30 uppercase font-mono appearance-none pr-8 cursor-pointer text-neutral-400"
+            >
+              <option value="">Filter_By_Location</option>
+              {availableLocations.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.name}
+                </option>
+              ))}
+            </select>
+            <MapPin className="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-neutral-600 pointer-events-none" />
+          </div>
+
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
             <input
@@ -412,7 +474,9 @@ const DeviceList: React.FC = () => {
                         <td className="p-4">
                           <div className="flex items-center gap-2 text-[11px] text-neutral-500 uppercase">
                             <MapPin className="w-3 h-3" />
-                            <span>{device.sysLocation || 'NOT_DEFINED'}</span>
+                            <span>
+                              {device.location?.name || device.sysLocation || 'NOT_DEFINED'}
+                            </span>
                           </div>
                         </td>
                         <td className="p-4 hidden lg:table-cell max-w-xs">
