@@ -221,6 +221,31 @@ const LocationManager: React.FC<Props> = ({ initialViewingId = null }) => {
     return currentLocationDetails.subnets.flatMap((s) => s.devices || [])
   }, [currentLocationDetails])
 
+  const filteredDetailedSubnets = useMemo(() => {
+    if (!currentLocationDetails?.subnets) return []
+    if (!searchQuery) return currentLocationDetails.subnets
+
+    const query = searchQuery.toLowerCase()
+    return currentLocationDetails.subnets
+      .map((s) => ({
+        ...s,
+        devices:
+          s.devices?.filter(
+            (d) =>
+              (d.name?.toLowerCase().includes(query) ?? false) ||
+              d.ipv4.toLowerCase().includes(query)
+          ) || [],
+      }))
+      .filter((s) => s.devices.length > 0)
+  }, [currentLocationDetails, searchQuery])
+
+  // Auto-expand detailed subnets on search
+  useEffect(() => {
+    if (searchQuery && filteredDetailedSubnets.length > 0) {
+      setExpandedSubnetsInView(filteredDetailedSubnets.map((s) => s.id))
+    }
+  }, [searchQuery, filteredDetailedSubnets])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -416,10 +441,9 @@ const LocationManager: React.FC<Props> = ({ initialViewingId = null }) => {
         <div className="flex items-center gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
-
             <input
               type="text"
-              placeholder="FILTER_LOCATIONS..."
+              placeholder="SEARCH_LOCATIONS_OR_DEVICES..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="bg-neutral-900/50 border border-white/10 px-10 py-2 text-xs focus:outline-none focus:border-white/30 w-64 uppercase placeholder:text-neutral-500 font-mono"
@@ -609,7 +633,7 @@ const LocationManager: React.FC<Props> = ({ initialViewingId = null }) => {
           </div>
 
           <div className="space-y-4">
-            {currentLocationDetails?.subnets.map((subnet) => (
+            {filteredDetailedSubnets.map((subnet) => (
               <div
                 key={subnet.id}
                 className="border border-white/10 bg-neutral-900/10 overflow-hidden"
