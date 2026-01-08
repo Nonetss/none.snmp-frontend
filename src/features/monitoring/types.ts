@@ -14,6 +14,10 @@ export interface MonitoringDevice {
   sysName?: string | null
   macAddress?: string | null
   status?: boolean
+  tags?: Array<{ id: number; name: string; color: string }>
+  location?: { id: number; name: string } | null
+  subnetId?: number
+  subnetName?: string
 }
 
 export interface CreateMonitoringGroupDto {
