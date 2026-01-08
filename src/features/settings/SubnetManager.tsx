@@ -22,6 +22,7 @@ interface SubnetInfo {
   name: string
   cidr: string
   deviceCount: number
+  scanPingable?: boolean
 }
 
 const SubnetManager: React.FC = () => {
@@ -47,6 +48,7 @@ const SubnetManager: React.FC = () => {
     cidr: '',
     mask: '24',
     subnetName: '',
+    createIfPingable: false,
   })
 
   const fetchData = async () => {
@@ -96,16 +98,18 @@ const SubnetManager: React.FC = () => {
         await axios.patch(`/api/v0/snmp/subnet/${editingId}`, {
           cidr: fullCidr,
           name: formData.subnetName,
+          scanPingable: formData.createIfPingable,
         })
       } else {
         await axios.post(`/api/v0/snmp/scan`, {
           cidr: fullCidr,
           subnetName: formData.subnetName,
+          createIfPingable: formData.createIfPingable,
         })
       }
       setShowForm(false)
       setEditingId(null)
-      setFormData({ cidr: '', mask: '24', subnetName: '' })
+      setFormData({ cidr: '', mask: '24', subnetName: '', createIfPingable: false })
       await fetchData()
     } catch (err: any) {
       alert(err.message || 'Operation failed')
@@ -125,6 +129,7 @@ const SubnetManager: React.FC = () => {
       cidr: ip,
       mask: mask,
       subnetName: subnet.name || '',
+      createIfPingable: subnet.scanPingable || false,
     })
     setShowForm(true)
   }
@@ -132,10 +137,7 @@ const SubnetManager: React.FC = () => {
   const handleTriggerScan = async (subnet: SubnetInfo) => {
     setScanningId(subnet.id)
     try {
-      await axios.post(`/api/v0/snmp/scan`, {
-        cidr: subnet.cidr,
-        subnetName: subnet.name,
-      })
+      await axios.post(`/api/v0/snmp/scan/${subnet.id}`)
       showToast(`Scan initiated successfully for ${subnet.cidr}`)
     } catch (err: any) {
       showToast(err.message || 'Failed to trigger scan')
@@ -179,7 +181,7 @@ const SubnetManager: React.FC = () => {
           <button
             onClick={() => {
               setEditingId(null)
-              setFormData({ cidr: '', subnetName: '' })
+              setFormData({ cidr: '', mask: '24', subnetName: '', createIfPingable: false })
               setShowForm(true)
             }}
             className="flex items-center gap-2 px-4 py-2 border border-white text-xs font-bold hover:bg-white hover:text-black transition-all uppercase"
@@ -245,9 +247,19 @@ const SubnetManager: React.FC = () => {
                     {subnet.deviceCount} Devices
                   </span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-1 h-1 bg-emerald-500 rounded-full" />
-                  <span className="text-[8px] text-emerald-500 uppercase font-bold">Active</span>
+                <div className="flex flex-col items-end gap-1">
+                  <div className="flex items-center gap-1">
+                    <div className="w-1 h-1 bg-emerald-500 rounded-full" />
+                    <span className="text-[8px] text-emerald-500 uppercase font-bold">Active</span>
+                  </div>
+                  {subnet.scanPingable && (
+                    <div className="flex items-center gap-1">
+                      <Activity className="w-2.5 h-2.5 text-blue-400" />
+                      <span className="text-[8px] text-blue-400 uppercase font-bold">
+                        Ping_Discovery
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -334,6 +346,22 @@ const SubnetManager: React.FC = () => {
                   className="w-full bg-black border border-white/10 p-2 text-xs focus:outline-none focus:border-white/40 font-mono"
                   placeholder="Office Network"
                 />
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="createIfPingable"
+                  checked={formData.createIfPingable}
+                  onChange={(e) => setFormData({ ...formData, createIfPingable: e.target.checked })}
+                  className="w-4 h-4 bg-black border border-white/10 rounded-none checked:bg-white checked:border-white appearance-none cursor-pointer relative after:content-[''] after:hidden checked:after:block after:absolute after:left-1 after:top-0 after:w-1.5 after:h-2.5 after:border-r-2 after:border-b-2 after:border-black after:rotate-45"
+                />
+                <label
+                  htmlFor="createIfPingable"
+                  className="text-[10px] text-neutral-400 uppercase font-bold tracking-tighter cursor-pointer select-none"
+                >
+                  Create devices if only pingable (No SNMP)
+                </label>
               </div>
 
               <div className="pt-4">

@@ -40,6 +40,12 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="w-1 h-1 bg-white rounded-full animate-pulse" /> {device.ipv4}
           </span>
 
+          {device.pingable && (
+            <div className="px-2 py-0.5 border border-blue-500/30 bg-blue-500/10 text-blue-400 text-[8px] font-bold uppercase tracking-widest">
+              Ping_Discovery_Node
+            </div>
+          )}
+
           <div className="h-3 w-[1px] bg-white/10 mx-1" />
 
           <button

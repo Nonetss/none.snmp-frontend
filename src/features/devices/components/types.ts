@@ -17,6 +17,7 @@ export interface Root2 {
   name: string
   subnetId: number
   snmpAuthId: number
+  pingable?: boolean
   subnet: Subnet
   snmpAuth: SnmpAuth
   system: System

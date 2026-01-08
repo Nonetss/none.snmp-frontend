@@ -28,6 +28,7 @@ interface Device {
   sysDescr: string | null
   macAddress: string | null
   status: boolean
+  pingable?: boolean
   tags?: Array<{ id: number; name: string; color: string }>
   location?: {
     id: number
@@ -474,9 +475,16 @@ const DeviceList: React.FC = () => {
                         </td>
                         <td className="p-4">
                           <div className="flex flex-col">
-                            <span className="text-xs font-bold text-neutral-300 uppercase tracking-wider group-hover:text-white transition-colors">
-                              {device.name || device.sysName || 'UNKNOWN_NODE'}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-neutral-300 uppercase tracking-wider group-hover:text-white transition-colors">
+                                {device.name || device.sysName || 'UNKNOWN_NODE'}
+                              </span>
+                              {device.pingable && (
+                                <span className="px-1 py-0.5 bg-blue-500/10 border border-blue-500/20 text-[7px] text-blue-400 font-bold uppercase tracking-widest">
+                                  Ping_Only
+                                </span>
+                              )}
+                            </div>
                             <span className="text-[10px] text-neutral-500 uppercase tracking-tighter">
                               {device.macAddress || 'NO_MAC_ADDR'}
                             </span>
