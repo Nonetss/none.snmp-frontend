@@ -1,0 +1,14 @@
+---
+import Main from '@/layouts/main.astro'
+import LocationPage from '@/features/locations/LocationPage'
+
+export const prerender = false
+
+const { id } = Astro.params
+---
+
+<Main title={`Inventory.Location_${id}`}>
+  <main class="bg-black min-h-screen overflow-x-hidden">
+    <LocationPage client:only="react" locationId={id} />
+  </main>
+</Main>
