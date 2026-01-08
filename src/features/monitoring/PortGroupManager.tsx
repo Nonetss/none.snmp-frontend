@@ -179,7 +179,7 @@ const PortGroupManager: React.FC = () => {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-4 bg-white" />
-            <h1 className="text-2xl font-bold tracking-tighter uppercase">Monitoring.Ports</h1>
+            <h1 className="text-2xl font-bold tracking-tighter uppercase">PORT.GROUPS</h1>
           </div>
           <p className="text-[9px] text-neutral-500 uppercase tracking-[0.4em]">
             Defined TCP Port Collections for Service Health Checks
@@ -224,7 +224,7 @@ const PortGroupManager: React.FC = () => {
         {processedGroups.map((group) => (
           <div
             key={group.id}
-            className="group relative border border-white/10 bg-neutral-900/20 p-6 flex flex-col gap-4 hover:border-white/30 transition-all"
+            className="group relative border border-white/10 bg-neutral-900/20 p-6 flex flex-col justify-between min-h-[160px] hover:border-white/30 transition-all"
           >
             <div className="flex justify-between items-start">
               <div className="space-y-1">

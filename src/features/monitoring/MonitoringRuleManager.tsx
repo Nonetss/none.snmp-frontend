@@ -174,7 +174,7 @@ const MonitoringRuleManager: React.FC = () => {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-4 bg-white" />
-            <h1 className="text-2xl font-bold tracking-tighter uppercase">Monitoring.Rules</h1>
+            <h1 className="text-2xl font-bold tracking-tighter uppercase">RULES</h1>
           </div>
           <p className="text-[9px] text-neutral-500 uppercase tracking-[0.4em]">
             Automation Policies & Health Check Intervals
@@ -210,15 +210,15 @@ const MonitoringRuleManager: React.FC = () => {
       )}
 
       {/* Rules Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {processedRules.map((rule) => (
           <div
             key={rule.id}
             className={`group relative border ${
               rule.enabled ? 'border-white/10' : 'border-white/5 opacity-60'
-            } bg-neutral-900/20 p-6 space-y-6 hover:border-white/30 transition-all`}
+            } bg-neutral-900/20 p-6 flex flex-col justify-between min-h-[160px] hover:border-white/30 transition-all`}
           >
-            <div className="flex justify-between items-start">
+            <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-4">
                 <div
                   className={`p-3 border transition-colors ${rule.enabled ? 'bg-white/5 border-white/10 text-white' : 'bg-black border-white/5 text-neutral-700'}`}
