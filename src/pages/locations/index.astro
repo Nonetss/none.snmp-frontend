@@ -1,0 +1,10 @@
+---
+import Main from '@/layouts/main.astro'
+import LocationPage from '@/features/locations/LocationPage'
+---
+
+<Main title="Inventory.Locations">
+  <main class="bg-black min-h-screen overflow-x-hidden">
+    <LocationPage client:only="react" />
+  </main>
+</Main>
