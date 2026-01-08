@@ -531,6 +531,7 @@ const DeviceList: React.FC = () => {
         submitting={tagSubmitting}
         onClose={() => setTagModal((prev) => ({ ...prev, show: false }))}
         onAssign={(id, tagIds) => handleAssignTags(tagModal.deviceIds, tagIds)}
+        onTagCreated={fetchData}
       />
 
       {/* Footer System Info */}
