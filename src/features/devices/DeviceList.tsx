@@ -12,7 +12,11 @@ import {
   ChevronDown,
   ChevronUp,
   Globe,
+  Tag as TagIcon,
+  Plus,
+  Check,
 } from 'lucide-react'
+import { TagSelectorModal } from './components/TagSelectorModal'
 
 interface Device {
   id: number
@@ -23,6 +27,13 @@ interface Device {
   sysDescr: string | null
   macAddress: string | null
   status: boolean
+  tags?: Array<{ id: number; name: string; color: string }>
+}
+
+interface TagItem {
+  id: number
+  name: string
+  color: string
 }
 
 interface SubnetWithDevices {
@@ -34,27 +45,113 @@ interface SubnetWithDevices {
 
 const DeviceList: React.FC = () => {
   const [data, setData] = useState<SubnetWithDevices[]>([])
+  const [availableTags, setAvailableTags] = useState<TagItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedSubnets, setExpandedSubnets] = useState<Record<number, boolean>>({})
 
-  const fetchDevices = async () => {
+  // Bulk Selection State
+  const [selectedBulkDeviceIds, setSelectedBulkDeviceIds] = useState<number[]>([])
+
+  // Tag Assignment State
+  const [tagModal, setTagModal] = useState<{
+    show: boolean
+    deviceIds: number[]
+    deviceName: string
+    currentTagIds: number[]
+  }>({
+    show: false,
+    deviceIds: [],
+    deviceName: '',
+    currentTagIds: [],
+  })
+  const [tagSubmitting, setTagSubmitting] = useState(false)
+
+  const fetchData = async () => {
     setLoading(true)
     try {
-      const response = await axios.get(`/api/v0/search/device/list`)
-      setData(response.data)
+      const [devicesRes, tagsRes] = await Promise.all([
+        axios.get(`/api/v0/search/device/list`),
+        axios.get(`/api/v0/tag`),
+      ])
+      setData(devicesRes.data)
+      setAvailableTags(tagsRes.data || [])
       setError(null)
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch devices')
+      setError(err.message || 'Failed to fetch data')
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    fetchDevices()
+    fetchData()
   }, [])
+
+  const handleAssignTags = async (deviceIds: number[], tagIds: number[]) => {
+    setTagSubmitting(true)
+    try {
+      // If it's a single device, we do the add/remove logic
+      if (deviceIds.length === 1) {
+        const deviceId = deviceIds[0]
+        const device = data.flatMap((s) => s.devices).find((d) => d.id === deviceId)
+
+        const currentIds = device?.tags?.map((t) => t.id) || []
+
+        const toAssign = tagIds.filter((id) => !currentIds.includes(id))
+        const toUnassign = currentIds.filter((id) => !tagIds.includes(id))
+
+        if (toAssign.length > 0) {
+          await axios.post('/api/v0/tag/assign', {
+            deviceIds: [deviceId],
+            tagIds: toAssign,
+          })
+        }
+
+        if (toUnassign.length > 0) {
+          await axios.post('/api/v0/tag/unassign', {
+            deviceIds: [deviceId],
+            tagIds: toUnassign,
+          })
+        }
+      } else {
+        // Bulk assignment: we just ensure these tags are assigned to all selected devices
+        // Usually bulk unassign is a separate flow, but for now let's just support assigning
+        await axios.post('/api/v0/tag/assign', {
+          deviceIds: deviceIds,
+          tagIds: tagIds,
+        })
+      }
+
+      setTagModal((prev) => ({ ...prev, show: false }))
+      setSelectedBulkDeviceIds([])
+      // Refresh devices to show new tags
+      const devicesRes = await axios.get(`/api/v0/search/device/list`)
+      setData(devicesRes.data)
+    } catch (err: any) {
+      alert(err.response?.data?.message || err.message || 'Tag assignment failed')
+    } finally {
+      setTagSubmitting(false)
+    }
+  }
+
+  const toggleBulkSelect = (id: number) => {
+    setSelectedBulkDeviceIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    )
+  }
+
+  const handleBulkTagAssign = () => {
+    if (selectedBulkDeviceIds.length === 0) return
+
+    setTagModal({
+      show: true,
+      deviceIds: selectedBulkDeviceIds,
+      deviceName: `${selectedBulkDeviceIds.length} Selected Devices`,
+      currentTagIds: [], // Start fresh for bulk
+    })
+  }
 
   const toggleSubnet = (id: number) => {
     setExpandedSubnets((prev) => ({
@@ -123,7 +220,7 @@ const DeviceList: React.FC = () => {
           <AlertCircle className="w-8 h-8 text-white" />
           <p className="text-xs uppercase tracking-widest">{error}</p>
           <button
-            onClick={fetchDevices}
+            onClick={fetchData}
             className="px-4 py-2 border border-white text-xs hover:bg-white hover:text-black transition-all"
           >
             RETRY.INVENTORY()
@@ -157,7 +254,7 @@ const DeviceList: React.FC = () => {
             />
           </div>
           <button
-            onClick={fetchDevices}
+            onClick={fetchData}
             className="p-2 border border-white/10 hover:bg-white hover:text-black transition-all"
           >
             <RefreshCcw className="w-4 h-4" />
@@ -199,6 +296,36 @@ const DeviceList: React.FC = () => {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-white/5 bg-black/40">
+                      <th className="p-4 w-10">
+                        <div className="flex items-center justify-center">
+                          <button
+                            onClick={() => {
+                              const allSubnetIds = subnet.devices.map((d) => d.id)
+                              const areAllSelected = allSubnetIds.every((id) =>
+                                selectedBulkDeviceIds.includes(id)
+                              )
+                              if (areAllSelected) {
+                                setSelectedBulkDeviceIds((prev) =>
+                                  prev.filter((id) => !allSubnetIds.includes(id))
+                                )
+                              } else {
+                                setSelectedBulkDeviceIds((prev) => [
+                                  ...new Set([...prev, ...allSubnetIds]),
+                                ])
+                              }
+                            }}
+                            className={`w-4 h-4 border flex items-center justify-center transition-all ${
+                              subnet.devices.every((d) => selectedBulkDeviceIds.includes(d.id))
+                                ? 'bg-white border-white'
+                                : 'border-white/20 hover:border-white/40'
+                            }`}
+                          >
+                            {subnet.devices.every((d) => selectedBulkDeviceIds.includes(d.id)) && (
+                              <Check className="w-3 h-3 text-black" />
+                            )}
+                          </button>
+                        </div>
+                      </th>
                       <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500 w-16">
                         ID
                       </th>
@@ -217,6 +344,9 @@ const DeviceList: React.FC = () => {
                       <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500 hidden lg:table-cell">
                         System_Specs
                       </th>
+                      <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
+                        Classification
+                      </th>
                       <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-neutral-500 text-right">
                         Action
                       </th>
@@ -224,7 +354,24 @@ const DeviceList: React.FC = () => {
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {subnet.devices.map((device) => (
-                      <tr key={device.id} className="hover:bg-white/[0.02] group transition-colors">
+                      <tr
+                        key={device.id}
+                        className={`hover:bg-white/[0.02] group transition-colors ${selectedBulkDeviceIds.includes(device.id) ? 'bg-white/[0.03]' : ''}`}
+                      >
+                        <td className="p-4 text-center">
+                          <button
+                            onClick={() => toggleBulkSelect(device.id)}
+                            className={`w-4 h-4 border mx-auto flex items-center justify-center transition-all ${
+                              selectedBulkDeviceIds.includes(device.id)
+                                ? 'bg-white border-white'
+                                : 'border-white/10 group-hover:border-white/30'
+                            }`}
+                          >
+                            {selectedBulkDeviceIds.includes(device.id) && (
+                              <Check className="w-3 h-3 text-black" />
+                            )}
+                          </button>
+                        </td>
                         <td className="p-4 text-[11px] text-neutral-500 font-bold">#{device.id}</td>
                         <td className="p-4">
                           <div className="flex items-center gap-2">
@@ -276,6 +423,39 @@ const DeviceList: React.FC = () => {
                             </p>
                           </div>
                         </td>
+                        <td className="p-4">
+                          <div className="flex flex-wrap gap-1.5 items-center">
+                            {device.tags?.map((tag) => (
+                              <div
+                                key={tag.id}
+                                className="px-1.5 py-0.5 border border-white/10 flex items-center gap-1.5 bg-black/40"
+                                title={tag.name}
+                              >
+                                <div
+                                  className="w-1.5 h-1.5 rounded-full"
+                                  style={{ backgroundColor: tag.color }}
+                                />
+                                <span className="text-[8px] font-black text-neutral-300 uppercase tracking-tighter">
+                                  {tag.name}
+                                </span>
+                              </div>
+                            ))}
+                            <button
+                              onClick={() =>
+                                setTagModal({
+                                  show: true,
+                                  deviceIds: [device.id],
+                                  deviceName: device.name || device.ipv4,
+                                  currentTagIds: device.tags?.map((t) => t.id) || [],
+                                })
+                              }
+                              className="p-1 border border-dashed border-white/10 text-neutral-600 hover:text-white hover:border-white/30 transition-all"
+                              title="Manage Tags"
+                            >
+                              <Plus className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </td>
                         <td className="p-4 text-right">
                           <a
                             href={`/devices/${device.id}`}
@@ -302,6 +482,56 @@ const DeviceList: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Bulk Actions Floating Bar */}
+      {selectedBulkDeviceIds.length > 0 && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] animate-in slide-in-from-bottom-8 duration-300">
+          <div className="bg-black border border-white/20 px-6 py-4 shadow-2xl flex items-center gap-8 min-w-[400px]">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-white text-black flex items-center justify-center text-xs font-black">
+                {selectedBulkDeviceIds.length}
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black text-white uppercase tracking-widest">
+                  Devices_Selected
+                </span>
+                <span className="text-[9px] text-neutral-500 uppercase tracking-tighter">
+                  Bulk operation ready
+                </span>
+              </div>
+            </div>
+
+            <div className="h-8 w-[1px] bg-white/10" />
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleBulkTagAssign}
+                className="flex items-center gap-2 px-4 py-2 bg-white text-black text-[10px] font-bold uppercase hover:bg-neutral-200 transition-all"
+              >
+                <TagIcon className="w-3.5 h-3.5" /> Assign_Tags
+              </button>
+              <button
+                onClick={() => setSelectedBulkDeviceIds([])}
+                className="flex items-center gap-2 px-4 py-2 border border-white/10 text-neutral-500 text-[10px] font-bold uppercase hover:text-white hover:border-white/30 transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tag Assignment Modal */}
+      <TagSelectorModal
+        show={tagModal.show}
+        deviceId={tagModal.deviceIds[0] || 0}
+        deviceName={tagModal.deviceName}
+        availableTags={availableTags}
+        currentTagIds={tagModal.currentTagIds}
+        submitting={tagSubmitting}
+        onClose={() => setTagModal((prev) => ({ ...prev, show: false }))}
+        onAssign={(id, tagIds) => handleAssignTags(tagModal.deviceIds, tagIds)}
+      />
 
       {/* Footer System Info */}
       <div className="flex justify-between items-center text-[8px] text-neutral-700 uppercase tracking-widest border-t border-white/10 pt-4">
