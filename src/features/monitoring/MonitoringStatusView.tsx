@@ -60,28 +60,28 @@ const MonitoringStatusView: React.FC = () => {
     }))
   }
 
-  // Pre-process data for a specific rule and port to work with Recharts
-  const getChartData = (rule: MonitoringStatusRule, port: number) => {
-    const portData = rule.ports.find((p) => p.port === port)
-    if (!portData) return []
-
-    // Collect all unique check times to create the X-Axis
+  // Pre-process data for a specific rule combining all ports
+  const getRuleChartData = (rule: MonitoringStatusRule) => {
+    // Collect all unique check times across all ports
     const timePoints = new Set<string>()
-    portData.devices.forEach((dev) => {
-      dev.history.forEach((h) => timePoints.add(h.checkTime))
+    rule.ports.forEach((port) => {
+      port.devices.forEach((dev) => {
+        dev.history.forEach((h) => timePoints.add(h.checkTime))
+      })
     })
 
     const sortedTimes = Array.from(timePoints).sort()
 
     return sortedTimes.map((time) => {
       const point: any = { time: new Date(time).toLocaleTimeString() }
-      portData.devices.forEach((dev) => {
-        const historyPoint = dev.history.find((h) => h.checkTime === time)
-        // We use responseTime for the Y axis, or 0 if status is false (or some other logic)
-        // If status is false, let's treat it as a spike or high value to indicate "down"
-        // Or simply null if we want to show breaks in the line
-        point[`${dev.name}_latency`] = historyPoint?.status ? historyPoint.responseTime : null
-        point[`${dev.name}_status`] = historyPoint?.status ? 1 : 0
+      rule.ports.forEach((port) => {
+        port.devices.forEach((dev) => {
+          const historyPoint = dev.history.find((h) => h.checkTime === time)
+          // Composite key to differentiate ports for the same device
+          point[`${dev.name}_${port.port}_latency`] = historyPoint?.status
+            ? historyPoint.responseTime
+            : null
+        })
       })
       return point
     })
@@ -142,11 +142,11 @@ const MonitoringStatusView: React.FC = () => {
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {data.map((rule) => (
           <div
             key={rule.id}
-            className="border border-white/10 bg-neutral-900/10 overflow-hidden group"
+            className="border border-white/10 bg-neutral-900/10 overflow-hidden group flex flex-col"
           >
             <button
               onClick={() => toggleRule(rule.id)}
@@ -170,7 +170,7 @@ const MonitoringStatusView: React.FC = () => {
                 <div className="flex items-center gap-2 px-2 py-0.5 bg-black/40 border border-white/5 rounded-full">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="text-[8px] font-black text-neutral-400 uppercase tracking-tighter">
-                    Monitoring {rule.ports.reduce((acc, p) => acc + p.devices.length, 0)} Nodes
+                    Monitoring {rule.ports.reduce((acc, p) => acc + p.devices.length, 0)} Targets
                   </span>
                 </div>
                 {(expandedRules[rule.id] ?? true) ? (
@@ -182,39 +182,31 @@ const MonitoringStatusView: React.FC = () => {
             </button>
 
             {(expandedRules[rule.id] ?? true) && (
-              <div className="p-6 space-y-12 animate-in slide-in-from-top-2 duration-300">
-                {rule.ports.map((port) => {
-                  const chartData = getChartData(rule, port.port)
-                  return (
-                    <div key={port.portGroupItemId} className="space-y-4">
-                      <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                        <div className="flex items-center gap-2">
-                          <Zap className="w-3.5 h-3.5 text-amber-500" />
-                          <span className="text-[11px] font-black uppercase tracking-widest">
-                            PORT {port.port}
-                            <span className="ml-2 text-neutral-600 font-bold">
-                              ({port.expectedStatus ? 'EXPECTED_OPEN' : 'EXPECTED_CLOSED'})
-                            </span>
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-1.5">
-                            <div className="w-2 h-0.5 bg-white/40" />
-                            <span className="text-[8px] text-neutral-500 font-bold uppercase">
-                              Latency (ms)
-                            </span>
-                          </div>
-                        </div>
-                      </div>
+              <div className="p-6 space-y-8 animate-in slide-in-from-top-2 duration-300 flex-1 flex flex-col">
+                <div className="space-y-4 flex-1 flex flex-col">
+                  <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-3.5 h-3.5 text-amber-500" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">
+                        Consolidated Metrics
+                        <span className="ml-2 text-neutral-600 font-bold">
+                          ({rule.ports.map((p) => `:${p.port}`).join(', ')})
+                        </span>
+                      </span>
+                    </div>
+                  </div>
 
-                      <div className="h-[250px] w-full mt-4">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={chartData}>
-                            <defs>
-                              {port.devices.map((dev, i) => (
+                  <div className="h-[200px] w-full mt-2">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={getRuleChartData(rule)}>
+                        <defs>
+                          {rule.ports.flatMap((port, pIdx) =>
+                            port.devices.map((dev, dIdx) => {
+                              const colorIdx = (pIdx * 3 + dIdx) % COLORS.length
+                              return (
                                 <linearGradient
-                                  key={dev.id}
-                                  id={`grad-${dev.id}`}
+                                  key={`${dev.id}-${port.port}`}
+                                  id={`grad-${dev.id}-${port.port}`}
                                   x1="0"
                                   y1="0"
                                   x2="0"
@@ -222,103 +214,107 @@ const MonitoringStatusView: React.FC = () => {
                                 >
                                   <stop
                                     offset="5%"
-                                    stopColor={COLORS[i % COLORS.length]}
+                                    stopColor={COLORS[colorIdx]}
                                     stopOpacity={0.1}
                                   />
-                                  <stop
-                                    offset="95%"
-                                    stopColor={COLORS[i % COLORS.length]}
-                                    stopOpacity={0}
-                                  />
+                                  <stop offset="95%" stopColor={COLORS[colorIdx]} stopOpacity={0} />
                                 </linearGradient>
-                              ))}
-                            </defs>
-                            <CartesianGrid
-                              strokeDasharray="3 3"
-                              stroke="#1f1f1f"
-                              vertical={false}
-                            />
-                            <XAxis
-                              dataKey="time"
-                              stroke="#404040"
-                              fontSize={9}
-                              tickLine={false}
-                              axisLine={false}
-                              minTickGap={30}
-                            />
-                            <YAxis
-                              stroke="#404040"
-                              fontSize={9}
-                              tickLine={false}
-                              axisLine={false}
-                              tickFormatter={(val) => `${val}ms`}
-                            />
-                            <Tooltip
-                              contentStyle={{
-                                backgroundColor: '#000',
-                                border: '1px solid #333',
-                                fontSize: '10px',
-                                fontFamily: 'monospace',
-                              }}
-                              itemStyle={{ padding: '2px 0' }}
-                            />
-                            <Legend
-                              verticalAlign="top"
-                              align="right"
-                              iconType="circle"
-                              iconSize={6}
-                              wrapperStyle={{
-                                fontSize: '9px',
-                                textTransform: 'uppercase',
-                                paddingBottom: '20px',
-                                fontFamily: 'monospace',
-                              }}
-                            />
-                            {port.devices.map((dev, i) => (
+                              )
+                            })
+                          )}
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f" vertical={false} />
+                        <XAxis
+                          dataKey="time"
+                          stroke="#404040"
+                          fontSize={8}
+                          tickLine={false}
+                          axisLine={false}
+                          minTickGap={20}
+                        />
+                        <YAxis
+                          stroke="#404040"
+                          fontSize={8}
+                          tickLine={false}
+                          axisLine={false}
+                          tickFormatter={(val) => `${val}ms`}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: '#000',
+                            border: '1px solid #333',
+                            fontSize: '9px',
+                            fontFamily: 'monospace',
+                          }}
+                          itemStyle={{ padding: '1px 0' }}
+                        />
+                        <Legend
+                          verticalAlign="top"
+                          align="right"
+                          iconType="circle"
+                          iconSize={4}
+                          wrapperStyle={{
+                            fontSize: '8px',
+                            textTransform: 'uppercase',
+                            paddingBottom: '10px',
+                            fontFamily: 'monospace',
+                          }}
+                        />
+                        {rule.ports.flatMap((port, pIdx) =>
+                          port.devices.map((dev, dIdx) => {
+                            const colorIdx = (pIdx * 3 + dIdx) % COLORS.length
+                            return (
                               <Area
-                                key={dev.id}
+                                key={`${dev.id}-${port.port}`}
                                 type="monotone"
-                                dataKey={`${dev.name}_latency`}
-                                name={dev.name || dev.ipv4}
-                                stroke={COLORS[i % COLORS.length]}
+                                dataKey={`${dev.name}_${port.port}_latency`}
+                                name={`${dev.name}:${port.port}`}
+                                stroke={COLORS[colorIdx]}
                                 fillOpacity={1}
-                                fill={`url(#grad-${dev.id})`}
-                                strokeWidth={2}
-                                connectNulls={false} // Breaks indicate down
+                                fill={`url(#grad-${dev.id}-${port.port})`}
+                                strokeWidth={1.5}
+                                connectNulls={false}
                                 isAnimationActive={false}
                               />
-                            ))}
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
+                            )
+                          })
+                        )}
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
 
-                      {/* Availability mini-grid */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 mt-4">
-                        {port.devices.map((dev) => {
-                          const lastStatus = dev.history[dev.history.length - 1]?.status
-                          return (
-                            <div
-                              key={dev.id}
-                              className={`p-2 border ${lastStatus ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-red-500/20 bg-red-500/5'} flex flex-col gap-1`}
-                            >
-                              <span className="text-[8px] font-black uppercase truncate text-neutral-400">
+                  {/* Availability mini-grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-auto pt-4">
+                    {rule.ports.flatMap((port) =>
+                      port.devices.map((dev) => {
+                        const lastStatus = dev.history[dev.history.length - 1]?.status
+                        return (
+                          <div
+                            key={`${dev.id}-${port.port}`}
+                            className={`p-1.5 border ${lastStatus ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-red-500/20 bg-red-500/5'} flex flex-col gap-0.5`}
+                          >
+                            <div className="flex justify-between items-center gap-1">
+                              <span className="text-[7px] font-black uppercase truncate text-neutral-400">
                                 {dev.name}
                               </span>
-                              <div className="flex items-center justify-between">
-                                <span className="text-[9px] font-mono text-neutral-500">
-                                  {dev.ipv4}
-                                </span>
-                                <div
-                                  className={`w-1.5 h-1.5 rounded-full ${lastStatus ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-red-500 animate-pulse'}`}
-                                />
-                              </div>
+                              <span className="text-[7px] font-bold text-neutral-600">
+                                :{port.port}
+                              </span>
                             </div>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  )
-                })}
+                            <div className="flex items-center justify-between">
+                              <span className="text-[8px] font-mono text-neutral-500">
+                                {dev.ipv4}
+                              </span>
+                              <div
+                                className={`w-1 h-1 rounded-full ${lastStatus ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`}
+                              />
+                            </div>
+                          </div>
+                        )
+                      })
+                    )}
+                  </div>
+                </div>
               </div>
             )}
           </div>
