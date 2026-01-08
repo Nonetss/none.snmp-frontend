@@ -176,10 +176,10 @@ export const MonitoringGroupFormModal: React.FC<Props> = ({ group, onClose, onSu
   }
 
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95 backdrop-blur-sm p-4 overflow-hidden">
       <form
         onSubmit={handleSave}
-        className="w-full max-w-6xl bg-neutral-950 border border-white/20 shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col h-[90vh]"
+        className="w-full max-w-6xl bg-neutral-950 border border-white/20 shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col h-[90vh] relative"
       >
         {/* Header */}
         <div className="flex justify-between items-center p-4 border-b border-white/10 bg-white/5">
