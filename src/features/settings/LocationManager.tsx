@@ -435,10 +435,23 @@ const LocationManager: React.FC<Props> = ({ initialViewingId = null }) => {
 
               setShowForm(true)
             }}
-            className="flex items-center gap-2 px-4 py-2 border border-white text-xs font-bold hover:bg-white hover:text-black transition-all uppercase"
+            className="flex items-center gap-2 px-4 py-2 border border-white/20 text-xs font-bold hover:bg-white hover:text-black transition-all uppercase text-neutral-400 hover:border-white"
           >
             <Plus className="w-4 h-4" /> Add_Location
           </button>
+
+          {viewingLocationId && currentLocationDetails && (
+            <button
+              onClick={() => {
+                setSelectedLocation(currentLocationDetails)
+
+                setShowAssignModal(true)
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-white text-black text-xs font-bold hover:bg-neutral-200 transition-all uppercase"
+            >
+              <LinkIcon className="w-4 h-4" /> Assign_Devices
+            </button>
+          )}
         </div>
       </div>
 
@@ -572,9 +585,22 @@ const LocationManager: React.FC<Props> = ({ initialViewingId = null }) => {
               Assigned_Devices
             </h3>
 
-            <span className="text-[10px] font-bold text-white px-2 py-0.5 bg-white/10">
-              {locationDevices.length} UNITS
-            </span>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => {
+                  if (currentLocationDetails) {
+                    setSelectedLocation(currentLocationDetails)
+                    setShowAssignModal(true)
+                  }
+                }}
+                className="flex items-center gap-2 px-3 py-1.5 border border-white/20 text-[10px] font-bold hover:bg-white hover:text-black transition-all uppercase text-neutral-400 hover:border-white"
+              >
+                <LinkIcon className="w-3.5 h-3.5" /> Quick_Assign
+              </button>
+              <span className="text-[10px] font-bold text-white px-2 py-0.5 bg-white/10">
+                {locationDevices.length} UNITS
+              </span>
+            </div>
           </div>
 
           <div className="border border-white/10 bg-neutral-900/10 overflow-hidden">
