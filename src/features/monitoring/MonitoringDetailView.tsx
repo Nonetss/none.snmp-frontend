@@ -300,7 +300,7 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
               Sync_Data
             </button>
           </div>
-        </div>{' '}
+        </div>
       </div>
 
       {/* Stats Overview */}
@@ -381,11 +381,12 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" vertical={false} />
               <XAxis
-                dataKey="time"
+                dataKey="index"
                 stroke="#404040"
                 fontSize={10}
                 tickLine={false}
                 axisLine={false}
+                tick={false}
               />
               <YAxis
                 stroke="#404040"
@@ -401,7 +402,8 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
                   fontSize: '11px',
                   fontFamily: 'monospace',
                 }}
-                labelStyle={{ color: '#666', marginBottom: '8px' }}
+                labelFormatter={(idx) => chartData[idx]?.fullTime || ''}
+                itemStyle={{ padding: '1px 0' }}
               />
               <Legend
                 verticalAlign="top"
@@ -425,8 +427,9 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
                       stroke={COLORS[colorIdx]}
                       fillOpacity={1}
                       fill={`url(#grad-${dev.id}-${port.port})`}
-                      strokeWidth={2}
+                      strokeWidth={1.5}
                       connectNulls={false}
+                      isAnimationActive={false}
                     />
                   )
                 })
