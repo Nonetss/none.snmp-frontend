@@ -52,8 +52,9 @@ const Sidebar: React.FC<Props> = ({
   const handleGlobalPing = async () => {
     setPinging(true)
     try {
-      await axios.post('/api/v0/search/device/status/ping')
-      showToast('Global Ping sequence completed')
+      const response = await axios.post('/api/v0/search/device/status/ping')
+      const { up, down } = response.data
+      showToast(`Global Ping sequence completed: ${up} UP, ${down} DOWN`)
     } catch (err: any) {
       showToast('Ping failed: ' + (err.message || 'Unknown error'))
     } finally {
