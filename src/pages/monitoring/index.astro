@@ -1,0 +1,10 @@
+---
+import Main from '@/layouts/main.astro'
+import MonitoringPage from '@/features/monitoring/MonitoringPage'
+---
+
+<Main title="Network.Monitoring">
+  <main class="bg-black min-h-screen overflow-x-hidden">
+    <MonitoringPage client:only="react" />
+  </main>
+</Main>

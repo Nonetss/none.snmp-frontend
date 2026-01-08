@@ -120,6 +120,7 @@ const Sidebar: React.FC<Props> = ({
   const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
     { name: 'Topology', icon: Share2, path: '/graph' },
+    { name: 'Monitoring', icon: Activity, path: '/monitoring' },
     { name: 'Devices', icon: Server, path: '/devices' },
     { name: 'Locations', icon: MapPin, path: '/locations' },
     { name: 'Search', icon: Search, path: '/search' },
