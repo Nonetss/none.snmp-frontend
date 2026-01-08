@@ -31,6 +31,12 @@ export interface Root2 {
   bridge: Bridge
   hikvision?: Hikvision | null
   tags?: Array<{ id: number; name: string; color: string }>
+  location?: {
+    id: number
+    name: string
+    description: string | null
+    parentId: number | null
+  } | null
 }
 
 export interface Hikvision {

@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowLeft, Server, Database, RefreshCcw } from 'lucide-react'
+import { ArrowLeft, Server, Database, RefreshCcw, MapPin, TagIcon } from 'lucide-react'
 import type { DeviceDetail } from '@/features/devices/components/types'
 
 interface HeaderProps {
@@ -7,9 +7,18 @@ interface HeaderProps {
   polling: boolean
   onFullPoll: () => void
   onRescan: () => void
+  onEditLocation?: () => void
+  onEditTags?: () => void
 }
 
-export const Header: React.FC<HeaderProps> = ({ device, polling, onFullPoll, onRescan }) => (
+export const Header: React.FC<HeaderProps> = ({
+  device,
+  polling,
+  onFullPoll,
+  onRescan,
+  onEditLocation,
+  onEditTags,
+}) => (
   <div className="sticky top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10 p-6 flex justify-between items-center">
     <div className="flex items-center gap-6">
       <a
@@ -30,6 +39,37 @@ export const Header: React.FC<HeaderProps> = ({ device, polling, onFullPoll, onR
           <span className="flex items-center gap-1 text-white">
             <div className="w-1 h-1 bg-white rounded-full animate-pulse" /> {device.ipv4}
           </span>
+
+          <div className="h-3 w-[1px] bg-white/10 mx-1" />
+
+          <button
+            onClick={onEditLocation}
+            className="flex items-center gap-1.5 px-2 py-0.5 border border-white/10 hover:border-white/30 hover:text-white transition-all bg-white/5"
+          >
+            <MapPin className="w-2.5 h-2.5" />
+            {device.location?.name || 'Set Location'}
+          </button>
+
+          <button
+            onClick={onEditTags}
+            className="flex items-center gap-1.5 px-2 py-0.5 border border-dashed border-white/10 hover:border-white/30 hover:text-white transition-all bg-white/5"
+          >
+            <TagIcon className="w-2.5 h-2.5" />
+            {device.tags && device.tags.length > 0 ? (
+              <div className="flex items-center gap-1">
+                {device.tags.slice(0, 2).map((t) => (
+                  <div
+                    key={t.id}
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{ backgroundColor: t.color }}
+                  />
+                ))}
+                <span>{device.tags.length} Tags</span>
+              </div>
+            ) : (
+              'Add Tags'
+            )}
+          </button>
         </div>
       </div>
     </div>

@@ -6,12 +6,14 @@ interface DashboardTabProps {
   device: DeviceDetail
   setActiveTab: (tab: TabId) => void
   hasNeighbors: boolean
+  onEditLocation?: () => void
 }
 
 export const DashboardTab: React.FC<DashboardTabProps> = ({
   device,
   setActiveTab,
   hasNeighbors,
+  onEditLocation,
 }) => (
   <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -37,11 +39,21 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
 
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <span className="text-[10px] text-neutral-500 uppercase font-bold">Location</span>
+              <div className="space-y-1 relative group/loc">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] text-neutral-500 uppercase font-bold">Location</span>
+                  <button
+                    onClick={onEditLocation}
+                    className="text-[8px] text-neutral-600 hover:text-white uppercase font-black transition-colors"
+                  >
+                    [ Edit ]
+                  </button>
+                </div>
                 <div className="flex items-center gap-2 text-xs text-white">
                   <MapPin className="w-3 h-3 text-neutral-500" />
-                  <span className="uppercase">{device.system?.sysLocation || 'N/A'}</span>
+                  <span className="uppercase">
+                    {device.location?.name || device.system?.sysLocation || 'N/A'}
+                  </span>
                 </div>
               </div>
               <div className="space-y-1">
