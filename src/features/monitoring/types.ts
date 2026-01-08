@@ -46,6 +46,36 @@ export interface MonitoringRule {
   nextRun?: string | null
 }
 
+export interface MonitoringStatusHistory {
+  checkTime: string
+  status: boolean
+  responseTime: number | null
+}
+
+export interface MonitoringStatusDevice {
+  id: number
+  name: string
+  ipv4: string
+  history: MonitoringStatusHistory[]
+}
+
+export interface MonitoringStatusPort {
+  portGroupItemId: number
+  port: number
+  expectedStatus: boolean
+  devices: MonitoringStatusDevice[]
+}
+
+export interface MonitoringStatusRule {
+  id: number
+  name: string
+  enabled: boolean
+  cronExpression: string
+  lastRun: string | null
+  status: string
+  ports: MonitoringStatusPort[]
+}
+
 export interface CreateMonitoringGroupDto {
   name: string
   description: string
