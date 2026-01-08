@@ -116,7 +116,20 @@ const MonitoringRuleManager: React.FC = () => {
     }
   }
 
-  const handleEdit = (rule: MonitoringRule) => {
+  const fetchFormDependencies = async () => {
+    try {
+      const [groupsRes, portsRes] = await Promise.all([
+        axios.get(`/api/v0/monitor/group`),
+        axios.get(`/api/v0/monitor/port-group`),
+      ])
+      setDeviceGroups(groupsRes.data || [])
+      setPortGroups(portsRes.data || [])
+    } catch (err) {
+      console.error('Failed to refresh form dependencies')
+    }
+  }
+
+  const handleEdit = async (rule: MonitoringRule) => {
     setEditingId(rule.id)
     setFormData({
       name: rule.name,
@@ -125,6 +138,20 @@ const MonitoringRuleManager: React.FC = () => {
       cronExpression: rule.cronExpression,
       enabled: rule.enabled,
     })
+    await fetchFormDependencies()
+    setShowForm(true)
+  }
+
+  const handleCreateNew = async () => {
+    setEditingId(null)
+    setFormData({
+      name: '',
+      deviceGroupId: '',
+      portGroupId: '',
+      cronExpression: '* * * * *',
+      enabled: true,
+    })
+    await fetchFormDependencies()
     setShowForm(true)
   }
 
@@ -212,14 +239,11 @@ const MonitoringRuleManager: React.FC = () => {
               />
             </div>
             <button
-              onClick={() => {
-                setEditingId(null)
-                setShowForm(true)
-              }}
+              onClick={handleCreateNew}
               className="flex items-center gap-2 px-4 py-2 border border-white text-xs font-bold hover:bg-white hover:text-black transition-all uppercase"
             >
               <Plus className="w-4 h-4" /> Create_New_Rule
-            </button>
+            </button>{' '}
           </div>
         )}
       </div>

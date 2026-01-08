@@ -81,9 +81,9 @@ const MonitoringStatusView: React.FC<Props> = ({ autoRefresh, setAutoRefresh }) 
 
       rule.ports.forEach((port) => {
         port.devices.forEach((dev) => {
-          // Access history from oldest to newest (history is usually returned sorted by time)
-          // If the API returns newest first, we should reverse it for the graph
-          const historyIdx = dev.history.length - 1 - (maxPoints - 1 - idx)
+          // Access history from oldest to newest.
+          // The API returns newest first (index 0), so we map the end of our graph (maxPoints-1) to API index 0.
+          const historyIdx = maxPoints - 1 - idx
           const historyPoint = dev.history[historyIdx]
 
           if (historyPoint) {

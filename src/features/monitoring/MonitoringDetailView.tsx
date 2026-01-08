@@ -135,8 +135,9 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
 
       filteredData.ports.forEach((port) => {
         port.devices.forEach((dev) => {
-          // Access history from oldest to newest
-          const historyIdx = dev.history.length - 1 - (maxPoints - 1 - idx)
+          // Access history from oldest to newest.
+          // API index 0 is the newest point, so it should be at the right side of the chart.
+          const historyIdx = maxPoints - 1 - idx
           const historyPoint = dev.history[historyIdx]
 
           if (historyPoint) {
