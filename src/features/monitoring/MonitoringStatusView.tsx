@@ -148,11 +148,11 @@ const MonitoringStatusView: React.FC = () => {
             key={rule.id}
             className="border border-white/10 bg-neutral-900/10 overflow-hidden group flex flex-col"
           >
-            <button
-              onClick={() => toggleRule(rule.id)}
-              className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 transition-all text-left"
-            >
-              <div className="flex items-center gap-4">
+            <div className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 transition-all text-left">
+              <div
+                className="flex items-center gap-4 flex-1 cursor-pointer"
+                onClick={() => toggleRule(rule.id)}
+              >
                 <Shield className="w-4 h-4 text-neutral-400" />
                 <div>
                   <h3 className="text-xs font-black uppercase tracking-widest">{rule.name}</h3>
@@ -167,6 +167,15 @@ const MonitoringStatusView: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-center gap-4">
+                <a
+                  href={`/monitoring/${rule.id}`}
+                  className="p-2 border border-white/10 hover:bg-white hover:text-black transition-all flex items-center gap-2"
+                >
+                  <BarChart2 className="w-3.5 h-3.5" />
+                  <span className="text-[9px] font-black uppercase tracking-tighter">
+                    Deep.Analysis
+                  </span>
+                </a>
                 <div className="flex items-center gap-2 px-2 py-0.5 bg-black/40 border border-white/5 rounded-full">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="text-[8px] font-black text-neutral-400 uppercase tracking-tighter">
@@ -179,7 +188,7 @@ const MonitoringStatusView: React.FC = () => {
                   <ChevronDown className="w-4 h-4 text-neutral-600" />
                 )}
               </div>
-            </button>
+            </div>
 
             {(expandedRules[rule.id] ?? true) && (
               <div className="p-6 space-y-8 animate-in slide-in-from-top-2 duration-300 flex-1 flex flex-col">

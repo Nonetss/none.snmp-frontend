@@ -1,0 +1,12 @@
+---
+import Main from '@/layouts/main.astro'
+import MonitoringDetailView from '@/features/monitoring/MonitoringDetailView'
+
+const { id } = Astro.params
+---
+
+<Main title={`Monitoring.Detail #${id}`}>
+  <main class="bg-black min-h-screen overflow-x-hidden">
+    <MonitoringDetailView client:only="react" ruleId={Number(id)} />
+  </main>
+</Main>
