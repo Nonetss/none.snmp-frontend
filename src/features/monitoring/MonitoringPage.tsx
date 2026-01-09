@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
-import { Activity, LayoutDashboard, Settings2, RefreshCcw } from 'lucide-react'
+import { Activity, LayoutDashboard, Settings2, RefreshCcw, Bell } from 'lucide-react'
 import MonitoringGroupManager from './MonitoringGroupManager'
 import PortGroupManager from './PortGroupManager'
 import MonitoringRuleManager from './MonitoringRuleManager'
 import MonitoringStatusView from './MonitoringStatusView'
+import MonitoringNotificationManager from './MonitoringNotificationManager'
 
 const MonitoringPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'status' | 'config'>('status')
+  const [activeTab, setActiveTab] = useState<'status' | 'config' | 'notifications'>('status')
   const [autoRefresh, setAutoRefresh] = useState(true)
 
   return (
@@ -60,12 +61,25 @@ const MonitoringPage: React.FC = () => {
               <Settings2 className="w-3.5 h-3.5" />
               Configuration
             </button>
+            <button
+              onClick={() => setActiveTab('notifications')}
+              className={`flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
+                activeTab === 'notifications'
+                  ? 'bg-white text-black'
+                  : 'text-neutral-500 hover:text-white'
+              }`}
+            >
+              <Bell className="w-3.5 h-3.5" />
+              Alert_Actions
+            </button>
           </div>
         </div>
       </div>
 
       {activeTab === 'status' ? (
         <MonitoringStatusView autoRefresh={autoRefresh} setAutoRefresh={setAutoRefresh} />
+      ) : activeTab === 'notifications' ? (
+        <MonitoringNotificationManager />
       ) : (
         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
           {/* Monitoring Group Manager Section */}
