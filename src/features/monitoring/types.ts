@@ -70,6 +70,22 @@ export interface MonitoringStatusResponse {
   groupedData: MonitoringGroupedData[]
 }
 
+export interface TcpScanRequest {
+  ip: string
+  allPorts?: boolean
+  timeout?: number
+  concurrency?: number
+}
+
+export interface TcpScanResponse {
+  ip: string
+  openPorts: Array<{
+    port: number
+    time: number
+  }>
+  totalScanned: number
+}
+
 export interface CreateMonitoringGroupDto {
   name: string
   description: string
