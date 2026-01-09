@@ -5,18 +5,15 @@ import {
   Plus,
   RefreshCcw,
   AlertCircle,
-  X,
-  Edit2,
-  Trash2,
   Search,
-  Check,
-  Server,
   ChevronRight,
   ChevronDown,
-  ChevronUp,
 } from 'lucide-react'
 import type { MonitoringGroup } from './types'
 import { MonitoringGroupFormModal } from './components/MonitoringGroupFormModal'
+import { MonitoringGroupCard } from './components/MonitoringGroupCard'
+import { MonitoringToast } from './components/MonitoringToast'
+import { DeleteConfirmationModal } from './components/DeleteConfirmationModal'
 
 const MonitoringGroupManager: React.FC = () => {
   const [groups, setGroups] = useState<MonitoringGroup[]>([])
@@ -175,56 +172,12 @@ const MonitoringGroupManager: React.FC = () => {
       {!isCollapsed && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in slide-in-from-top-2 duration-500">
           {processedGroups.map((group) => (
-            <div
+            <MonitoringGroupCard
               key={group.id}
-              className="group relative border border-white/10 bg-neutral-900/20 p-6 flex flex-col justify-between min-h-[160px] hover:border-white/30 transition-all"
-            >
-              <div className="flex justify-between items-start">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-neutral-400" />
-                    <span className="text-sm font-black uppercase tracking-widest text-white">
-                      {group.name}
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-neutral-500 line-clamp-2 uppercase leading-relaxed">
-                    {group.description || 'No description provided'}
-                  </p>
-                </div>
-
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={() => handleEdit(group)}
-                    className="p-1.5 text-neutral-500 hover:text-white hover:bg-white/5 transition-colors"
-                    title="Edit Group"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(group.id)}
-                    className="p-1.5 text-neutral-500 hover:text-red-500 hover:bg-red-500/5 transition-colors"
-                    title="Delete Group"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                <div className="flex items-center gap-2">
-                  <Server className="w-3 h-3 text-neutral-600" />
-                  <span className="text-[10px] font-bold text-neutral-400">
-                    {group.deviceCount ?? 0} DEVICES
-                  </span>
-                </div>
-                <button
-                  onClick={() => handleEdit(group)}
-                  className="text-[10px] font-black uppercase tracking-[0.2em] text-white hover:underline flex items-center gap-1"
-                >
-                  Manage_Group <ChevronRight className="w-3 h-3" />
-                </button>
-              </div>
-            </div>
+              group={group}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           ))}
         </div>
       )}
@@ -253,86 +206,20 @@ const MonitoringGroupManager: React.FC = () => {
       )}
 
       {/* Delete Confirmation Modal */}
-      {deleteConfirmId && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/95 backdrop-blur-md p-4">
-          <div className="w-full max-w-sm bg-neutral-950 border border-red-500/30 shadow-[0_0_50px_-12px_rgba(239,68,68,0.3)] animate-in zoom-in-95 duration-200 overflow-hidden">
-            <div className="flex justify-between items-center p-4 border-b border-red-500/20 bg-red-500/5">
-              <div className="flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-red-500" />
-                <h2 className="text-sm font-bold uppercase tracking-widest text-red-500">
-                  Delete.Confirmation
-                </h2>
-              </div>
-              <button
-                onClick={() => setDeleteConfirmId(null)}
-                className="p-1 hover:bg-white/10 text-neutral-500 hover:text-white transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-6">
-              <div className="space-y-2 text-center">
-                <p className="text-xs text-neutral-200 font-bold uppercase tracking-tight">
-                  Are you absolutely sure?
-                </p>
-                <p className="text-[10px] text-neutral-500 uppercase leading-relaxed">
-                  This monitoring group will be permanently removed. This action cannot be undone.
-                </p>
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setDeleteConfirmId(null)}
-                  className="flex-1 border border-white/10 py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all text-neutral-400"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={confirmDelete}
-                  disabled={submitting}
-                  className="flex-1 bg-red-600 text-white py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-red-500 transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(220,38,38,0.3)]"
-                >
-                  {submitting ? (
-                    <RefreshCcw className="w-3.5 h-3.5 animate-spin" />
-                  ) : (
-                    <Trash2 className="w-3.5 h-3.5" />
-                  )}
-                  Permanently_Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteConfirmationModal
+        isOpen={!!deleteConfirmId}
+        onClose={() => setDeleteConfirmId(null)}
+        onConfirm={confirmDelete}
+        submitting={submitting}
+        message="This monitoring group will be permanently removed. This action cannot be undone."
+      />
 
       {/* Toast Notification */}
-      {toast.visible && (
-        <div className="fixed bottom-8 right-8 z-[300] animate-in slide-in-from-right-full duration-500">
-          <div className="bg-black border border-white/20 p-4 min-w-[300px] shadow-2xl flex items-center gap-4">
-            <div className="w-8 h-8 rounded-none border border-white/20 flex items-center justify-center bg-white/5">
-              <Check className="w-4 h-4 text-white" />
-            </div>
-            <div className="flex-1">
-              <div className="text-[10px] font-black text-white uppercase tracking-widest mb-0.5">
-                Monitoring.System
-              </div>
-              <div className="text-[11px] text-neutral-400 uppercase tracking-tighter">
-                {toast.message}
-              </div>
-            </div>
-            <button
-              onClick={() => setToast((prev) => ({ ...prev, visible: false }))}
-              className="p-1 hover:bg-white/5 text-neutral-600 hover:text-white transition-colors"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-          <div className="h-0.5 bg-neutral-800 w-full overflow-hidden">
-            <div className="h-full bg-white animate-progress-shrink origin-left" />
-          </div>
-        </div>
-      )}
+      <MonitoringToast
+        visible={toast.visible}
+        message={toast.message}
+        onClose={() => setToast((prev) => ({ ...prev, visible: false }))}
+      />
     </div>
   )
 }
