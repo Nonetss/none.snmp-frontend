@@ -1,6 +1,7 @@
 export type TabId =
   | 'dashboard'
   | 'interfaces'
+  | 'monitoring'
   | 'network'
   | 'bridge'
   | 'discovery'

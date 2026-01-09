@@ -1,5 +1,15 @@
 import React from 'react'
-import { LayoutDashboard, Network, Activity, MapPin, Box, List, Cpu, Camera } from 'lucide-react'
+import {
+  LayoutDashboard,
+  Network,
+  Activity,
+  MapPin,
+  Box,
+  List,
+  Cpu,
+  Camera,
+  Radio,
+} from 'lucide-react'
 import type { TabId } from '@/features/devices/components/types'
 
 interface TabsNavProps {
@@ -12,6 +22,7 @@ export const TabsNav: React.FC<TabsNavProps> = ({ activeTab, setActiveTab, hasHi
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'interfaces', label: 'Interfaces', icon: Network },
+    { id: 'monitoring', label: 'Monitoring', icon: Radio },
     { id: 'network', label: 'Network & Routes', icon: Activity },
     { id: 'bridge', label: 'Bridge', icon: Box },
     { id: 'discovery', label: 'Discovery', icon: MapPin },
