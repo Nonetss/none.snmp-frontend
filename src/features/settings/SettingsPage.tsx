@@ -3,9 +3,11 @@ import SnmpAuthManager from '@/features/settings/SnmpAuthManager'
 import SubnetManager from '@/features/settings/SubnetManager'
 import TaskScheduler from '@/features/settings/TaskScheduler'
 import TagManager from '@/features/settings/TagManager'
-import { Shield, Network, Calendar, Tag } from 'lucide-react'
+import NotificationCredentialManager from '@/features/settings/NotificationCredentialManager'
+import NotificationTopicManager from '@/features/settings/NotificationTopicManager'
+import { Shield, Network, Calendar, Tag, Bell } from 'lucide-react'
 
-type TabId = 'snmp' | 'subnets' | 'scheduler' | 'tags'
+type TabId = 'snmp' | 'subnets' | 'scheduler' | 'tags' | 'notifications'
 
 const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabId>('subnets')
@@ -13,7 +15,13 @@ const SettingsPage: React.FC = () => {
   // Sync with URL hash for persistence
   useEffect(() => {
     const hash = window.location.hash.replace('#', '') as TabId
-    if (hash === 'snmp' || hash === 'subnets' || hash === 'scheduler' || hash === 'tags') {
+    if (
+      hash === 'snmp' ||
+      hash === 'subnets' ||
+      hash === 'scheduler' ||
+      hash === 'tags' ||
+      hash === 'notifications'
+    ) {
       setActiveTab(hash)
     }
   }, [])
@@ -50,6 +58,17 @@ const SettingsPage: React.FC = () => {
           Device_Tags
         </button>
         <button
+          onClick={() => handleTabChange('notifications')}
+          className={`flex items-center gap-2 px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] transition-all border-b-2 ${
+            activeTab === 'notifications'
+              ? 'border-white text-white bg-white/5'
+              : 'border-transparent text-neutral-500 hover:text-white hover:bg-white/5'
+          }`}
+        >
+          <Bell className="w-4 h-4" />
+          Notifications
+        </button>
+        <button
           onClick={() => handleTabChange('snmp')}
           className={`flex items-center gap-2 px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] transition-all border-b-2 ${
             activeTab === 'snmp'
@@ -76,6 +95,12 @@ const SettingsPage: React.FC = () => {
       <div className="max-w-[1200px] mx-auto">
         {activeTab === 'subnets' && <SubnetManager />}
         {activeTab === 'tags' && <TagManager />}
+        {activeTab === 'notifications' && (
+          <div className="space-y-12">
+            <NotificationCredentialManager />
+            <NotificationTopicManager />
+          </div>
+        )}
         {activeTab === 'snmp' && <SnmpAuthManager />}
         {activeTab === 'scheduler' && <TaskScheduler />}
       </div>

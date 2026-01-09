@@ -48,18 +48,20 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
   const fetchData = async () => {
     setLoading(true)
     try {
-      let url = `/api/v0/monitor/status/${ruleId}?`
-
       const now = new Date()
-      let fromDate = new Date()
-      if (timeRange === '1h') fromDate.setHours(now.getHours() - 1)
-      else if (timeRange === '6h') fromDate.setHours(now.getHours() - 6)
-      else if (timeRange === '24h') fromDate.setHours(now.getHours() - 24)
-      else if (timeRange === '7d') fromDate.setDate(now.getDate() - 7)
+      const fromDate = new Date()
 
-      url += `from=${fromDate.toISOString()}&to=${now.toISOString()}`
+      if (timeRange === '1h') fromDate.setTime(now.getTime() - 60 * 60 * 1000)
+      else if (timeRange === '6h') fromDate.setTime(now.getTime() - 6 * 60 * 60 * 1000)
+      else if (timeRange === '24h') fromDate.setTime(now.getTime() - 24 * 60 * 60 * 1000)
+      else if (timeRange === '7d') fromDate.setTime(now.getTime() - 7 * 24 * 60 * 60 * 1000)
 
-      const response = await axios.get(url)
+      const response = await axios.get(`/api/v0/monitor/status/${ruleId}`, {
+        params: {
+          from: fromDate.toISOString(),
+          to: now.toISOString(),
+        },
+      })
       setData(response.data)
       setError(null)
     } catch (err: any) {
@@ -357,9 +359,14 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
           </span>
         </div>
 
-        <div className="h-[400px] w-full">
+        <div className="h-[400px] w-full relative">
+          {loading && data && (
+            <div className="absolute inset-0 z-10 bg-black/20 backdrop-blur-[1px] flex items-center justify-center">
+              <RefreshCcw className="w-6 h-6 animate-spin text-white/50" />
+            </div>
+          )}
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData}>
+            <AreaChart key={`${ruleId}-${timeRange}-${data?.ports.length}`} data={chartData}>
               <defs>
                 {filteredData?.ports.flatMap((port, pIdx) =>
                   port.devices.map((dev, dIdx) => {
@@ -387,7 +394,8 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
                 fontSize={10}
                 tickLine={false}
                 axisLine={false}
-                tick={false}
+                tickFormatter={(idx) => chartData[idx]?.time || ''}
+                minTickGap={30}
               />
               <YAxis
                 stroke="#404040"
