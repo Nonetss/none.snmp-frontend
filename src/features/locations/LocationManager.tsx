@@ -102,7 +102,7 @@ const LocationManager: React.FC<Props> = ({ initialViewingId = null }) => {
   }, [])
 
   useEffect(() => {
-    if (viewingLocationId) {
+    if (viewingLocationId !== null) {
       fetchLocationDetails(viewingLocationId)
     } else {
       setCurrentLocationDetails(null)
@@ -110,10 +110,12 @@ const LocationManager: React.FC<Props> = ({ initialViewingId = null }) => {
   }, [viewingLocationId])
 
   const breadcrumbs = useMemo(() => {
-    if (!viewingLocationId) return []
+    if (viewingLocationId === null) return []
+    if (viewingLocationId === -1) return [{ id: -1, name: 'Unassigned Assets' }]
+
     const path: Location[] = []
     let currentId: number | null = viewingLocationId
-    while (currentId) {
+    while (currentId && currentId !== -1) {
       const loc = locations.find((l) => l.id === currentId)
       if (loc) {
         path.unshift(loc)
@@ -126,7 +128,8 @@ const LocationManager: React.FC<Props> = ({ initialViewingId = null }) => {
   }, [viewingLocationId, locations])
 
   const processedLocations = useMemo(() => {
-    let filtered = locations.filter((l) => l.parentId === viewingLocationId)
+    if (viewingLocationId !== null) return []
+    let filtered = locations.filter((l) => l.parentId === null)
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
       filtered = filtered.filter(
@@ -208,14 +211,14 @@ const LocationManager: React.FC<Props> = ({ initialViewingId = null }) => {
         force: isForced,
       })
 
-      showToast('Devices assigned successfully')
+      showToast(selectedLocation.id === -1 ? 'Devices unassigned' : 'Devices assigned successfully')
       setShowAssignModal(false)
       setSelectedSubnets([])
       setSelectedDeviceIds([])
       setForceAssign(false)
       setConflictData(null)
       await fetchData()
-      if (viewingLocationId) {
+      if (viewingLocationId !== null) {
         await fetchLocationDetails(viewingLocationId)
       }
     } catch (err: any) {
@@ -227,6 +230,35 @@ const LocationManager: React.FC<Props> = ({ initialViewingId = null }) => {
       } else {
         alert(err.response?.data?.message || err.message || 'Assignment failed')
       }
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleBulkUnassign = async () => {
+    if (selectedDeviceIds.length === 0 && selectedSubnets.length === 0) return
+    if (
+      !confirm(
+        `Are you sure you want to unassign ${selectedDeviceIds.length + selectedSubnets.length} items?`
+      )
+    )
+      return
+
+    setSubmitting(true)
+    try {
+      await axios.post(`/api/v0/location/assign`, {
+        locationId: -1,
+        subnetIds: selectedSubnets,
+        deviceIds: selectedDeviceIds,
+        force: true,
+      })
+      showToast('Assets moved to Unassigned')
+      setSelectedSubnets([])
+      setSelectedDeviceIds([])
+      fetchData()
+      if (viewingLocationId !== null) fetchLocationDetails(viewingLocationId)
+    } catch (err: any) {
+      alert('Unassign failed')
     } finally {
       setSubmitting(false)
     }
@@ -314,22 +346,45 @@ const LocationManager: React.FC<Props> = ({ initialViewingId = null }) => {
             />
           </div>
 
-          <button
-            onClick={() => {
-              setEditingId(null)
-              setFormData({
-                name: '',
-                description: '',
-                parentId: viewingLocationId?.toString() || '',
-              })
-              setShowForm(true)
-            }}
-            className="flex items-center gap-2 px-4 py-2 border border-white/20 text-xs font-bold hover:bg-white hover:text-black transition-all uppercase text-neutral-400 hover:border-white"
-          >
-            <Plus className="w-4 h-4" /> Add_Location
-          </button>
+          {viewingLocationId === null && (
+            <button
+              onClick={() => navigateTo(-1)}
+              className="flex items-center gap-2 px-4 py-2 border border-amber-500/30 text-xs font-bold hover:bg-amber-500 hover:text-black transition-all uppercase text-amber-500"
+            >
+              <AlertCircle className="w-4 h-4" /> Unassigned_Assets
+            </button>
+          )}
 
-          {viewingLocationId && currentLocationDetails && (
+          {viewingLocationId === -1 && (
+            <button
+              onClick={() => {
+                setSelectedLocation({ id: -1, name: 'Unassigned', description: '', parentId: null })
+                setShowAssignModal(true)
+              }}
+              className="flex items-center gap-2 px-4 py-2 border border-white text-xs font-bold hover:bg-white hover:text-black transition-all uppercase"
+            >
+              <Plus className="w-4 h-4" /> Assign_Devices
+            </button>
+          )}
+
+          {viewingLocationId !== -1 && (
+            <button
+              onClick={() => {
+                setEditingId(null)
+                setFormData({
+                  name: '',
+                  description: '',
+                  parentId: viewingLocationId?.toString() || '',
+                })
+                setShowForm(true)
+              }}
+              className="flex items-center gap-2 px-4 py-2 border border-white/20 text-xs font-bold hover:bg-white hover:text-black transition-all uppercase text-neutral-400 hover:border-white"
+            >
+              <Plus className="w-4 h-4" /> Add_Location
+            </button>
+          )}
+
+          {viewingLocationId !== null && viewingLocationId !== -1 && currentLocationDetails && (
             <button
               onClick={() => {
                 setSelectedLocation(currentLocationDetails)
@@ -349,34 +404,47 @@ const LocationManager: React.FC<Props> = ({ initialViewingId = null }) => {
         </div>
       )}
 
-      <LocationGrid
-        locations={locations}
-        processedLocations={processedLocations}
-        onNavigate={navigateTo}
-        onOpenAssign={handleOpenAssign}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        getParentName={getParentName}
-      />
+      {viewingLocationId === null && (
+        <LocationGrid
+          locations={locations}
+          processedLocations={processedLocations}
+          onNavigate={navigateTo}
+          onOpenAssign={handleOpenAssign}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          getParentName={getParentName}
+        />
+      )}
 
-      {viewingLocationId && (
+      {viewingLocationId !== null && (
         <div className="space-y-4 pt-8">
           <div className="flex justify-between items-center">
             <h3 className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.3em]">
-              Assigned_Devices
+              {viewingLocationId === -1 ? 'Unassigned_Inventory' : 'Assigned_Devices'}
             </h3>
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => {
-                  if (currentLocationDetails) {
-                    setSelectedLocation(currentLocationDetails)
-                    setShowAssignModal(true)
-                  }
-                }}
-                className="flex items-center gap-2 px-3 py-1.5 border border-white/20 text-[10px] font-bold hover:bg-white hover:text-black transition-all uppercase text-neutral-400 hover:border-white"
-              >
-                <LinkIcon className="w-3.5 h-3.5" /> Quick_Assign
-              </button>
+              {viewingLocationId !== -1 &&
+                (selectedDeviceIds.length > 0 || selectedSubnets.length > 0) && (
+                  <button
+                    onClick={handleBulkUnassign}
+                    className="flex items-center gap-2 px-3 py-1.5 border border-red-500/30 text-[10px] font-bold hover:bg-red-500 hover:text-white transition-all uppercase text-red-500 mr-2"
+                  >
+                    <X className="w-3.5 h-3.5" /> Unassign_Selected
+                  </button>
+                )}
+              {viewingLocationId !== -1 && (
+                <button
+                  onClick={() => {
+                    if (currentLocationDetails) {
+                      setSelectedLocation(currentLocationDetails)
+                      setShowAssignModal(true)
+                    }
+                  }}
+                  className="flex items-center gap-2 px-3 py-1.5 border border-white/20 text-[10px] font-bold hover:bg-white hover:text-black transition-all uppercase text-neutral-400 hover:border-white"
+                >
+                  <LinkIcon className="w-3.5 h-3.5" /> Quick_Assign
+                </button>
+              )}
               <span className="text-[10px] font-bold text-white px-2 py-0.5 bg-white/10">
                 {locationDevicesCount} UNITS
               </span>
@@ -392,6 +460,19 @@ const LocationManager: React.FC<Props> = ({ initialViewingId = null }) => {
               )
             }
             loading={detailsLoading}
+            selectable={true}
+            selectedDeviceIds={selectedDeviceIds}
+            onSelectDevice={(id) =>
+              setSelectedDeviceIds((prev) =>
+                prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+              )
+            }
+            selectedSubnets={selectedSubnets}
+            onSelectSubnet={(id) =>
+              setSelectedSubnets((prev) =>
+                prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+              )
+            }
           />
         </div>
       )}
