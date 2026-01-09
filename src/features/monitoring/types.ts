@@ -44,6 +44,30 @@ export interface MonitoringRule {
   portGroup?: PortGroup
   lastRun?: string | null
   nextRun?: string | null
+  status?: string
+  lastResult?: any
+  condition?: string
+}
+
+export interface MonitoringStatusPoint {
+  status: boolean
+  checkTime: string
+  responseTime?: number | null
+}
+
+export interface MonitoringDeviceDataPort {
+  port: number
+  statusData: MonitoringStatusPoint[]
+}
+
+export interface MonitoringGroupedData {
+  deviceId: number
+  deviceDataPort: MonitoringDeviceDataPort[]
+}
+
+export interface MonitoringStatusResponse {
+  rule: MonitoringRule
+  groupedData: MonitoringGroupedData[]
 }
 
 export interface MonitoringStatusHistory {

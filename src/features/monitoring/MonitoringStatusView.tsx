@@ -23,7 +23,7 @@ import {
   Filter,
   BarChart2,
 } from 'lucide-react'
-import type { MonitoringStatusRule } from './types'
+import type { MonitoringStatusResponse } from './types'
 
 interface Props {
   autoRefresh: boolean
@@ -31,7 +31,7 @@ interface Props {
 }
 
 const MonitoringStatusView: React.FC<Props> = ({ autoRefresh, setAutoRefresh }) => {
-  const [data, setData] = useState<MonitoringStatusRule[]>([])
+  const [data, setData] = useState<MonitoringStatusResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [expandedRules, setExpandedRules] = useState<Record<number, boolean>>({})
@@ -65,12 +65,12 @@ const MonitoringStatusView: React.FC<Props> = ({ autoRefresh, setAutoRefresh }) 
   }
 
   // Pre-process data for a specific rule combining all ports
-  const getRuleChartData = (rule: MonitoringStatusRule) => {
+  const getRuleChartData = (item: MonitoringStatusResponse) => {
     // Find the maximum number of history points among all devices/ports
     let maxPoints = 0
-    rule.ports.forEach((port) => {
-      port.devices.forEach((dev) => {
-        if (dev.history.length > maxPoints) maxPoints = dev.history.length
+    item.groupedData.forEach((group) => {
+      group.deviceDataPort.forEach((port) => {
+        if (port.statusData.length > maxPoints) maxPoints = port.statusData.length
       })
     })
 
@@ -79,16 +79,20 @@ const MonitoringStatusView: React.FC<Props> = ({ autoRefresh, setAutoRefresh }) 
       const point: any = { index: idx }
       let timeSet = false
 
-      rule.ports.forEach((port) => {
-        port.devices.forEach((dev) => {
-          // Access history from oldest to newest.
-          // The API returns newest first (index 0), so we map the end of our graph (maxPoints-1) to API index 0.
-          const historyIdx = maxPoints - 1 - idx
-          const historyPoint = dev.history[historyIdx]
+      item.groupedData.forEach((group) => {
+        // We don't have device names in groupedData, we might need to get them from rule.deviceGroup
+        const device = item.rule.deviceGroup?.devices?.find(
+          (d: any) => (d.id || d.deviceId) === group.deviceId
+        )
+        const deviceName =
+          device?.name || device?.sysName || device?.ipv4 || `Dev ${group.deviceId}`
+
+        group.deviceDataPort.forEach((port) => {
+          const historyPoint = port.statusData[idx]
 
           if (historyPoint) {
-            point[`${dev.name}_${port.port}_latency`] = historyPoint.status
-              ? historyPoint.responseTime
+            point[`${deviceName}_${port.port}_latency`] = historyPoint.status
+              ? historyPoint.responseTime || 1
               : null
             if (!timeSet) {
               point.time = new Date(historyPoint.checkTime).toLocaleTimeString()

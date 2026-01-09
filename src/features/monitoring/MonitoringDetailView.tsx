@@ -28,14 +28,14 @@ import {
   Download,
   Search,
 } from 'lucide-react'
-import type { MonitoringStatusRule } from './types'
+import type { MonitoringStatusResponse } from './types'
 
 interface Props {
   ruleId: number
 }
 
 const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
-  const [data, setData] = useState<MonitoringStatusRule | null>(null)
+  const [data, setData] = useState<MonitoringStatusResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -60,6 +60,8 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
         params: {
           from: fromDate.toISOString(),
           to: now.toISOString(),
+          deviceId: deviceFilter || undefined,
+          port: portFilter || undefined,
         },
       })
       setData(response.data)
@@ -73,61 +75,71 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
 
   useEffect(() => {
     fetchData()
-  }, [ruleId, timeRange])
+  }, [ruleId, timeRange, deviceFilter, portFilter])
 
   // Get unique devices and ports from data for filters
   const availableDevices = useMemo(() => {
-    if (!data) return []
-    const devices = new Map<number, { id: number; name: string; ipv4: string }>()
-    data.ports.forEach((p) => {
-      p.devices.forEach((d) => {
-        devices.set(d.id, { id: d.id, name: d.name, ipv4: d.ipv4 })
-      })
-    })
-    return Array.from(devices.values()).sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+    if (!data?.rule?.deviceGroup?.devices) return []
+    return data.rule.deviceGroup.devices
+      .map((d: any) => ({
+        id: d.id || d.deviceId,
+        name: d.name || d.sysName || d.ipv4 || `Device ${d.id || d.deviceId}`,
+        ipv4: d.ipv4 || '',
+      }))
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
   }, [data])
 
+  const deviceMap = useMemo(() => {
+    const map = new Map<number, { name: string; ipv4: string }>()
+    availableDevices.forEach((d) => {
+      map.set(d.id, { name: d.name, ipv4: d.ipv4 })
+    })
+    return map
+  }, [availableDevices])
+
   const availablePorts = useMemo(() => {
-    if (!data) return []
-    const ports = Array.from(new Set(data.ports.map((p) => p.port)))
+    if (!data?.rule?.portGroup?.items) return []
+    const ports = Array.from(new Set(data.rule.portGroup.items.map((p) => p.port)))
     return ports.sort((a, b) => a - b)
   }, [data])
 
   const filteredData = useMemo(() => {
     if (!data) return null
 
-    return {
-      ...data,
-      ports: data.ports
-        .filter((p) => !portFilter || p.port === portFilter)
-        .map((port) => ({
-          ...port,
-          devices: port.devices.filter((dev) => {
-            // Device ID filter
-            if (deviceFilter && dev.id !== deviceFilter) return false
+    return data.groupedData
+      .map((group) => ({
+        ...group,
+        deviceDataPort: group.deviceDataPort
+          .filter((p) => !portFilter || p.port === portFilter)
+          .map((port) => ({
+            ...port,
+            statusData: port.statusData,
+          }))
+          .filter((p) => p.statusData.length > 0),
+      }))
+      .filter((group) => {
+        if (deviceFilter && group.deviceId !== deviceFilter) return false
 
-            // Status filter (based on last history point)
-            if (statusFilter !== 'all') {
-              const lastStatus = dev.history[dev.history.length - 1]?.status
-              if (statusFilter === 'up' && !lastStatus) return false
-              if (statusFilter === 'down' && lastStatus) return false
-            }
-
-            return true
-          }),
-        }))
-        .filter((p) => p.devices.length > 0),
-    }
+        if (statusFilter !== 'all') {
+          const lastStatuses = group.deviceDataPort.flatMap((p) =>
+            p.statusData.slice(-1).map((s) => s.status)
+          )
+          const isUp = lastStatuses.some((s) => s === true)
+          if (statusFilter === 'up' && !isUp) return false
+          if (statusFilter === 'down' && isUp) return false
+        }
+        return group.deviceDataPort.length > 0
+      })
   }, [data, deviceFilter, portFilter, statusFilter])
 
   const chartData = useMemo(() => {
     if (!filteredData) return []
 
-    // Find the maximum number of history points among all devices/ports in filtered data
+    // Find the maximum number of history points
     let maxPoints = 0
-    filteredData.ports.forEach((port) => {
-      port.devices.forEach((dev) => {
-        if (dev.history.length > maxPoints) maxPoints = dev.history.length
+    filteredData.forEach((group) => {
+      group.deviceDataPort.forEach((port) => {
+        if (port.statusData.length > maxPoints) maxPoints = port.statusData.length
       })
     })
 
@@ -135,16 +147,15 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
       const point: any = { index: idx }
       let timeSet = false
 
-      filteredData.ports.forEach((port) => {
-        port.devices.forEach((dev) => {
+      filteredData.forEach((group) => {
+        const deviceName = deviceMap.get(group.deviceId)?.name || `Dev ${group.deviceId}`
+        group.deviceDataPort.forEach((port) => {
           // Access history from oldest to newest.
-          // API index 0 is the newest point, so it should be at the right side of the chart.
-          const historyIdx = maxPoints - 1 - idx
-          const historyPoint = dev.history[historyIdx]
+          const historyPoint = port.statusData[idx]
 
           if (historyPoint) {
-            point[`${dev.name}_${port.port}`] = historyPoint.status
-              ? historyPoint.responseTime
+            point[`${deviceName}_${port.port}`] = historyPoint.status
+              ? historyPoint.responseTime || 1 // Fallback to 1 if responseTime is missing but status is true
               : null
             if (!timeSet) {
               const dt = new Date(historyPoint.checkTime)
@@ -157,7 +168,7 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
       })
       return point
     })
-  }, [filteredData])
+  }, [filteredData, deviceMap])
 
   const stats = useMemo(() => {
     if (!filteredData) return null
@@ -166,9 +177,9 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
     let totalResponseTime = 0
     let maxResponseTime = 0
 
-    filteredData.ports.forEach((p) => {
-      p.devices.forEach((d) => {
-        d.history.forEach((h) => {
+    filteredData.forEach((group) => {
+      group.deviceDataPort.forEach((p) => {
+        p.statusData.forEach((h) => {
           totalChecks++
           if (h.status) {
             successfulChecks++
@@ -215,7 +226,7 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
               <div className="flex items-center gap-3">
                 <Shield className="w-5 h-5 text-white" />
                 <h1 className="text-xl font-black tracking-[0.3em] uppercase">
-                  {data?.name || 'Loading Rule...'}
+                  {data?.rule?.name || 'Loading Rule...'}
                 </h1>
                 <div className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[8px] font-black uppercase tracking-tighter">
                   Live_Analysis
@@ -354,7 +365,7 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
             </span>
           </div>
           <span className="text-[8px] text-neutral-600 font-bold uppercase tracking-widest">
-            Showing {filteredData?.ports.reduce((acc, p) => acc + p.devices.length, 0)} Active
+            Showing {filteredData?.reduce((acc, g) => acc + g.deviceDataPort.length, 0)} Active
             Streams
           </span>
         </div>
@@ -366,15 +377,15 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
             </div>
           )}
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart key={`${ruleId}-${timeRange}-${data?.ports.length}`} data={chartData}>
+            <AreaChart key={`${ruleId}-${timeRange}-${data?.groupedData.length}`} data={chartData}>
               <defs>
-                {filteredData?.ports.flatMap((port, pIdx) =>
-                  port.devices.map((dev, dIdx) => {
-                    const colorIdx = (pIdx * 3 + dIdx) % COLORS.length
+                {filteredData?.flatMap((group, gIdx) =>
+                  group.deviceDataPort.map((port, pIdx) => {
+                    const colorIdx = (gIdx * 3 + pIdx) % COLORS.length
                     return (
                       <linearGradient
-                        key={`${dev.id}-${port.port}`}
-                        id={`grad-${dev.id}-${port.port}`}
+                        key={`${group.deviceId}-${port.port}`}
+                        id={`grad-${group.deviceId}-${port.port}`}
                         x1="0"
                         y1="0"
                         x2="0"
@@ -426,18 +437,19 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
                   paddingBottom: '30px',
                 }}
               />
-              {filteredData?.ports.flatMap((port, pIdx) =>
-                port.devices.map((dev, dIdx) => {
-                  const colorIdx = (pIdx * 3 + dIdx) % COLORS.length
+              {filteredData?.flatMap((group, gIdx) =>
+                group.deviceDataPort.map((port, pIdx) => {
+                  const deviceName = deviceMap.get(group.deviceId)?.name || `Dev ${group.deviceId}`
+                  const colorIdx = (gIdx * 3 + pIdx) % COLORS.length
                   return (
                     <Area
-                      key={`${dev.id}-${port.port}`}
+                      key={`${group.deviceId}-${port.port}`}
                       type="monotone"
-                      dataKey={`${dev.name}_${port.port}`}
-                      name={`${dev.name}:${port.port}`}
+                      dataKey={`${deviceName}_${port.port}`}
+                      name={`${deviceName}:${port.port}`}
                       stroke={COLORS[colorIdx]}
                       fillOpacity={1}
-                      fill={`url(#grad-${dev.id}-${port.port})`}
+                      fill={`url(#grad-${group.deviceId}-${port.port})`}
                       strokeWidth={1.5}
                       connectNulls={false}
                       isAnimationActive={false}
