@@ -1,20 +1,20 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import axios from 'axios'
-import { AreaChart, Area, ResponsiveContainer, YAxis, Tooltip as ChartTooltip } from 'recharts'
 import {
+  Activity,
   RefreshCcw,
   Shield,
   Zap,
   ChevronLeft,
   Search,
-  ExternalLink,
   LayoutGrid,
-  LineChart as LineChartIcon,
+  List,
+  Clock,
+  Server,
+  ArrowUpRight,
+  Filter,
   CheckCircle2,
   XCircle,
-  Clock,
-  Activity,
-  Filter as FilterIcon,
 } from 'lucide-react'
 import type { MonitoringStatusResponse } from './types'
 
@@ -22,472 +22,418 @@ interface Props {
   ruleId: number
 }
 
+// --- High Performance Components ---
+
 /**
- * MonitoringStream component
- * Renders telemetry for a single Device + Port pair.
- * Optimized for high-density display.
+ * LatencyHistogram
+ * Replaces heavy SVG charts with CSS-based bar graphs.
+ * Optimized to never overflow the screen.
  */
-const MonitoringStream: React.FC<{
-  deviceName: string
-  ipv4: string
-  deviceId: number
-  port: number
-  data: any[]
-  initialView: 'matrix' | 'charts'
-}> = ({ deviceName, ipv4, deviceId, port, data, initialView }) => {
-  const [view, setView] = useState<'matrix' | 'charts'>(initialView)
+const LatencyHistogram: React.FC<{ data: any[]; height: number }> = React.memo(
+  ({ data, height }) => {
+    // Normalize latency for bar height
+    const values = data.filter((d) => d.status && d.responseTime != null).map((d) => d.responseTime)
+    const maxLat = Math.max(...values, 100)
 
-  useEffect(() => {
-    setView(initialView)
-  }, [initialView])
+    return (
+      <div className="flex items-end w-full h-full overflow-hidden" style={{ height }}>
+        {data.map((point, i) => {
+          const latency = point.responseTime ?? 0
+          const h = point.status ? Math.min((latency / maxLat) * 100, 100) : 100
+          const color = !point.status
+            ? 'bg-red-600'
+            : latency > 150
+              ? 'bg-amber-500'
+              : latency > 50
+                ? 'bg-emerald-400'
+                : 'bg-emerald-600'
 
-  // Process data for chart
-  const streamChartData = useMemo(() => {
-    return data.map((p) => ({
-      ...p,
-      // Use real responseTime. If missing, it will be undefined/null which is fine for Recharts.
-      latency: p.responseTime,
-      timeLabel: new Date(p.checkTime).toLocaleTimeString(),
-    }))
-  }, [data])
-
-  const getCellColor = (status: boolean, latency?: number | null) => {
-    if (!status) return 'bg-red-600 shadow-[0_0_8px_rgba(220,38,38,0.4)]'
-    if (!latency || latency < 50) return 'bg-emerald-500'
-    if (latency < 150) return 'bg-amber-500'
-    return 'bg-orange-600'
-  }
-
-  const lastStatus = data[data.length - 1]
-  const isUp = lastStatus?.status
-
-  return (
-    <div className="border border-white/5 bg-neutral-900/10 group/row mb-1">
-      <div className="px-4 py-2 flex flex-col xl:flex-row xl:items-center gap-4 hover:bg-white/[0.02] transition-colors">
-        {/* Stream Info (Identity + Compact Switcher) */}
-        <div className="w-72 shrink-0 flex items-center justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-0.5">
-              <span
-                className="text-[11px] font-black uppercase text-white truncate"
-                title={deviceName}
-              >
-                {deviceName}
-              </span>
-              <a
-                href={`/devices/${deviceId}`}
-                className="opacity-0 group-hover/row:opacity-100 transition-opacity"
-              >
-                <ExternalLink className="w-3 h-3 text-neutral-600 hover:text-white" />
-              </a>
-            </div>
-            <div className="flex items-center gap-2 text-[9px] font-mono text-neutral-500">
-              <div
-                className={`w-1.5 h-1.5 rounded-full ${isUp ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`}
-              />
-              <span>{ipv4}</span>
-              <span className="text-neutral-700">:</span>
-              <span className="text-neutral-400 font-bold">{port}</span>
-            </div>
-          </div>
-
-          {/* Inline Tab Switcher */}
-          <div className="flex bg-black border border-white/10 overflow-hidden shrink-0">
-            <button
-              onClick={() => setView('matrix')}
-              className={`p-1.5 transition-all ${view === 'matrix' ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'}`}
-              title="Switch to Matrix"
-            >
-              <LayoutGrid className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => setView('charts')}
-              className={`p-1.5 transition-all ${view === 'charts' ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'}`}
-              title="Switch to Chart"
-            >
-              <LineChartIcon className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Visualization Area - Fixed Height 20px (h-5) */}
-        <div className="flex-1 flex items-center h-5 overflow-hidden">
-          {view === 'matrix' ? (
-            <div className="flex flex-wrap gap-0.5 items-center">
-              {data.map((point, idx) => (
-                <div
-                  key={idx}
-                  title={`${deviceName}:${port}\nTime: ${new Date(point.checkTime).toLocaleString()}\nLatency: ${point.status ? (point.responseTime || 'N/A') + 'ms' : 'DOWN'}`}
-                  className={`w-1.5 h-5 ${getCellColor(point.status, point.responseTime)} cursor-help hover:scale-125 transition-all rounded-[px]`}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="w-full h-full min-w-[200px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={streamChartData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-                  <defs>
-                    <linearGradient id={`grad-${deviceId}-${port}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="5%"
-                        stopColor={isUp ? '#10b981' : '#ef4444'}
-                        stopOpacity={0.3}
-                      />
-                      <stop offset="95%" stopColor={isUp ? '#10b981' : '#ef4444'} stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  {/* Invisible YAxis to help Recharts scale but keep it compact */}
-                  <YAxis hide domain={['auto', 'auto']} />
-                  <ChartTooltip
-                    contentStyle={{
-                      backgroundColor: '#000',
-                      border: '1px solid #333',
-                      fontSize: '9px',
-                      fontFamily: 'monospace',
-                      padding: '4px 8px',
-                    }}
-                    labelStyle={{ display: 'none' }}
-                    itemStyle={{ color: '#fff', padding: 0 }}
-                    formatter={(value: any) => [`${value}ms`, 'Latency']}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="latency"
-                    stroke={isUp ? '#10b981' : '#ef4444'}
-                    fill={`url(#grad-${deviceId}-${port})`}
-                    strokeWidth={1.5}
-                    isAnimationActive={false}
-                    connectNulls={true}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </div>
+          return (
+            <div
+              key={i}
+              title={`${new Date(point.checkTime).toLocaleTimeString()} - ${point.status ? latency + 'ms' : 'DOWN'}`}
+              // Removed min-width and gap to prevent overflow.
+              // flex-grow allows it to fill space, min-w-0 allows it to shrink below 1px if needed.
+              className={`flex-grow h-full min-w-0 ${color} opacity-80 hover:opacity-100 transition-opacity`}
+              style={{ height: `${Math.max(h, 15)}%` }}
+            />
+          )
+        })}
       </div>
-    </div>
-  )
-}
+    )
+  }
+)
+
+const HeatmapRow: React.FC<{ data: any[] }> = React.memo(({ data }) => (
+  <div className="flex flex-wrap gap-[2px]">
+    {data.map((point, i) => {
+      const latency = point.responseTime ?? 0
+      const color = !point.status ? 'bg-red-600' : latency > 150 ? 'bg-amber-500' : 'bg-emerald-600'
+      return (
+        <div
+          key={i}
+          title={`${new Date(point.checkTime).toLocaleTimeString()} - ${point.status ? 'UP (' + latency + 'ms)' : 'DOWN'}`}
+          className={`w-3 h-3 ${color} rounded-[1px] hover:scale-125 transition-transform`}
+        />
+      )
+    })}
+  </div>
+))
+
+// --- Main View ---
 
 const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
   const [data, setData] = useState<MonitoringStatusResponse | null>(null)
   const [deviceList, setDeviceList] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [globalView, setGlobalView] = useState<'matrix' | 'charts'>('matrix')
 
+  // View State
+  const [viewMode, setViewMode] = useState<'DENSITY' | 'ANALYTICS'>('ANALYTICS')
+
+  // Filters
   const [filters, setFilters] = useState({
-    timeRange: '24h' as '1h' | '6h' | '24h' | '7d',
     search: '',
-    statusFilter: 'all' as 'all' | 'up' | 'down',
+    status: 'ALL' as 'ALL' | 'UP' | 'DOWN',
+    time: '24h' as '1h' | '6h' | '24h' | '7d',
   })
 
-  // --- Initial Setup ---
-  useEffect(() => {
-    axios
-      .get('/api/v0/search/device/list')
-      .then((res) => {
-        const flat = (res.data || []).flatMap((s: any) => s.devices || [])
-        setDeviceList(flat)
-      })
-      .catch(console.error)
-  }, [])
-
-  // --- Data Fetching ---
+  // --- Data Sync ---
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
       const now = new Date()
       const from = new Date()
       const offsets = { '1h': 1, '6h': 6, '24h': 24, '7d': 168 }
-      from.setHours(now.getHours() - offsets[filters.timeRange])
+      from.setHours(now.getHours() - offsets[filters.time])
 
-      const { data } = await axios.get(`/api/v0/monitor/status/${ruleId}`, {
-        params: { from: from.toISOString(), to: now.toISOString() },
-      })
-      setData(data)
+      const [statusRes, listRes] = await Promise.all([
+        axios.get(`/api/v0/monitor/status/${ruleId}`, {
+          params: { from: from.toISOString(), to: now.toISOString() },
+        }),
+        deviceList.length === 0
+          ? axios.get('/api/v0/search/device/list')
+          : Promise.resolve({ data: null }),
+      ])
+
+      setData(statusRes.data)
+      if (listRes.data) {
+        setDeviceList((listRes.data || []).flatMap((s: any) => s.devices || []))
+      }
       setError(null)
     } catch (err: any) {
-      setError(err.message || 'TELEMETRY_LINK_FAILURE')
+      setError(err.message || 'SYNC_FAILED')
     } finally {
       setLoading(false)
     }
-  }, [ruleId, filters.timeRange])
+  }, [ruleId, filters.time, deviceList.length])
 
   useEffect(() => {
     fetchData()
-    const interval = setInterval(fetchData, 60000)
+    const interval = setInterval(fetchData, 30000)
     return () => clearInterval(interval)
   }, [fetchData])
 
+  // --- Processing ---
   const deviceMap = useMemo(() => {
     const map = new Map<number, any>()
     deviceList.forEach((d) => map.set(d.id, d))
     return map
   }, [deviceList])
 
-  const getDeviceInfo = (id: number) => {
-    const d = deviceMap.get(id)
-    if (d) return { name: d.name || d.sysName || 'Node_' + id, ipv4: d.ipv4 }
-    const ruleDev = data?.rule?.deviceGroup?.devices?.find(
-      (rd: any) => (rd.id || rd.deviceId) === id
-    )
-    return {
-      name: ruleDev?.name || ruleDev?.sysName || 'Node_' + id,
-      ipv4: ruleDev?.ipv4 || '0.0.0.0',
-    }
-  }
-
-  const processedStreams = useMemo(() => {
+  const processedData = useMemo(() => {
     if (!data) return []
     const query = filters.search.toLowerCase()
-    const streams: any[] = []
 
-    data.groupedData.forEach((group) => {
-      const info = getDeviceInfo(group.deviceId)
-      const matchesSearch =
-        info.name.toLowerCase().includes(query) ||
-        info.ipv4.includes(query) ||
-        group.deviceId.toString().includes(query)
+    return data.groupedData
+      .flatMap((group) => {
+        const devInfo = deviceMap.get(group.deviceId)
+        const name = devInfo?.name || devInfo?.sysName || `Node_${group.deviceId}`
+        const ip = devInfo?.ipv4 || '0.0.0.0'
+        const searchMatch = name.toLowerCase().includes(query) || ip.includes(query)
 
-      if (!matchesSearch) return
+        if (!searchMatch) return []
 
-      group.deviceDataPort.forEach((port) => {
-        const lastStatus = port.statusData[port.statusData.length - 1]?.status
-        if (filters.statusFilter === 'up' && !lastStatus) return
-        if (filters.statusFilter === 'down' && lastStatus) return
+        return group.deviceDataPort
+          .map((port) => {
+            const lastPt = port.statusData[port.statusData.length - 1]
+            const isUp = lastPt?.status ?? false
 
-        streams.push({
-          deviceId: group.deviceId,
-          deviceName: info.name,
-          ipv4: info.ipv4,
-          port: port.port,
-          statusData: port.statusData,
-        })
+            if (filters.status === 'UP' && !isUp) return null
+            if (filters.status === 'DOWN' && isUp) return null
+
+            // Stats
+            const upPoints = port.statusData.filter((p) => p.status).length
+            const total = port.statusData.length
+            const uptime = total ? (upPoints / total) * 100 : 0
+            const avgLat = upPoints
+              ? port.statusData.reduce((a, b) => a + (b.responseTime || 0), 0) / upPoints
+              : 0
+
+            return {
+              key: `${group.deviceId}-${port.port}`,
+              id: group.deviceId,
+              name,
+              ip,
+              port: port.port,
+              history: port.statusData,
+              isUp,
+              uptime,
+              avgLat,
+              lastCheck: lastPt?.checkTime,
+            }
+          })
+          .filter(Boolean) as any[]
       })
-    })
-
-    return streams.sort((a, b) => a.deviceName.localeCompare(b.deviceName))
-  }, [data, filters.search, filters.statusFilter, deviceMap])
-
-  const stats = useMemo(() => {
-    if (!data) return null
-    let total = 0,
-      up = 0,
-      latencies: number[] = []
-    processedStreams.forEach((s) => {
-      s.statusData.forEach((p: any) => {
-        total++
-        if (p.status) {
-          up++
-          if (p.responseTime) latencies.push(p.responseTime)
-        }
-      })
-    })
-    return {
-      uptime: total > 0 ? (up / total) * 100 : 0,
-      avgLat: latencies.length > 0 ? latencies.reduce((a, b) => a + b, 0) / latencies.length : 0,
-      streams: processedStreams.length,
-    }
-  }, [processedStreams, data])
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }, [data, deviceMap, filters])
 
   if (loading && !data) {
     return (
-      <div className="flex h-screen w-full flex-col items-center justify-center bg-black font-mono">
-        <RefreshCcw className="w-10 h-10 animate-spin text-white mb-6 opacity-20" />
-        <span className="text-[10px] uppercase tracking-[0.5em] text-neutral-500 font-black">
-          Connecting_To_Telemetry_Backplane...
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-black text-white font-mono">
+        <RefreshCcw className="w-12 h-12 animate-spin text-neutral-600 mb-4" />
+        <span className="text-xs uppercase tracking-[0.4em] text-neutral-500">
+          Initializing_Telemetry_Engine...
         </span>
       </div>
     )
   }
 
-  if (error || !data) {
+  if (error) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-black p-12 font-mono text-white text-center">
-        <div className="border border-red-500/20 bg-red-500/5 p-12 flex flex-col items-center gap-6 max-w-md">
-          <Shield className="w-12 h-12 text-red-500" />
-          <span className="text-xs font-black uppercase tracking-widest text-red-500">{error}</span>
-          <a
-            href="/monitoring"
-            className="px-6 py-2 border border-white/20 text-[10px] uppercase font-bold hover:bg-white hover:text-black transition-all"
-          >
-            Emergency_Exit
-          </a>
+      <div className="h-screen w-full flex items-center justify-center bg-black text-red-500 font-mono text-center">
+        <div className="border border-red-900/50 bg-red-900/10 p-8">
+          <Shield className="w-12 h-12 mx-auto mb-4" />
+          <h2 className="text-xl font-black uppercase tracking-widest mb-2">Critical Error</h2>
+          <p className="text-xs">{error}</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black text-white font-mono p-6 sm:p-10 space-y-8 pb-32">
-      {/* 1. System Header Area */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 border-b border-white/10 pb-8">
-        <div className="flex items-center gap-6">
-          <a
-            href="/monitoring"
-            className="p-3 border border-white/10 hover:bg-white hover:text-black transition-all"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </a>
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <Shield className="w-6 h-6 text-white" />
-              <h1 className="text-3xl font-black uppercase tracking-tighter">{data.rule.name}</h1>
+    <div className="min-h-screen bg-black text-white font-mono flex flex-col overflow-x-hidden">
+      {/* HEADER */}
+      <header className="border-b border-white/10 bg-neutral-900/50 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-[1920px] mx-auto p-4 flex flex-col lg:flex-row gap-4 justify-between items-center">
+          <div className="flex items-center gap-6 w-full lg:w-auto">
+            <a
+              href="/monitoring"
+              className="p-2 border border-white/10 hover:bg-white hover:text-black transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </a>
+            <div>
+              <div className="flex items-center gap-3">
+                <Activity className="w-5 h-5 text-emerald-500" />
+                <h1 className="text-xl font-black uppercase tracking-widest truncate max-w-md">
+                  {data?.rule.name}
+                </h1>
+              </div>
+              <div className="flex gap-4 text-[10px] text-neutral-500 font-bold uppercase mt-1">
+                <span>ID: {ruleId}</span>
+                <span>•</span>
+                <span>{data?.rule.cronExpression}</span>
+                <span>•</span>
+                <span>Streams: {processedData.length}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-4 text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
-              <span>RULE_ID: #{ruleId}</span>
-              <div className="w-1 h-1 bg-neutral-800 rounded-full" />
-              <span>FREQ: {data.rule.cronExpression}</span>
+          </div>
+
+          <div className="flex items-center gap-3 w-full lg:w-auto overflow-x-auto no-scrollbar">
+            {/* Search */}
+            <div className="relative group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-600 group-focus-within:text-white" />
+              <input
+                type="text"
+                placeholder="SEARCH_NODES..."
+                value={filters.search}
+                onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
+                className="bg-black border border-white/10 pl-9 pr-4 py-2 text-[10px] font-bold uppercase w-48 focus:outline-none focus:border-white/40"
+              />
             </div>
+
+            {/* Status Filter */}
+            <div className="flex bg-black border border-white/10">
+              {(['ALL', 'UP', 'DOWN'] as const).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setFilters((f) => ({ ...f, status: s }))}
+                  className={`px-3 py-2 text-[9px] font-bold uppercase transition-colors ${filters.status === s ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'}`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+
+            {/* Time Range */}
+            <div className="flex bg-black border border-white/10">
+              {(['1h', '6h', '24h', '7d'] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setFilters((f) => ({ ...f, time: t }))}
+                  className={`px-3 py-2 text-[9px] font-bold uppercase transition-colors ${filters.time === t ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'}`}
+                >
+                  {t.toUpperCase()}
+                </button>
+              ))}
+            </div>
+
+            {/* View Mode */}
+            <div className="flex bg-black border border-white/10">
+              <button
+                onClick={() => setViewMode('ANALYTICS')}
+                className={`p-2 transition-colors ${viewMode === 'ANALYTICS' ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'}`}
+                title="Analytics View"
+              >
+                <List className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('DENSITY')}
+                className={`p-2 transition-colors ${viewMode === 'DENSITY' ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'}`}
+                title="Density View"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+            </div>
+
+            <button
+              onClick={fetchData}
+              className="p-2 border border-white/10 hover:bg-white hover:text-black"
+            >
+              <RefreshCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            </button>
           </div>
         </div>
+      </header>
 
-        {/* 2. Unified Filtering/Control Backplane */}
-        <div className="flex flex-wrap items-center gap-3 bg-neutral-900/40 p-3 border border-white/5 shadow-2xl">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
-            <input
-              type="text"
-              placeholder="FILTER_BY_NAME_IP_ID..."
-              value={filters.search}
-              onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
-              className="bg-black border border-white/10 px-10 py-2.5 text-[10px] font-black uppercase focus:outline-none focus:border-white/30 w-72 transition-all"
-            />
-          </div>
+      {/* CONTENT */}
+      <main className="flex-1 max-w-[1920px] mx-auto w-full p-4 pb-20">
+        {/* Analytics View (List + Histogram) */}
+        {viewMode === 'ANALYTICS' && (
+          <div className="grid grid-cols-1 gap-1">
+            {/* Header Row */}
+            <div className="grid grid-cols-12 gap-4 px-4 py-2 text-[9px] font-black uppercase text-neutral-600 border-b border-white/10">
+              <div className="col-span-3">Node_Identity</div>
+              <div className="col-span-1 text-center">Status</div>
+              <div className="col-span-1 text-right">Uptime</div>
+              <div className="col-span-1 text-right">Avg_Lat</div>
+              <div className="col-span-6 pl-4">Latency_Distribution_Log</div>
+            </div>
 
-          {/* Global State Override */}
-          <div className="flex bg-black border border-white/10 mr-2 overflow-hidden">
-            <button
-              onClick={() => setGlobalView('matrix')}
-              className={`p-2.5 transition-all ${globalView === 'matrix' ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'}`}
-              title="Override: All Matrix"
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setGlobalView('charts')}
-              className={`p-2.5 transition-all ${globalView === 'charts' ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'}`}
-              title="Override: All Charts"
-            >
-              <LineChartIcon className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="flex bg-black border border-white/10 overflow-hidden">
-            {(['all', 'up', 'down'] as const).map((s) => (
-              <button
-                key={s}
-                onClick={() => setFilters((f) => ({ ...f, statusFilter: s }))}
-                className={`px-4 py-2 text-[9px] font-black uppercase transition-all flex items-center gap-2 ${filters.statusFilter === s ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'}`}
+            {processedData.map((item) => (
+              <div
+                key={item.key}
+                className="grid grid-cols-12 gap-4 px-4 py-3 bg-neutral-900/20 border border-white/5 items-center hover:bg-white/5 transition-colors group"
               >
-                {s === 'all' ? (
-                  <FilterIcon className="w-3.5 h-3.5" />
-                ) : s === 'up' ? (
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                ) : (
-                  <XCircle className="w-3.5 h-3.5" />
-                )}
-                <span className="hidden md:inline">{s}</span>
-              </button>
+                {/* Identity */}
+                <div className="col-span-3 flex flex-col justify-center min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-white truncate" title={item.name}>
+                      {item.name}
+                    </span>
+                    <a
+                      href={`/devices/${item.id}`}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <ArrowUpRight className="w-3 h-3 text-neutral-500 hover:text-white" />
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-2 text-[9px] text-neutral-500 font-mono">
+                    <span>{item.ip}</span>
+                    <span className="text-neutral-700">|</span>
+                    <span className="text-neutral-400">PORT:{item.port}</span>
+                  </div>
+                </div>
+
+                {/* Metrics */}
+                <div className="col-span-1 flex justify-center">
+                  {item.isUp ? (
+                    <div className="flex items-center gap-1.5 text-emerald-500 bg-emerald-500/10 px-2 py-0.5 border border-emerald-500/20 rounded-full">
+                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                      <span className="text-[9px] font-bold">UP</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5 text-red-500 bg-red-500/10 px-2 py-0.5 border border-red-500/20 rounded-full">
+                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+                      <span className="text-[9px] font-bold">DOWN</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="col-span-1 text-right font-mono text-xs text-white">
+                  {item.uptime.toFixed(1)}%
+                </div>
+                <div className="col-span-1 text-right font-mono text-xs text-neutral-300">
+                  {item.avgLat.toFixed(0)}ms
+                </div>
+
+                {/* Histogram - Guaranteed NO OVERFLOW */}
+                <div className="col-span-6 pl-4 h-8 flex items-center overflow-hidden">
+                  <LatencyHistogram data={item.history} height={32} />
+                </div>
+              </div>
             ))}
           </div>
+        )}
 
-          <select
-            value={filters.timeRange}
-            onChange={(e) => setFilters((f) => ({ ...f, timeRange: e.target.value as any }))}
-            className="bg-black border border-white/10 px-4 py-2 text-[10px] font-black uppercase focus:outline-none appearance-none pr-8 cursor-pointer"
-          >
-            <option value="1h">LAST_1H</option>
-            <option value="6h">LAST_6H</option>
-            <option value="24h">LAST_24H</option>
-            <option value="7d">LAST_7D</option>
-          </select>
-
-          <button
-            onClick={fetchData}
-            className="p-2.5 border border-white/10 hover:bg-white hover:text-black"
-          >
-            <RefreshCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          </button>
-        </div>
-      </div>
-
-      {/* 3. Aggregate Stats Panel */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="border border-white/10 p-6 bg-neutral-900/20">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-[10px] font-black uppercase text-neutral-500 tracking-widest">
-              SLA_Availability
-            </span>
-            <Activity className="w-4 h-4 text-emerald-500" />
+        {/* Density View (Heatmap Matrix) */}
+        {viewMode === 'DENSITY' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+            {processedData.map((item) => (
+              <div
+                key={item.key}
+                className="p-4 bg-neutral-900/20 border border-white/5 hover:border-white/20 transition-colors"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-xs font-bold text-white truncate pr-2" title={item.name}>
+                      {item.name}
+                    </h3>
+                    <div className="flex gap-2 text-[9px] text-neutral-500 font-mono mt-0.5">
+                      <span>{item.ip}</span>
+                      <span>:</span>
+                      <span>{item.port}</span>
+                    </div>
+                  </div>
+                  <div
+                    className={`w-2 h-2 rounded-full flex-shrink-0 ${item.isUp ? 'bg-emerald-500' : 'bg-red-500'}`}
+                  />
+                </div>
+                <HeatmapRow data={item.history} />
+              </div>
+            ))}
           </div>
-          <div className="text-4xl font-black">{stats?.uptime.toFixed(3)}%</div>
-        </div>
-        <div className="border border-white/10 p-6 bg-neutral-900/20">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-[10px] font-black uppercase text-neutral-500 tracking-widest">
-              Avg_Packet_Latency
-            </span>
-            <Zap className="w-4 h-4 text-amber-500" />
-          </div>
-          <div className="text-4xl font-black">
-            {stats?.avgLat.toFixed(1)}
-            <span className="text-xs text-neutral-600 ml-1 font-bold">MS</span>
-          </div>
-        </div>
-        <div className="border border-white/10 p-6 bg-neutral-900/20">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-[10px] font-black uppercase text-neutral-500 tracking-widest">
-              Telemetry_Contexts
-            </span>
-            <Clock className="w-4 h-4 text-neutral-600" />
-          </div>
-          <div className="text-4xl font-black">{stats?.streams}</div>
-        </div>
-      </div>
+        )}
 
-      {/* 4. Stream Matrix/Analytic List */}
-      <div className="space-y-1 animate-in fade-in duration-500">
-        {processedStreams.map((stream, idx) => (
-          <MonitoringStream
-            key={`${stream.deviceId}-${stream.port}-${idx}`}
-            deviceName={stream.deviceName}
-            ipv4={stream.ipv4}
-            deviceId={stream.deviceId}
-            port={stream.port}
-            data={stream.statusData}
-            initialView={globalView}
-          />
-        ))}
-
-        {processedStreams.length === 0 && (
-          <div className="py-40 text-center border border-dashed border-white/5 opacity-30">
-            <span className="text-[10px] uppercase font-black tracking-[0.5em]">
-              Inventory_Search_Yielded_No_Results
+        {processedData.length === 0 && (
+          <div className="py-32 text-center border border-dashed border-white/10 text-neutral-600">
+            <Filter className="w-12 h-12 mx-auto mb-4 opacity-20" />
+            <span className="text-xs uppercase tracking-widest font-bold">
+              No streams match your filter
             </span>
           </div>
         )}
-      </div>
+      </main>
 
-      {/* 5. Visualization Legend */}
-      <div className="fixed bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-10 bg-black border border-white/10 px-8 py-4 z-40 shadow-2xl rounded-sm">
-        <div className="flex items-center gap-10 text-[9px] font-black uppercase tracking-widest text-neutral-500">
-          <div className="flex items-center gap-3">
-            <div className="w-2.5 h-2.5 bg-emerald-500" /> <span>Stable</span>
+      {/* FOOTER LEGEND */}
+      <footer className="fixed bottom-0 w-full bg-black border-t border-white/10 px-6 py-2 flex justify-between items-center text-[9px] font-bold uppercase text-neutral-500 z-50">
+        <div className="flex gap-6 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="w-2 h-2 bg-emerald-600" /> <span>&lt;50ms</span>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="w-2.5 h-2.5 bg-amber-500" /> <span>Delayed</span>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="w-2 h-2 bg-emerald-400" /> <span>&lt;150ms</span>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="w-2.5 h-2.5 bg-orange-600" /> <span>Degraded</span>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="w-2 h-2 bg-amber-500" /> <span>&gt;150ms</span>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="w-2.5 h-2.5 bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.5)]" />{' '}
-            <span>Down</span>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="w-2 h-2 bg-red-600" /> <span>Offline</span>
           </div>
         </div>
-      </div>
+        <div className="flex-shrink-0 ml-4">Streams: {processedData.length}</div>
+      </footer>
     </div>
   )
 }

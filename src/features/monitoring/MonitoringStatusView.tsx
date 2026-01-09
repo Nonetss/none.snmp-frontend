@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { RefreshCcw, Shield, Zap, ChevronDown, ChevronUp, BarChart2 } from 'lucide-react'
 import type { MonitoringStatusResponse, MonitoringStatusPoint } from './types'
