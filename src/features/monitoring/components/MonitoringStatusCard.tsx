@@ -77,26 +77,30 @@ export const MonitoringStatusCard: React.FC<MonitoringStatusCardProps> = ({
 
           {/* Heatmap Grid */}
           <div className="flex flex-wrap gap-1 p-4 bg-black/20 border border-white/5 min-h-[100px] content-start">
-            {item.groupedData.flatMap((group) =>
-              group.deviceDataPort.map((port) => {
-                const device = item.rule.deviceGroup?.devices?.find(
-                  (d: any) => (d.id || d.deviceId) === group.deviceId
-                )
-                const stats = getHealthStats(port.statusData)
-                const deviceName =
-                  device?.name || device?.sysName || device?.ipv4 || `Dev ${group.deviceId}`
-                const title = `${deviceName}:${port.port}\nAvailability: ${stats.percent}%\nAvg Latency: ${stats.avgLat}ms\n(Based on last 100 checks)`
+            {[...item.groupedData]
+              .sort((a, b) => a.deviceId - b.deviceId)
+              .flatMap((group) =>
+                [...group.deviceDataPort]
+                  .sort((a, b) => a.port - b.port)
+                  .map((port) => {
+                    const device = item.rule.deviceGroup?.devices?.find(
+                      (d: any) => (d.id || d.deviceId) === group.deviceId
+                    )
+                    const stats = getHealthStats(port.statusData)
+                    const deviceName =
+                      device?.name || device?.sysName || device?.ipv4 || `Dev ${group.deviceId}`
+                    const title = `${deviceName}:${port.port}\nAvailability: ${stats.percent}%\nAvg Latency: ${stats.avgLat}ms\n(Based on last 100 checks)`
 
-                return (
-                  <div
-                    key={`${group.deviceId}-${port.port}`}
-                    title={title}
-                    style={{ backgroundColor: stats.color }}
-                    className={`${sizeClass} border border-white/10 hover:border-white hover:scale-110 transition-all cursor-help rounded-[1px]`}
-                  />
-                )
-              })
-            )}
+                    return (
+                      <div
+                        key={`${group.deviceId}-${port.port}`}
+                        title={title}
+                        style={{ backgroundColor: stats.color }}
+                        className={`${sizeClass} border border-white/10 hover:border-white hover:scale-110 transition-all cursor-help rounded-[1px]`}
+                      />
+                    )
+                  })
+              )}
           </div>
         </div>
       )}
