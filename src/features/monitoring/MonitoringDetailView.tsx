@@ -32,9 +32,13 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
     setLoading(true)
     try {
       const now = new Date()
-      const from = new Date()
-      const offsets = { '1h': 1, '6h': 6, '24h': 24, '7d': 168 }
-      from.setHours(now.getHours() - offsets[filters.time])
+      const offsets = {
+        '1h': 60 * 60 * 1000,
+        '6h': 6 * 60 * 60 * 1000,
+        '24h': 24 * 60 * 60 * 1000,
+        '7d': 7 * 24 * 60 * 60 * 1000,
+      }
+      const from = new Date(now.getTime() - offsets[filters.time])
 
       const [statusRes, listRes] = await Promise.all([
         axios.get(`/api/v0/monitor/status/${ruleId}`, {
@@ -57,8 +61,13 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
     }
   }, [ruleId, filters.time, deviceList.length])
 
+  // Reset data when time filter changes to force a clean "zoom" visual
   useEffect(() => {
+    setData(null)
     fetchData()
+  }, [filters.time, ruleId])
+
+  useEffect(() => {
     const interval = setInterval(fetchData, 30000)
     return () => clearInterval(interval)
   }, [fetchData])
@@ -99,13 +108,18 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
               ? port.statusData.reduce((a, b) => a + (b.responseTime || 0), 0) / upPoints
               : 0
 
+            // Ensure history is sorted OLDER -> NEWER (Newest on the right)
+            const sortedHistory = [...port.statusData].sort(
+              (a, b) => new Date(a.checkTime).getTime() - new Date(b.checkTime).getTime()
+            )
+
             return {
               key: `${group.deviceId}-${port.port}`,
               id: group.deviceId,
               name,
               ip,
               port: port.port,
-              history: port.statusData,
+              history: sortedHistory,
               isUp,
               uptime,
               avgLat,
