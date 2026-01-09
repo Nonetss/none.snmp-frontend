@@ -6,9 +6,24 @@ import MonitoringRuleManager from './MonitoringRuleManager'
 import MonitoringStatusView from './MonitoringStatusView'
 import MonitoringNotificationManager from './MonitoringNotificationManager'
 
+type TabId = 'status' | 'config' | 'notifications'
+
 const MonitoringPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'status' | 'config' | 'notifications'>('status')
+  const [activeTab, setActiveTab] = useState<TabId>('status')
   const [autoRefresh, setAutoRefresh] = useState(true)
+
+  // Sync with URL hash for persistence
+  React.useEffect(() => {
+    const hash = window.location.hash.replace('#', '') as TabId
+    if (hash === 'status' || hash === 'config' || hash === 'notifications') {
+      setActiveTab(hash)
+    }
+  }, [])
+
+  const handleTabChange = (tab: TabId) => {
+    setActiveTab(tab)
+    window.location.hash = tab
+  }
 
   return (
     <div className="p-8 bg-black text-white font-mono min-h-screen space-y-8 w-full">
@@ -44,7 +59,7 @@ const MonitoringPage: React.FC = () => {
 
           <div className="flex p-1 bg-white/5 border border-white/5">
             <button
-              onClick={() => setActiveTab('status')}
+              onClick={() => handleTabChange('status')}
               className={`flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
                 activeTab === 'status' ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'
               }`}
@@ -53,7 +68,7 @@ const MonitoringPage: React.FC = () => {
               Live_Status
             </button>
             <button
-              onClick={() => setActiveTab('config')}
+              onClick={() => handleTabChange('config')}
               className={`flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
                 activeTab === 'config' ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'
               }`}
@@ -62,7 +77,7 @@ const MonitoringPage: React.FC = () => {
               Configuration
             </button>
             <button
-              onClick={() => setActiveTab('notifications')}
+              onClick={() => handleTabChange('notifications')}
               className={`flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
                 activeTab === 'notifications'
                   ? 'bg-white text-black'
