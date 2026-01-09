@@ -9,22 +9,42 @@ interface Props {
 }
 
 const getHealthStats = (history: MonitoringStatusPoint[]) => {
-  if (!history || history.length === 0) return { percent: 0, color: 'hsl(0, 0%, 20%)' } // Dark gray for no data
+  if (!history || history.length === 0) return { percent: 0, avgLat: 0, color: 'hsl(0, 0%, 20%)' }
 
   const limit = 100
   const relevant = history.slice(-limit)
-  if (relevant.length === 0) return { percent: 0, color: 'hsl(0, 0%, 20%)' }
+  if (relevant.length === 0) return { percent: 0, avgLat: 0, color: 'hsl(0, 0%, 20%)' }
 
-  const upCount = relevant.filter((s) => s.status).length
+  const upChecks = relevant.filter((s) => s.status)
+  const upCount = upChecks.length
   const total = relevant.length
-  const ratio = upCount / total
-  const percent = Math.round(ratio * 100)
+  const uptimeRatio = upCount / total
+  const percent = Math.round(uptimeRatio * 100)
 
-  // Interpolate Hue from 0 (Red) to 120 (Green)
-  const hue = Math.round(ratio * 120)
+  // Calculate Average Latency for successful pings
+  const avgLat =
+    upCount > 0
+      ? Math.round(upChecks.reduce((acc, s) => acc + (s.responseTime || 0), 0) / upCount)
+      : 0
+
+  /**
+   * PERFORMANCE HUE (Latency-based)
+   * < 50ms  -> 120 (Pure Green)
+   * 250ms+  -> 60  (Yellow/Amber)
+   */
+  const latencyHue = Math.max(60, 120 - Math.max(0, (avgLat - 50) * 0.35))
+
+  /**
+   * FINAL HUE (Availability-based)
+   * We multiply the performance hue by uptime ratio to pull it towards 0 (Red)
+   * as availability drops.
+   */
+  const finalHue = Math.round(uptimeRatio * latencyHue)
+
   return {
     percent,
-    color: `hsl(${hue}, 80%, 45%)`,
+    avgLat,
+    color: `hsl(${finalHue}, 80%, 45%)`,
   }
 }
 
@@ -162,7 +182,7 @@ const MonitoringStatusView: React.FC<Props> = ({ autoRefresh, setAutoRefresh }) 
                             device?.sysName ||
                             device?.ipv4 ||
                             `Dev ${group.deviceId}`
-                          const title = `${deviceName}:${port.port}\nHealth: ${stats.percent}%\n(Based on last 100 checks)`
+                          const title = `${deviceName}:${port.port}\nAvailability: ${stats.percent}%\nAvg Latency: ${stats.avgLat}ms\n(Based on last 100 checks)`
 
                           return (
                             <div
