@@ -297,38 +297,60 @@ const MonitoringStatusView: React.FC<Props> = ({ autoRefresh, setAutoRefresh }) 
                     </ResponsiveContainer>
                   </div>
 
-                  {/* Availability mini-grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-auto pt-4">
-                    {item.groupedData.flatMap((group) =>
-                      group.deviceDataPort.map((port) => {
-                        const device = item.rule.deviceGroup?.devices?.find(
-                          (d: any) => (d.id || d.deviceId) === group.deviceId
-                        )
-                        const lastStatus = port.statusData[port.statusData.length - 1]?.status
-                        return (
-                          <div
-                            key={`${group.deviceId}-${port.port}`}
-                            className={`p-1.5 border ${lastStatus ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-red-500/20 bg-red-500/5'} flex flex-col gap-0.5`}
-                          >
-                            <div className="flex justify-between items-center gap-1">
-                              <span className="text-[7px] font-black uppercase truncate text-neutral-400">
-                                {device?.name || device?.sysName || `Dev ${group.deviceId}`}
-                              </span>
-                              <span className="text-[7px] font-bold text-neutral-600">
-                                :{port.port}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-[8px] font-mono text-neutral-500">
-                                {device?.ipv4 || 'N/A'}
-                              </span>
+                  {/* Availability mini-grid or Heatmap */}
+                  <div className="mt-auto pt-4">
+                    {item.groupedData.reduce((acc, g) => acc + g.deviceDataPort.length, 0) > 20 ? (
+                      <div className="flex flex-wrap gap-1 border border-white/5 p-2 bg-black/20">
+                        {item.groupedData.flatMap((group) =>
+                          group.deviceDataPort.map((port) => {
+                            const lastStatus = port.statusData[port.statusData.length - 1]?.status
+                            const device = item.rule.deviceGroup?.devices?.find(
+                              (d: any) => (d.id || d.deviceId) === group.deviceId
+                            )
+                            return (
                               <div
-                                className={`w-1 h-1 rounded-full ${lastStatus ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`}
+                                key={`${group.deviceId}-${port.port}`}
+                                title={`${device?.ipv4 || group.deviceId}:${port.port} (${device?.name || ''}) - ${lastStatus ? 'UP' : 'DOWN'}`}
+                                className={`w-2.5 h-2.5 border border-white/5 ${lastStatus ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`}
                               />
-                            </div>
-                          </div>
-                        )
-                      })
+                            )
+                          })
+                        )}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {item.groupedData.flatMap((group) =>
+                          group.deviceDataPort.map((port) => {
+                            const device = item.rule.deviceGroup?.devices?.find(
+                              (d: any) => (d.id || d.deviceId) === group.deviceId
+                            )
+                            const lastStatus = port.statusData[port.statusData.length - 1]?.status
+                            return (
+                              <div
+                                key={`${group.deviceId}-${port.port}`}
+                                className={`p-1.5 border ${lastStatus ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-red-500/20 bg-red-500/5'} flex flex-col gap-0.5`}
+                              >
+                                <div className="flex justify-between items-center gap-1">
+                                  <span className="text-[7px] font-black uppercase truncate text-neutral-400">
+                                    {device?.name || device?.sysName || `Dev ${group.deviceId}`}
+                                  </span>
+                                  <span className="text-[7px] font-bold text-neutral-600">
+                                    :{port.port}
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[8px] font-mono text-neutral-500">
+                                    {device?.ipv4 || 'N/A'}
+                                  </span>
+                                  <div
+                                    className={`w-1 h-1 rounded-full ${lastStatus ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`}
+                                  />
+                                </div>
+                              </div>
+                            )
+                          })
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
