@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { Network, Activity, Filter } from 'lucide-react'
+import { Network, Activity, Filter, ChevronDown, ChevronUp } from 'lucide-react'
 import type { DeviceDetail, Interface, AddrEntry } from '@/features/devices/components/types'
 
 interface InterfacesTabProps {
@@ -21,9 +21,12 @@ export const InterfacesTab: React.FC<InterfacesTabProps> = ({ device }) => {
     })
   }, [device.interfaces, statusFilter])
 
-  const displayedInterfaces = showAllInterfaces
-    ? filteredInterfaces
-    : filteredInterfaces.slice(0, 10)
+  // Sort interfaces by index naturally
+  const sortedInterfaces = useMemo(() => {
+    return [...filteredInterfaces].sort((a, b) => a.ifIndex - b.ifIndex)
+  }, [filteredInterfaces])
+
+  const displayedInterfaces = showAllInterfaces ? sortedInterfaces : sortedInterfaces.slice(0, 50) // Show 50 by default in table mode
 
   const stats = useMemo(() => {
     const total = device.interfaces?.length || 0
@@ -32,15 +35,46 @@ export const InterfacesTab: React.FC<InterfacesTabProps> = ({ device }) => {
   }, [device.interfaces])
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <section className="lg:col-span-2 bg-neutral-900/20 border border-white/10 p-6 space-y-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/10 pb-4">
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] flex items-center gap-3">
-              <Network className="w-4 h-4" /> interface_matrix
-            </h3>
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+      {/* Visual Heatmap Summary */}
+      <section className="bg-neutral-900/20 border border-white/10 p-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+          <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] flex items-center gap-3">
+            <Activity className="w-4 h-4" /> Interface_Status_Map
+          </h3>
+          <div className="flex items-center gap-2 text-[9px] uppercase font-mono text-neutral-500">
+            <span className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-emerald-500"></div> UP ({stats.up})
+            </span>
+            <span className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-red-500/50"></div> DOWN ({stats.down})
+            </span>
+          </div>
+        </div>
 
-            <div className="flex items-center gap-2 bg-white/5 p-1 border border-white/10">
+        <div className="flex flex-wrap gap-0.5">
+          {device.interfaces
+            ?.sort((a, b) => a.ifIndex - b.ifIndex)
+            .map((iface) => {
+              const isUp = iface.latestData?.ifOperStatus === 1
+              return (
+                <div
+                  key={iface.id}
+                  title={`${iface.ifName || iface.ifDescr} (Index: ${iface.ifIndex}) - ${isUp ? 'UP' : 'DOWN'}`}
+                  className={`w-3 h-3 ${isUp ? 'bg-emerald-500 hover:bg-emerald-400' : 'bg-red-900/30 hover:bg-red-500'} cursor-help transition-colors`}
+                />
+              )
+            })}
+        </div>
+      </section>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <section className="lg:col-span-2 bg-neutral-900/20 border border-white/10 flex flex-col">
+          <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] flex items-center gap-3">
+              <Network className="w-4 h-4" /> interface_table
+            </h3>
+            <div className="flex items-center gap-2 bg-black/40 p-1 border border-white/10">
               {(['all', 'up', 'down'] as StatusFilter[]).map((f) => (
                 <button
                   key={f}
@@ -49,115 +83,96 @@ export const InterfacesTab: React.FC<InterfacesTabProps> = ({ device }) => {
                     statusFilter === f ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'
                   }`}
                 >
-                  {f} ({f === 'all' ? stats.total : f === 'up' ? stats.up : stats.down})
+                  {f}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {displayedInterfaces.map((iface: Interface, i: number) => (
-              <div
-                key={i}
-                className="p-4 bg-neutral-900/40 border border-white/5 hover:border-white/20 transition-all group"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-white uppercase group-hover:tracking-wider transition-all">
-                      {iface.ifDescr || iface.ifName || 'IFACE_ID:' + iface.ifIndex}
-                    </span>
-                    <span className="text-[8px] text-neutral-600 font-bold uppercase">
-                      Index: {iface.ifIndex}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <div
-                      className={`w-2 h-2 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.4)] ${iface.latestData?.ifOperStatus === 1 ? 'bg-white' : 'bg-neutral-800 border border-white/20'}`}
-                    />
-                    <span className="text-[8px] text-neutral-600 uppercase font-bold">
-                      {iface.latestData?.ifOperStatus === 1 ? 'Active' : 'Down'}
-                    </span>
-                  </div>
-                </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-white/5 bg-black/40 text-[9px] uppercase text-neutral-500 font-bold tracking-wider">
+                  <th className="p-3 w-12 text-center">St</th>
+                  <th className="p-3 w-16">Idx</th>
+                  <th className="p-3">Name/Description</th>
+                  <th className="p-3">Type</th>
+                  <th className="p-3">Speed</th>
+                  <th className="p-3">MTU</th>
+                  <th className="p-3">Phys Address</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5 text-[10px] font-mono text-neutral-300">
+                {displayedInterfaces.map((iface) => {
+                  const isUp = iface.latestData?.ifOperStatus === 1
+                  return (
+                    <tr key={iface.id} className="hover:bg-white/5 transition-colors group">
+                      <td className="p-3 text-center">
+                        <div
+                          className={`w-1.5 h-1.5 mx-auto rounded-full ${isUp ? 'bg-emerald-500' : 'bg-red-500/50'}`}
+                        />
+                      </td>
+                      <td className="p-3 text-neutral-500">{iface.ifIndex}</td>
+                      <td className="p-3 font-bold text-white group-hover:text-emerald-400 transition-colors">
+                        {iface.ifName || iface.ifDescr || '-'}
+                        {iface.ifAlias && (
+                          <div className="text-[8px] text-neutral-500 font-normal">
+                            {iface.ifAlias}
+                          </div>
+                        )}
+                      </td>
+                      <td className="p-3 text-neutral-500">{iface.ifType}</td>
+                      <td className="p-3">
+                        {iface.ifSpeed
+                          ? `${(parseInt(iface.ifSpeed) / 1000000).toFixed(0)} Mbps`
+                          : '-'}
+                      </td>
+                      <td className="p-3 text-neutral-500">{iface.ifMtu}</td>
+                      <td className="p-3 text-neutral-500">{iface.ifPhysAddress || '-'}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
 
-                <div className="grid grid-cols-2 gap-y-4 pt-2 border-t border-white/5">
-                  <div className="flex flex-col">
-                    <span className="text-[7px] text-neutral-700 uppercase font-bold mb-1">
-                      Physical Address
-                    </span>
-                    <span className="text-[10px] font-mono text-neutral-400">
-                      {iface.ifPhysAddress || '00:00:00:00:00:00'}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-[7px] text-neutral-700 uppercase font-bold mb-1">
-                      Max Speed
-                    </span>
-                    <span className="text-[10px] font-mono text-neutral-400">
-                      {(parseInt(iface.ifSpeed) / 1000000).toFixed(0)} MBPS
-                    </span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-[7px] text-neutral-700 uppercase font-bold mb-1">
-                      MTU Size
-                    </span>
-                    <span className="text-[10px] font-mono text-neutral-400">
-                      {iface.ifMtu} BYTES
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-[7px] text-neutral-700 uppercase font-bold mb-1">
-                      Protocol Type
-                    </span>
-                    <span className="text-[10px] font-mono text-neutral-400">
-                      TYPE_{iface.ifType}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-            {filteredInterfaces.length === 0 && (
-              <div className="col-span-full py-12 text-center border border-dashed border-white/10">
-                <span className="text-[10px] text-neutral-600 uppercase tracking-widest">
-                  No interfaces match the selected filter
-                </span>
+            {sortedInterfaces.length === 0 && (
+              <div className="py-12 text-center text-[10px] uppercase text-neutral-600 tracking-widest">
+                No interfaces match filter
               </div>
             )}
           </div>
 
-          {filteredInterfaces.length > 10 && (
-            <div className="pt-4 flex justify-center">
+          {sortedInterfaces.length > 50 && (
+            <div className="p-2 border-t border-white/10 bg-white/5 text-center">
               <button
                 onClick={() => setShowAllInterfaces(!showAllInterfaces)}
-                className="px-8 py-2 border border-white/20 text-[10px] uppercase font-bold hover:bg-white hover:text-black transition-all tracking-widest"
+                className="text-[9px] uppercase font-bold text-neutral-400 hover:text-white transition-colors"
               >
                 {showAllInterfaces
-                  ? 'Collapse.Matrix()'
-                  : `Expand.Matrix(${filteredInterfaces.length - 10}.More)`}
+                  ? 'Show Less'
+                  : `Show All (${sortedInterfaces.length}) Interfaces`}
               </button>
             </div>
           )}
         </section>
 
-        <section className="bg-neutral-900/10 border border-white/5 p-6 space-y-4">
-          <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] flex items-center gap-3 border-b border-white/10 pb-3">
-            <Activity className="w-4 h-4" /> full_ipv4_address_table
-          </h3>
-          <div className="space-y-2 max-h-[600px] overflow-y-auto custom-scrollbar">
-            {device.ipSnmp?.addrEntries?.map((addr: AddrEntry, i: number) => (
-              <div key={i} className="p-3 border border-white/5 bg-neutral-900/40">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs font-bold text-white">{addr.ipAdEntAddr}</span>
-                  <span className="text-[8px] text-neutral-600 font-bold uppercase tracking-tighter">
-                    IF: {addr.ipAdEntIfIndex}
-                  </span>
-                </div>
-                <div className="flex justify-between text-[9px] text-neutral-500">
-                  <span className="uppercase">Mask: {addr.ipAdEntNetMask}</span>
-                  <span className="uppercase">MTU: {addr.ipAdEntReasmMaxSize}</span>
-                </div>
-              </div>
-            ))}
+        <section className="bg-neutral-900/10 border border-white/5 flex flex-col max-h-[600px]">
+          <div className="p-4 border-b border-white/10 bg-white/5">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] flex items-center gap-3">
+              <Activity className="w-4 h-4" /> IP_Address_Table
+            </h3>
+          </div>
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-0">
+            <table className="w-full text-left border-collapse">
+              <tbody className="divide-y divide-white/5 text-[10px] font-mono">
+                {device.ipSnmp?.addrEntries?.map((addr, i) => (
+                  <tr key={i} className="hover:bg-white/5 transition-colors">
+                    <td className="p-3 text-white font-bold">{addr.ipAdEntAddr}</td>
+                    <td className="p-3 text-right text-neutral-500">IF: {addr.ipAdEntIfIndex}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
             {(!device.ipSnmp?.addrEntries || device.ipSnmp.addrEntries.length === 0) && (
               <div className="text-center py-8 text-[8px] text-neutral-700 uppercase italic">
                 No IP entries found
