@@ -86,6 +86,25 @@ export interface TcpScanResponse {
   totalScanned: number
 }
 
+export interface TcpSubnetScanRequest {
+  subnet: string
+  allPorts?: boolean
+  timeout?: number
+  concurrency?: number
+}
+
+export interface TcpSubnetScanResponse {
+  subnet: string
+  results: Array<{
+    ip: string
+    openPorts: Array<{
+      port: number
+      time: number
+    }>
+  }>
+  totalIpsScanned: number
+}
+
 export interface CreateMonitoringGroupDto {
   name: string
   description: string
