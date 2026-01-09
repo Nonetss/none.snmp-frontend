@@ -160,14 +160,25 @@ const DeviceList: React.FC = () => {
     }
   }
 
-  const handleAssignLocation = async (locationId: number, deviceIds: number[]) => {
+  const handleAssignLocation = async (locationId: number | null, deviceIds: number[]) => {
     setSubmitting(true)
     try {
-      await axios.post('/api/v0/location/assign', {
-        locationId,
-        deviceIds: deviceIds,
-        force: true, // Always force when manual selecting
-      })
+      if (deviceIds.length === 1) {
+        // Use the new single-device PATCH endpoint
+        await axios.patch('/api/v0/search/device/location', {
+          deviceId: deviceIds[0],
+          locationId: locationId,
+        })
+      } else {
+        // Keep bulk assignment logic (requires locationId to be non-null for this endpoint)
+        if (locationId === null)
+          throw new Error('Bulk location removal not supported on this endpoint')
+        await axios.post('/api/v0/location/assign', {
+          locationId: locationId,
+          deviceIds: deviceIds,
+          force: true,
+        })
+      }
       setLocModal((prev) => ({ ...prev, show: false }))
       setSelectedBulkDeviceIds([])
       fetchData()

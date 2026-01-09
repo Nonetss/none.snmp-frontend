@@ -16,7 +16,7 @@ interface Props {
   currentLocationId: number | null
   submitting: boolean
   onClose: () => void
-  onAssign: (locationId: number, deviceIds: number[]) => Promise<void>
+  onAssign: (locationId: number | null, deviceIds: number[]) => Promise<void>
 }
 
 export const LocationSelectorModal: React.FC<Props> = ({
@@ -69,8 +69,8 @@ export const LocationSelectorModal: React.FC<Props> = ({
 
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
-      <div className="w-full max-w-md bg-neutral-950 border border-white/20 shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden">
-        <div className="flex justify-between items-center p-4 border-b border-white/10 bg-white/5">
+      <div className="w-full max-w-md bg-neutral-950 border border-white/20 shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="flex justify-between items-center p-4 border-b border-white/10 bg-white/5 shrink-0">
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4 text-white" />
             <h2 className="text-sm font-bold uppercase tracking-widest truncate max-w-[250px]">
@@ -85,8 +85,8 @@ export const LocationSelectorModal: React.FC<Props> = ({
           </button>
         </div>
 
-        <div className="p-6 space-y-4">
-          <div className="relative">
+        <div className="p-6 space-y-4 flex flex-col overflow-hidden">
+          <div className="relative shrink-0">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
             <input
               type="text"
@@ -97,7 +97,7 @@ export const LocationSelectorModal: React.FC<Props> = ({
             />
           </div>
 
-          <div className="max-h-[300px] overflow-y-auto space-y-1 pr-2 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto space-y-1 pr-2 custom-scrollbar min-h-0">
             {loading ? (
               <div className="py-12 flex flex-col items-center gap-3 opacity-50">
                 <RefreshCcw className="w-6 h-6 animate-spin" />
@@ -105,6 +105,28 @@ export const LocationSelectorModal: React.FC<Props> = ({
               </div>
             ) : (
               <>
+                {/* None / Remove option */}
+                {!searchQuery && (
+                  <button
+                    onClick={() => setSelectedId(null)}
+                    className={`w-full flex items-center justify-between p-4 border transition-all text-left mb-4 ${
+                      selectedId === null
+                        ? 'bg-red-500/10 border-red-500/40 text-red-500'
+                        : 'bg-black border-white/5 text-neutral-600 hover:border-red-500/20'
+                    }`}
+                  >
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-black uppercase tracking-widest">
+                        [ UNASSIGNED / NONE ]
+                      </span>
+                      <span className="text-[9px] opacity-60">
+                        Remove device from any location assignment
+                      </span>
+                    </div>
+                    {selectedId === null && <Check className="w-4 h-4" />}
+                  </button>
+                )}
+
                 {filteredLocations.map((loc) => (
                   <button
                     key={loc.id}
@@ -142,7 +164,7 @@ export const LocationSelectorModal: React.FC<Props> = ({
             )}
           </div>
 
-          <div className="pt-4 border-t border-white/5 flex gap-3">
+          <div className="pt-4 border-t border-white/5 flex gap-3 shrink-0">
             <button
               onClick={onClose}
               className="flex-1 py-3 border border-white/10 text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all text-neutral-500"
@@ -150,8 +172,8 @@ export const LocationSelectorModal: React.FC<Props> = ({
               Cancel
             </button>
             <button
-              onClick={() => selectedId && onAssign(selectedId, deviceIds)}
-              disabled={submitting || !selectedId || selectedId === currentLocationId}
+              onClick={() => onAssign(selectedId, deviceIds)}
+              disabled={submitting || selectedId === currentLocationId}
               className="flex-2 bg-white text-black py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {submitting ? (
@@ -159,7 +181,7 @@ export const LocationSelectorModal: React.FC<Props> = ({
               ) : (
                 <MapPin className="w-4 h-4" />
               )}
-              {submitting ? 'ASSIGNING...' : 'Update_Location'}
+              {submitting ? 'EXECUTING...' : 'Confirm_Changes'}
             </button>
           </div>
         </div>
