@@ -123,7 +123,7 @@ const Sidebar: React.FC<Props> = ({
     { name: 'Topology', icon: Share2, path: '/graph' },
     { name: 'Monitoring', icon: Activity, path: '/monitoring' },
     { name: 'Devices', icon: Server, path: '/devices' },
-    { name: 'Win.Info', icon: Laptop, path: '/win-info' },
+    { name: 'Win-Info', icon: Laptop, path: '/win-info' },
     { name: 'Locations', icon: MapPin, path: '/locations' },
     { name: 'Search', icon: Search, path: '/search' },
   ]
