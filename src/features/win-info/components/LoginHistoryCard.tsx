@@ -1,7 +1,7 @@
 import * as React from 'react'
 import axios from 'axios'
 import { InfoCard } from '@/components/ui/info-card'
-import { HistoryIcon, SearchIcon, Loader2, UserIcon, X } from 'lucide-react'
+import { HistoryIcon, SearchIcon, Loader2, UserIcon, X, FileSpreadsheet } from 'lucide-react'
 import { LabeledInput } from '@/components/ui/labeled-input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
@@ -110,6 +110,19 @@ export default function LoginHistoryCard() {
     }
   }, [searchType, searchValue])
 
+  const handleExport = () => {
+    if (!searchValue.trim()) return
+    const params = new URLSearchParams()
+    if (searchType === 'name') {
+      params.append('name', searchValue.trim())
+    } else {
+      params.append('ip', searchValue.trim())
+    }
+    params.append('excel', 'true')
+    const url = `/api/v0/user/login/history?${params.toString()}`
+    window.open(url, '_blank')
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       fetchData()
@@ -150,6 +163,16 @@ export default function LoginHistoryCard() {
         title="Computer_Login_History"
         description="Consulta el histórico de accesos de usuarios en un equipo"
         icon={HistoryIcon}
+        headerAction={
+          <button
+            onClick={handleExport}
+            disabled={loading || !searchValue.trim()}
+            title="Exportar a Excel"
+            className="p-2 border border-white/10 text-neutral-500 hover:bg-white hover:text-black transition-all disabled:opacity-50"
+          >
+            <FileSpreadsheet className="size-4" />
+          </button>
+        }
       >
         <div className="space-y-4">
           <div className="flex flex-col gap-4">

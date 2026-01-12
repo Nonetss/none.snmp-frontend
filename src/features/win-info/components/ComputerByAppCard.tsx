@@ -110,7 +110,8 @@ export default function ComputerByAppCard() {
     const params = new URLSearchParams()
     params.append('appName', appName.trim())
     params.append('installed', installed)
-    const url = `/api/v0/win-info/computers/by-application/excel?${params.toString()}`
+    params.append('excel', 'true')
+    const url = `/api/v0/win-info/computers/by-application?${params.toString()}`
     window.open(url, '_blank')
   }
 

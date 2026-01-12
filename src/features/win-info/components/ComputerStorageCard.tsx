@@ -77,7 +77,8 @@ export default function ComputerStorageCard() {
     const params = new URLSearchParams()
     if (minStorage) params.append('minStorage', minStorage)
     if (maxStorage) params.append('maxStorage', maxStorage)
-    const url = `/api/v0/win-info/computers/storage/excel?${params.toString()}`
+    params.append('excel', 'true')
+    const url = `/api/v0/win-info/computers/storage?${params.toString()}`
     window.open(url, '_blank')
   }
 

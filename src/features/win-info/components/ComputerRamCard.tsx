@@ -75,7 +75,8 @@ export default function ComputerRamCard() {
     const params = new URLSearchParams()
     if (minRam) params.append('minRam', minRam)
     if (maxRam) params.append('maxRam', maxRam)
-    const url = `/api/v0/win-info/computers/ram/excel?${params.toString()}`
+    params.append('excel', 'true')
+    const url = `/api/v0/win-info/computers/ram?${params.toString()}`
     window.open(url, '_blank')
   }
 

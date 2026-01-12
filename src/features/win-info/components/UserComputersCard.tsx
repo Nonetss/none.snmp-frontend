@@ -1,7 +1,7 @@
 import * as React from 'react'
 import axios from 'axios'
 import { InfoCard } from '@/components/ui/info-card'
-import { MonitorIcon, SearchIcon, Loader2, X } from 'lucide-react'
+import { MonitorIcon, SearchIcon, Loader2, X, FileSpreadsheet } from 'lucide-react'
 import { LabeledInput } from '@/components/ui/labeled-input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
@@ -91,6 +91,15 @@ export default function UserComputersCard() {
     }
   }, [username])
 
+  const handleExport = () => {
+    if (!username.trim()) return
+    const params = new URLSearchParams()
+    params.append('username', username.trim())
+    params.append('excel', 'true')
+    const url = `/api/v0/user/computers?${params.toString()}`
+    window.open(url, '_blank')
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       fetchData()
@@ -131,6 +140,16 @@ export default function UserComputersCard() {
         title="User_Computers_Mapping"
         description="Encuentra en qué equipos ha iniciado sesión un usuario específico"
         icon={MonitorIcon}
+        headerAction={
+          <button
+            onClick={handleExport}
+            disabled={loading || !username.trim()}
+            title="Exportar a Excel"
+            className="p-2 border border-white/10 text-neutral-500 hover:bg-white hover:text-black transition-all disabled:opacity-50"
+          >
+            <FileSpreadsheet className="size-4" />
+          </button>
+        }
       >
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row items-end gap-4 w-full">

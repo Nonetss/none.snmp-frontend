@@ -53,7 +53,7 @@ export default function ComputerModelsCard() {
   }, [])
 
   const handleExport = () => {
-    const url = '/api/v0/win-info/computers/models/excel'
+    const url = '/api/v0/win-info/computers/models?excel=true'
     window.open(url, '_blank')
   }
 

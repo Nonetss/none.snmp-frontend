@@ -10,6 +10,7 @@ import {
   NetworkIcon,
   AppWindowIcon,
   X,
+  FileSpreadsheet,
 } from 'lucide-react'
 import { LabeledInput } from '@/components/ui/labeled-input'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -179,6 +180,19 @@ export default function ComputerDetailsCard() {
     }
   }, [searchType, searchValue])
 
+  const handleExport = () => {
+    if (!searchValue.trim()) return
+    const params = new URLSearchParams()
+    if (searchType === 'name') {
+      params.append('name', searchValue.trim())
+    } else {
+      params.append('ip', searchValue.trim())
+    }
+    params.append('excel', 'true')
+    const url = `/api/v0/win-info?${params.toString()}`
+    window.open(url, '_blank')
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       fetchData()
@@ -203,6 +217,16 @@ export default function ComputerDetailsCard() {
         title="Full_WMI_Details"
         description="Obtén información detallada de hardware y software (WMI)"
         icon={LaptopIcon}
+        headerAction={
+          <button
+            onClick={handleExport}
+            disabled={loading || !searchValue.trim()}
+            title="Exportar a Excel"
+            className="p-2 border border-white/10 text-neutral-500 hover:bg-white hover:text-black transition-all disabled:opacity-50"
+          >
+            <FileSpreadsheet className="size-4" />
+          </button>
+        }
       >
         <div className="space-y-4">
           <div className="flex flex-col gap-4">

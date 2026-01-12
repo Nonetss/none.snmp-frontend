@@ -91,7 +91,7 @@ export default function ComputerApplicationsCard() {
   const handleExport = () => {
     const endpoint = activeTab === 'applications' ? 'applications' : 'services'
     const filter = activeTab === 'applications' ? appsFilter : servicesFilter
-    const url = `/api/v0/win-info/computers/${endpoint}/excel${filter ? `?search=${encodeURIComponent(filter)}` : ''}`
+    const url = `/api/v0/win-info/computers/${endpoint}?excel=true${filter ? `&search=${encodeURIComponent(filter)}` : ''}`
     window.open(url, '_blank')
   }
 

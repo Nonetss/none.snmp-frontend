@@ -110,7 +110,8 @@ export default function ComputerByServiceCard() {
     const params = new URLSearchParams()
     params.append('serviceName', serviceName.trim())
     params.append('running', running)
-    const url = `/api/v0/win-info/computers/by-service/excel?${params.toString()}`
+    params.append('excel', 'true')
+    const url = `/api/v0/win-info/computers/by-service?${params.toString()}`
     window.open(url, '_blank')
   }
 
