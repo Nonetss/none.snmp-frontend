@@ -71,18 +71,17 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
     }
   }
 
-  const handleAssignLocation = async (locationId: number) => {
+  const handleAssignLocation = async (locationId: number | null) => {
     setLocSubmitting(true)
     try {
-      await axios.post('/api/v0/location/assign', {
-        locationId,
-        deviceIds: [parseInt(deviceId)],
-        force: true,
+      await axios.patch('/api/v0/search/device/location', {
+        deviceId: parseInt(deviceId),
+        locationId: locationId,
       })
       setShowLocationModal(false)
       await fetchDevice(true)
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Assignment failed')
+      alert(err.response?.data?.message || 'Location update failed')
     } finally {
       setLocSubmitting(false)
     }
