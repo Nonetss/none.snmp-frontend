@@ -19,6 +19,7 @@ import {
   Check,
   X,
   MapPin,
+  Laptop,
 } from 'lucide-react'
 
 interface Props {
@@ -122,6 +123,7 @@ const Sidebar: React.FC<Props> = ({
     { name: 'Topology', icon: Share2, path: '/graph' },
     { name: 'Monitoring', icon: Activity, path: '/monitoring' },
     { name: 'Devices', icon: Server, path: '/devices' },
+    { name: 'WinInfo', icon: Laptop, path: '/win-info' },
     { name: 'Locations', icon: MapPin, path: '/locations' },
     { name: 'Search', icon: Search, path: '/search' },
   ]

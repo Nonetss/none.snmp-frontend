@@ -1,0 +1,10 @@
+---
+import Main from '@/layouts/main.astro'
+import WinInfoPage from '@/features/win-info/WinInfoPage'
+---
+
+<Main title="System.WinInfo">
+  <main class="bg-black min-h-screen overflow-x-hidden">
+    <WinInfoPage client:only="react" />
+  </main>
+</Main>

@@ -1,0 +1,290 @@
+import * as React from 'react'
+import axios from 'axios'
+import { InfoCard } from '@/components/ui/info-card'
+import {
+  AppWindowIcon,
+  SearchIcon,
+  Loader2,
+  ChevronDownIcon,
+  FileSpreadsheet,
+  X,
+} from 'lucide-react'
+import { LabeledInput } from '@/components/ui/labeled-input'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+
+interface Computer {
+  id: number
+  Name: string
+  Model: string
+  ip: string
+  // Optional fields that might be returned
+  PrimaryOwnerName?: string | null
+  Domain?: string
+  TotalPhysicalMemory?: number
+  Manufacturer?: string
+}
+
+export default function ComputerByServiceCard() {
+  const [data, setData] = React.useState<Computer[]>([])
+  const [loading, setLoading] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
+  const [serviceName, setServiceName] = React.useState('')
+  const [running, setRunning] = React.useState('true')
+  const [isModalOpen, setIsModalOpen] = React.useState(false)
+  const [lastSearch, setLastSearch] = React.useState('')
+  const [serviceList, setServiceList] = React.useState<string[]>([])
+  const [showSuggestions, setShowSuggestions] = React.useState(false)
+
+  React.useEffect(() => {
+    const fetchServiceList = async () => {
+      try {
+        const response = await axios.get('/api/v0/win-info/computers/services/list')
+        if (Array.isArray(response.data)) {
+          setServiceList(response.data)
+        }
+      } catch (error) {
+        console.error('Error fetching service list:', error)
+      }
+    }
+    fetchServiceList()
+  }, [])
+
+  const filteredSuggestions = React.useMemo(() => {
+    if (!serviceName) return []
+    return serviceList
+      .filter((service) => service.toLowerCase().includes(serviceName.toLowerCase()))
+      .slice(0, 50)
+  }, [serviceName, serviceList])
+
+  const selectSuggestion = (service: string) => {
+    setServiceName(service)
+    setShowSuggestions(false)
+  }
+
+  const fetchData = React.useCallback(async () => {
+    if (!serviceName.trim()) return
+    setLoading(true)
+    setError(null)
+    try {
+      const url = '/api/v0/win-info/computers/by-service'
+      const response = await axios.get(url, {
+        params: {
+          serviceName: serviceName.trim(),
+          running: running,
+        },
+      })
+
+      let results: Computer[] = []
+      if (Array.isArray(response.data)) {
+        results = response.data
+      } else if (response.data && Array.isArray(response.data.computers)) {
+        results = response.data.computers
+      } else {
+        results = []
+      }
+
+      setData(results)
+      setLastSearch(`${serviceName} (${running === 'true' ? 'Ejecutándose' : 'Detenido'})`)
+
+      if (results.length > 0) {
+        setIsModalOpen(true)
+      }
+    } catch (e: any) {
+      console.error(e)
+      setError(e?.response?.data?.message || e?.message || 'Error fetching computers by service')
+    } finally {
+      setLoading(false)
+    }
+  }, [serviceName, running])
+
+  const handleExport = () => {
+    if (!serviceName.trim()) return
+    const params = new URLSearchParams()
+    params.append('serviceName', serviceName.trim())
+    params.append('running', running)
+    const url = `/api/v0/win-info/computers/by-service/excel?${params.toString()}`
+    window.open(url, '_blank')
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      fetchData()
+      setShowSuggestions(false)
+    }
+  }
+
+  return (
+    <>
+      <InfoCard
+        title="Search_By_Service"
+        description="Encuentra ordenadores que tienen un servicio ejecutándose (o no)"
+        icon={AppWindowIcon}
+      >
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-[2fr_2fr_1fr] gap-4 items-end">
+            <div className="relative w-full">
+              <LabeledInput
+                id="serviceName"
+                label="Nombre del Servicio"
+                placeholder="Ej: wuauserv"
+                value={serviceName}
+                onChange={(e) => {
+                  setServiceName(e.target.value)
+                  setShowSuggestions(true)
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                onKeyDown={handleKeyDown}
+                className="w-full"
+                autoComplete="off"
+              />
+              {showSuggestions && filteredSuggestions.length > 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-neutral-900 border border-white/20 shadow-lg overflow-hidden animate-in fade-in-0 zoom-in-95">
+                  <div className="max-h-[200px] overflow-y-auto p-1">
+                    {filteredSuggestions.map((service, index) => (
+                      <div
+                        key={`${service}-${index}`}
+                        className="flex flex-col px-3 py-2 text-[10px] uppercase font-bold tracking-widest cursor-pointer hover:bg-white hover:text-black transition-colors"
+                        onClick={() => selectSuggestion(service)}
+                      >
+                        <span className="truncate">{service}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col space-y-1.5 w-full ">
+              <span className="text-[10px] text-neutral-500 uppercase font-bold tracking-tighter">
+                Estado del Servicio
+              </span>
+              <div className="relative">
+                <select
+                  id="running"
+                  value={running}
+                  onChange={(e) => setRunning(e.target.value)}
+                  className="flex h-9 w-full appearance-none items-center justify-between border border-white/10 bg-black px-3 py-2 text-xs font-mono uppercase text-white focus:outline-none focus:border-white/40 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="true">Ejecutándose</option>
+                  <option value="false">Detenido / No presente</option>
+                </select>
+                <ChevronDownIcon className="absolute right-3 top-2.5 h-4 w-4 opacity-50 pointer-events-none" />
+              </div>
+            </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={fetchData}
+                disabled={loading}
+                className="flex-1 sm:w-auto px-4 py-2 border border-white/10 text-xs font-black uppercase tracking-widest bg-white text-black hover:bg-neutral-200 transition-all flex items-center justify-center disabled:opacity-50"
+              >
+                {loading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <SearchIcon className="mr-2 h-4 w-4" />
+                )}
+                Query
+              </button>
+              <button
+                onClick={handleExport}
+                disabled={loading || !serviceName.trim()}
+                title="Exportar a Excel"
+                className="p-2 border border-white/10 text-neutral-500 hover:bg-white hover:text-black transition-all disabled:opacity-50"
+              >
+                <FileSpreadsheet className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          {error && (
+            <div className="p-4 bg-red-500/10 text-red-500 text-[10px] border border-red-500/20 uppercase tracking-widest">
+              {error}
+            </div>
+          )}
+
+          {!loading && !error && data.length === 0 && lastSearch && (
+            <div className="text-center p-4 text-neutral-500 bg-white/5 border border-white/5 uppercase text-[10px] tracking-widest">
+              No results for: {lastSearch}
+            </div>
+          )}
+
+          {data.length > 0 && (
+            <button
+              className="w-full px-4 py-2 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all"
+              onClick={() => setIsModalOpen(true)}
+            >
+              Ver últimos resultados ({data.length})
+            </button>
+          )}
+        </div>
+      </InfoCard>
+
+      {/* Raw Overlay Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
+          <div className="w-full max-w-[700px] bg-neutral-950 border border-white/20 shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col max-h-[80vh]">
+            <div className="flex justify-between items-center p-6 border-b border-white/10 bg-white/5">
+              <div className="flex flex-col gap-1">
+                <h2 className="text-sm font-bold uppercase tracking-widest text-white">
+                  Search.Results()
+                </h2>
+                <p className="text-[10px] text-neutral-500 uppercase tracking-widest">
+                  {lastSearch}
+                </p>
+              </div>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="p-1 hover:bg-white/10 text-neutral-500 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 min-h-0 overflow-hidden border-b border-white/5">
+              <ScrollArea className="h-full max-h-[500px]">
+                <Table>
+                  <TableHeader className="sticky top-0 z-10">
+                    <TableRow>
+                      <TableHead>Nombre</TableHead>
+                      <TableHead>Modelo</TableHead>
+                      <TableHead>IP</TableHead>
+                      <TableHead className="text-right">ID</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {data.map((computer) => (
+                      <TableRow key={computer.id}>
+                        <TableCell className="font-bold text-white uppercase">
+                          {computer.Name}
+                        </TableCell>
+                        <TableCell className="text-neutral-500">{computer.Model}</TableCell>
+                        <TableCell className="text-emerald-500">{computer.ip}</TableCell>
+                        <TableCell className="text-right text-neutral-600">{computer.id}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            </div>
+            <div className="p-4 bg-white/5 flex justify-end">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-6 py-2 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
