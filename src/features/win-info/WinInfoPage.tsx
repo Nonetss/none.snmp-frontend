@@ -12,10 +12,10 @@ import LastLoginCard from './components/LastLoginCard'
 import LoginHistoryCard from './components/LoginHistoryCard'
 import UserComputersCard from './components/UserComputersCard'
 
-type TabId = 'inventory' | 'search' | 'users' | 'hardware'
+type TabId = 'search' | 'inventory'
 
 const WinInfoPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabId>('inventory')
+  const [activeTab, setActiveTab] = useState<TabId>('search')
 
   const handleTabChange = (tab: TabId) => {
     setActiveTab(tab)
@@ -38,6 +38,15 @@ const WinInfoPage: React.FC = () => {
         {/* Tabs Control - Industrial Style */}
         <div className="flex p-1 bg-white/5 border border-white/5">
           <button
+            onClick={() => handleTabChange('search')}
+            className={`flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
+              activeTab === 'search' ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'
+            }`}
+          >
+            <Search className="w-3.5 h-3.5" />
+            Search_&_Tools
+          </button>
+          <button
             onClick={() => handleTabChange('inventory')}
             className={`flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
               activeTab === 'inventory'
@@ -46,39 +55,76 @@ const WinInfoPage: React.FC = () => {
             }`}
           >
             <AppWindow className="w-3.5 h-3.5" />
-            Inventory
-          </button>
-          <button
-            onClick={() => handleTabChange('search')}
-            className={`flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
-              activeTab === 'search' ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'
-            }`}
-          >
-            <Search className="w-3.5 h-3.5" />
-            Search
-          </button>
-          <button
-            onClick={() => handleTabChange('hardware')}
-            className={`flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
-              activeTab === 'hardware' ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'
-            }`}
-          >
-            <Cpu className="w-3.5 h-3.5" />
-            Hardware
-          </button>
-          <button
-            onClick={() => handleTabChange('users')}
-            className={`flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
-              activeTab === 'users' ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'
-            }`}
-          >
-            <User className="w-3.5 h-3.5" />
-            Users
+            Global_Inventory
           </button>
         </div>
       </div>
 
       <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+        {activeTab === 'search' && (
+          <div className="space-y-12">
+            {/* 01. Node Details */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-3 opacity-50">
+                <div className="h-[1px] flex-1 bg-white/10" />
+                <span className="text-[9px] font-black uppercase tracking-[0.4em]">
+                  01. Node_Discovery_&_WMI
+                </span>
+                <div className="h-[1px] w-8 bg-white/10" />
+              </div>
+              <div className="grid grid-cols-1 gap-8">
+                <ComputerDetailsCard />
+              </div>
+            </section>
+
+            {/* 02. Software & Services */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-3 opacity-50">
+                <div className="h-[1px] flex-1 bg-white/10" />
+                <span className="text-[9px] font-black uppercase tracking-[0.4em]">
+                  02. Software_&_Services_Query
+                </span>
+                <div className="h-[1px] w-8 bg-white/10" />
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <ComputerByAppCard />
+                <ComputerByServiceCard />
+              </div>
+            </section>
+
+            {/* 03. Hardware Specs */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-3 opacity-50">
+                <div className="h-[1px] flex-1 bg-white/10" />
+                <span className="text-[9px] font-black uppercase tracking-[0.4em]">
+                  03. Hardware_Resource_Filters
+                </span>
+                <div className="h-[1px] w-8 bg-white/10" />
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <ComputerRamCard />
+                <ComputerStorageCard />
+              </div>
+            </section>
+
+            {/* 04. User Activity */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-3 opacity-50">
+                <div className="h-[1px] flex-1 bg-white/10" />
+                <span className="text-[9px] font-black uppercase tracking-[0.4em]">
+                  04. User_Session_Analytics
+                </span>
+                <div className="h-[1px] w-8 bg-white/10" />
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <UserComputersCard />
+                <LastLoginCard />
+                <LoginHistoryCard />
+              </div>
+            </section>
+          </div>
+        )}
+
         {activeTab === 'inventory' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="lg:col-span-1">
@@ -86,32 +132,7 @@ const WinInfoPage: React.FC = () => {
             </div>
             <div className="space-y-8">
               <ComputerModelsCard />
-              <ComputerDetailsCard />
             </div>
-          </div>
-        )}
-
-        {activeTab === 'search' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <ComputerByAppCard />
-            <ComputerByServiceCard />
-          </div>
-        )}
-
-        {activeTab === 'hardware' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <ComputerRamCard />
-            <ComputerStorageCard />
-          </div>
-        )}
-
-        {activeTab === 'users' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="space-y-8">
-              <UserComputersCard />
-              <LastLoginCard />
-            </div>
-            <LoginHistoryCard />
           </div>
         )}
       </div>
