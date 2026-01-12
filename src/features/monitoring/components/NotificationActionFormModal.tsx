@@ -122,35 +122,79 @@ export const NotificationActionFormModal: React.FC<NotificationActionFormModalPr
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-[10px] text-neutral-500 uppercase font-bold tracking-tighter">
-                  Device Aggregation
-                </label>
-                <select
-                  value={formData.deviceAggregation}
-                  onChange={(e) =>
-                    setFormData({ ...formData, deviceAggregation: e.target.value as any })
-                  }
-                  className="w-full bg-black border border-white/10 p-2 text-xs focus:outline-none focus:border-white/40 uppercase font-bold"
-                >
-                  <option value="any">Any Device Fails</option>
-                  <option value="all">All Devices Fail</option>
-                </select>
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-neutral-500 uppercase font-bold tracking-tighter">
+                    Device Aggregation
+                  </label>
+                  <select
+                    value={formData.deviceAggregation}
+                    onChange={(e) =>
+                      setFormData({ ...formData, deviceAggregation: e.target.value as any })
+                    }
+                    className="w-full bg-black border border-white/10 p-2 text-xs focus:outline-none focus:border-white/40 uppercase font-bold"
+                  >
+                    <option value="any">Any Device Fails</option>
+                    <option value="all">All Devices Fail</option>
+                    <option value="percentage">Percentage of Devices Fail</option>
+                  </select>
+                </div>
+                {formData.deviceAggregation === 'percentage' && (
+                  <div className="space-y-1.5 animate-in slide-in-from-top-2">
+                    <label className="text-[10px] text-neutral-500 uppercase font-bold tracking-tighter">
+                      Fail Percentage (%)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={formData.deviceAggregationValue}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          deviceAggregationValue: Number(e.target.value),
+                        })
+                      }
+                      className="w-full bg-black border border-white/10 p-2 text-xs focus:outline-none focus:border-white/40 font-mono"
+                    />
+                  </div>
+                )}
               </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] text-neutral-500 uppercase font-bold tracking-tighter">
-                  Port Aggregation
-                </label>
-                <select
-                  value={formData.portAggregation}
-                  onChange={(e) =>
-                    setFormData({ ...formData, portAggregation: e.target.value as any })
-                  }
-                  className="w-full bg-black border border-white/10 p-2 text-xs focus:outline-none focus:border-white/40 uppercase font-bold"
-                >
-                  <option value="any">Any Port Fails</option>
-                  <option value="all">All Ports Fail</option>
-                </select>
+
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-neutral-500 uppercase font-bold tracking-tighter">
+                    Port Aggregation
+                  </label>
+                  <select
+                    value={formData.portAggregation}
+                    onChange={(e) =>
+                      setFormData({ ...formData, portAggregation: e.target.value as any })
+                    }
+                    className="w-full bg-black border border-white/10 p-2 text-xs focus:outline-none focus:border-white/40 uppercase font-bold"
+                  >
+                    <option value="any">Any Port Fails</option>
+                    <option value="all">All Ports Fail</option>
+                    <option value="percentage">Percentage of Ports Fail</option>
+                  </select>
+                </div>
+                {formData.portAggregation === 'percentage' && (
+                  <div className="space-y-1.5 animate-in slide-in-from-top-2">
+                    <label className="text-[10px] text-neutral-500 uppercase font-bold tracking-tighter">
+                      Fail Percentage (%)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={formData.portAggregationValue}
+                      onChange={(e) =>
+                        setFormData({ ...formData, portAggregationValue: Number(e.target.value) })
+                      }
+                      className="w-full bg-black border border-white/10 p-2 text-xs focus:outline-none focus:border-white/40 font-mono"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -129,3 +129,36 @@ export interface UpdateMonitoringGroupDto {
   description?: string
   deviceIds?: number[]
 }
+
+export interface NtfyTopic {
+  id: number
+  topic: string
+  url: string
+  description?: string
+}
+
+export interface NtfyAction {
+  id: number
+  notificationActionId: number
+  ntfyTopicId: number
+  title: string
+  priority: number
+  tags: string[]
+  topic?: NtfyTopic
+}
+
+export interface NotificationAction {
+  id: number
+  monitorRuleId: number
+  enabled: boolean
+  type: string
+  consecutiveFailures: number
+  repeatIntervalMins: number
+  deviceAggregation: 'any' | 'all' | 'percentage'
+  deviceAggregationValue: number
+  portAggregation: 'any' | 'all' | 'percentage'
+  portAggregationValue: number
+  monitorRule?: MonitoringRule
+  ntfyAction?: NtfyAction
+  lastSentAt?: string
+}

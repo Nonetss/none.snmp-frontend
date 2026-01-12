@@ -86,6 +86,25 @@ export const NotificationActionCard: React.FC<NotificationActionCardProps> = ({
           </div>
         </div>
 
+        <div className="grid grid-cols-2 gap-2 pb-2 border-b border-white/5">
+          <div className="flex flex-col gap-1">
+            <span className="text-[8px] text-neutral-600 font-bold uppercase">Devices</span>
+            <div className="text-[9px] text-white uppercase font-bold tracking-tighter">
+              {action.deviceAggregation === 'any' && 'Any'}
+              {action.deviceAggregation === 'all' && 'All'}
+              {action.deviceAggregation === 'percentage' && `${action.deviceAggregationValue}%`}
+            </div>
+          </div>
+          <div className="flex flex-col gap-1 text-right">
+            <span className="text-[8px] text-neutral-600 font-bold uppercase">Ports</span>
+            <div className="text-[9px] text-white uppercase font-bold tracking-tighter">
+              {action.portAggregation === 'any' && 'Any'}
+              {action.portAggregation === 'all' && 'All'}
+              {action.portAggregation === 'percentage' && `${action.portAggregationValue}%`}
+            </div>
+          </div>
+        </div>
+
         {action.ntfyAction && (
           <div className="pt-2 space-y-2">
             <div className="flex items-center gap-2 text-[10px] text-white font-bold uppercase">

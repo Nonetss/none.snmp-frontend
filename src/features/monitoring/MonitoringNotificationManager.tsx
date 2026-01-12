@@ -23,7 +23,9 @@ const MonitoringNotificationManager: React.FC = () => {
     consecutiveFailures: 1,
     repeatIntervalMins: 60,
     deviceAggregation: 'any' as const,
+    deviceAggregationValue: 0,
     portAggregation: 'any' as const,
+    portAggregationValue: 0,
     // ntfy specific
     ntfyTopicId: '',
     title: 'Network Alert',
@@ -67,7 +69,9 @@ const MonitoringNotificationManager: React.FC = () => {
         consecutiveFailures: Number(formData.consecutiveFailures),
         repeatIntervalMins: Number(formData.repeatIntervalMins),
         deviceAggregation: formData.deviceAggregation,
+        deviceAggregationValue: Number(formData.deviceAggregationValue),
         portAggregation: formData.portAggregation,
+        portAggregationValue: Number(formData.portAggregationValue),
       }
 
       let actionId = editingId
@@ -131,7 +135,9 @@ const MonitoringNotificationManager: React.FC = () => {
       consecutiveFailures: action.consecutiveFailures,
       repeatIntervalMins: action.repeatIntervalMins,
       deviceAggregation: action.deviceAggregation,
+      deviceAggregationValue: action.deviceAggregationValue || 0,
       portAggregation: action.portAggregation,
+      portAggregationValue: action.portAggregationValue || 0,
       // ntfy specific
       ntfyTopicId: action.ntfyAction?.ntfyTopicId.toString() || '',
       title: action.ntfyAction?.title || 'Network Alert',
@@ -188,7 +194,9 @@ const MonitoringNotificationManager: React.FC = () => {
               consecutiveFailures: 1,
               repeatIntervalMins: 60,
               deviceAggregation: 'any',
+              deviceAggregationValue: 0,
               portAggregation: 'any',
+              portAggregationValue: 0,
               ntfyTopicId: topics[0]?.id.toString() || '',
               title: 'Network Alert',
               priority: 3,
