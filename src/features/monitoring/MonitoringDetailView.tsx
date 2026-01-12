@@ -75,9 +75,27 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
   // --- Processing ---
   const deviceMap = useMemo(() => {
     const map = new Map<number, any>()
-    deviceList.forEach((d) => map.set(d.id, d))
+
+    // 1. First populate with rule specific devices (which now contain status object)
+    if (data?.rule?.deviceGroup?.devices) {
+      data.rule.deviceGroup.devices.forEach((dg: any) => {
+        if (dg.device) {
+          map.set(dg.device.id, dg.device)
+        }
+      })
+    }
+
+    // 2. Augment with general device list
+    deviceList.forEach((d) => {
+      if (!map.has(d.id)) {
+        map.set(d.id, d)
+      } else {
+        const existing = map.get(d.id)
+        map.set(d.id, { ...d, ...existing })
+      }
+    })
     return map
-  }, [deviceList])
+  }, [deviceList, data])
 
   const processedData = useMemo(() => {
     if (!data) return []
@@ -91,6 +109,8 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
         const searchMatch = name.toLowerCase().includes(query) || ip.includes(query)
 
         if (!searchMatch) return []
+
+        const deviceStatus = devInfo?.status
 
         return group.deviceDataPort
           .map((port) => {
@@ -121,6 +141,7 @@ const MonitoringDetailView: React.FC<Props> = ({ ruleId }) => {
               port: port.port,
               history: sortedHistory,
               isUp,
+              deviceStatus,
               uptime,
               avgLat,
               lastCheck: lastPt?.checkTime,

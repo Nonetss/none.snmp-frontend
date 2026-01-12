@@ -1,10 +1,8 @@
-export interface MonitoringGroup {
-  id: number
-  name: string
-  description: string
-  createdAt: string
-  deviceCount?: number
-  devices?: MonitoringDevice[]
+export interface DeviceStatus {
+  deviceId: number
+  status: boolean
+  lastPing: string | null
+  lastPingUp: string | null
 }
 
 export interface MonitoringDevice {
@@ -13,11 +11,26 @@ export interface MonitoringDevice {
   ipv4: string
   sysName?: string | null
   macAddress?: string | null
-  status?: boolean
+  status?: DeviceStatus | boolean
   tags?: Array<{ id: number; name: string; color: string }>
   location?: { id: number; name: string } | null
   subnetId?: number
   subnetName?: string
+}
+
+export interface MonitoringGroupDevice {
+  groupId: number
+  deviceId: number
+  device: MonitoringDevice
+}
+
+export interface MonitoringGroup {
+  id: number
+  name: string
+  description: string
+  createdAt: string
+  deviceCount?: number
+  devices?: MonitoringGroupDevice[]
 }
 
 export interface PortGroup {

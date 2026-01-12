@@ -1,10 +1,27 @@
 import React from 'react'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, Clock, Activity } from 'lucide-react'
 import { StatusBadge } from './StatusBadge'
 import { LatencyHistogram } from './LatencyHistogram'
 
 interface AnalyticsViewProps {
   data: any[]
+}
+
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return 'NEVER'
+  try {
+    const d = new Date(dateString)
+    if (isNaN(d.getTime())) return 'N/A'
+    const now = new Date()
+    const isToday = d.toDateString() === now.toDateString()
+
+    if (isToday) {
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    }
+    return `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${d.getMinutes().toString().padStart(2, '0')}`
+  } catch {
+    return 'N/A'
+  }
 }
 
 export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ data }) => {
@@ -25,6 +42,12 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ data }) => {
         >
           <div className="col-span-3 flex flex-col justify-center min-w-0">
             <div className="flex items-center gap-2">
+              <div
+                className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                  item.deviceStatus?.status === true ? 'bg-emerald-500' : 'bg-red-500'
+                }`}
+                title={item.deviceStatus?.status === true ? 'Device: UP' : 'Device: DOWN'}
+              />
               <span className="text-xs font-bold text-white truncate" title={item.name}>
                 {item.name}
               </span>
@@ -35,10 +58,25 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ data }) => {
                 <ArrowUpRight className="w-3 h-3 text-neutral-500 hover:text-white" />
               </a>
             </div>
-            <div className="flex items-center gap-2 text-[9px] text-neutral-500 font-mono">
-              <span>{item.ip}</span>
-              <span className="text-neutral-700">|</span>
-              <span className="text-neutral-400">PORT:{item.port}</span>
+            <div className="flex flex-col gap-1 mt-1">
+              <div className="flex items-center gap-2 text-[9px] text-neutral-500 font-mono">
+                <span>{item.ip}</span>
+                <span className="text-neutral-700">|</span>
+                <span className="text-neutral-400">PORT:{item.port}</span>
+              </div>
+
+              {item.deviceStatus && (
+                <div className="flex items-center gap-3 text-[8px] text-neutral-600 font-mono uppercase tracking-tighter">
+                  <div className="flex items-center gap-1">
+                    <Activity className="w-2.5 h-2.5" />
+                    <span>Ping: {formatDate(item.deviceStatus.lastPing)}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-2.5 h-2.5" />
+                    <span>Up: {formatDate(item.deviceStatus.lastPingUp)}</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
