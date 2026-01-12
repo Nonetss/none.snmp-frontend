@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Laptop, AppWindow, User, Search, Cpu } from 'lucide-react'
 
 import ComputerApplicationsServicesCard from './components/ComputerApplicationsServicesCard'
@@ -15,7 +15,33 @@ import UserComputersCard from './components/UserComputersCard'
 type TabId = 'search' | 'inventory'
 
 const WinInfoPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabId>('search')
+  const [activeTab, setActiveTab] = useState<TabId>(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.replace('#', '')
+      if (hash === 'search' || hash === 'inventory') {
+        return hash as TabId
+      }
+    }
+    return 'search'
+  })
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '')
+      if (hash === 'search' || hash === 'inventory') {
+        setActiveTab(hash as TabId)
+      }
+    }
+
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, [])
+
+  useEffect(() => {
+    if (window.location.hash.replace('#', '') !== activeTab) {
+      window.location.hash = activeTab
+    }
+  }, [activeTab])
 
   const handleTabChange = (tab: TabId) => {
     setActiveTab(tab)
