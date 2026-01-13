@@ -43,7 +43,7 @@ const ToolboxPage: React.FC = () => {
   ]
 
   return (
-    <div className="p-8 bg-black text-white font-mono min-h-screen space-y-8 w-full">
+    <div className="p-4 md:p-8 bg-black text-white font-mono min-h-screen space-y-8 w-full">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-white/10 pb-6">
         <div className="flex flex-col gap-2">
@@ -73,9 +73,9 @@ const ToolboxPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-[1400px] mx-auto animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div className="max-w-full 2xl:max-w-[2000px] mx-auto animate-in fade-in slide-in-from-bottom-2 duration-500">
         {activeTab === 'ping' && (
-          <section className="space-y-4 max-w-5xl">
+          <section className="space-y-4 max-w-full 2xl:max-w-7xl">
             <div className="flex items-center gap-2 opacity-50">
               <div className="h-[1px] w-8 bg-white/10" />
               <span className="text-[9px] font-black uppercase tracking-[0.4em]">
@@ -88,7 +88,7 @@ const ToolboxPage: React.FC = () => {
         )}
 
         {activeTab === 'traceroute' && (
-          <section className="space-y-4 max-w-5xl">
+          <section className="space-y-4 max-w-full 2xl:max-w-7xl">
             <div className="flex items-center gap-2 opacity-50">
               <div className="h-[1px] w-8 bg-white/10" />
               <span className="text-[9px] font-black uppercase tracking-[0.4em]">
@@ -101,7 +101,7 @@ const ToolboxPage: React.FC = () => {
         )}
 
         {activeTab === 'dns' && (
-          <section className="space-y-4 max-w-5xl">
+          <section className="space-y-4 max-w-full 2xl:max-w-7xl">
             <div className="flex items-center gap-2 opacity-50">
               <div className="h-[1px] w-8 bg-white/10" />
               <span className="text-[9px] font-black uppercase tracking-[0.4em]">
@@ -114,7 +114,7 @@ const ToolboxPage: React.FC = () => {
         )}
 
         {activeTab === 'tcp' && (
-          <section className="space-y-4 max-w-5xl">
+          <section className="space-y-4 max-w-full 2xl:max-w-7xl">
             <div className="flex items-center gap-2 opacity-50">
               <div className="h-[1px] w-8 bg-white/10" />
               <span className="text-[9px] font-black uppercase tracking-[0.4em]">

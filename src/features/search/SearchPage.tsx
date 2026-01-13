@@ -23,7 +23,7 @@ const SearchPage: React.FC = () => {
   }
 
   return (
-    <div className="p-8 bg-black text-white font-mono min-h-screen space-y-8 w-full pb-20">
+    <div className="p-4 md:p-8 bg-black text-white font-mono min-h-screen space-y-8 w-full pb-20">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-white/10 pb-6">
         <div className="flex flex-col gap-2">
@@ -70,11 +70,11 @@ const SearchPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-[1400px] mx-auto">
+      <div className="max-w-full 2xl:max-w-[2000px] mx-auto">
         {activeTab === 'general' && (
           <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
             {/* Tool 1: Trace Origin */}
-            <section className="space-y-4 max-w-5xl mx-auto">
+            <section className="space-y-4 max-w-full 2xl:max-w-7xl mx-auto">
               <div className="flex items-center gap-2 opacity-50">
                 <div className="h-[1px] w-8 bg-white/10" />
                 <span className="text-[9px] font-black uppercase tracking-[0.4em]">
@@ -88,7 +88,7 @@ const SearchPage: React.FC = () => {
             </section>
 
             {/* Tool 2: Device Identification */}
-            <section className="space-y-4 max-w-5xl mx-auto">
+            <section className="space-y-4 max-w-full 2xl:max-w-7xl mx-auto">
               <div className="flex items-center gap-2 opacity-50">
                 <div className="h-[1px] w-8 bg-white/10" />
                 <span className="text-[9px] font-black uppercase tracking-[0.4em]">

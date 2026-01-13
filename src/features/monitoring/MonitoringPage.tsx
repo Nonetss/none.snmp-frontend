@@ -26,7 +26,7 @@ const MonitoringPage: React.FC = () => {
   }
 
   return (
-    <div className="p-8 bg-black text-white font-mono min-h-screen space-y-8 w-full">
+    <div className="p-4 md:p-8 bg-black text-white font-mono min-h-screen space-y-8 w-full max-w-full 2xl:max-w-[2400px] mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-white/10 pb-6">
         <div className="flex flex-col gap-2">

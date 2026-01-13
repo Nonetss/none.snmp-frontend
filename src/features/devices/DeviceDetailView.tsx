@@ -170,7 +170,7 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
 
       <TabsNav activeTab={activeTab} setActiveTab={setActiveTab} hasHikvision={hasHikvision} />
 
-      <div className="p-8 space-y-8 max-w-[1800px] mx-auto w-full flex-grow">
+      <div className="p-4 md:p-8 space-y-8 max-w-full 2xl:max-w-[2400px] mx-auto w-full flex-grow">
         {activeTab === 'dashboard' && (
           <DashboardTab
             device={device}

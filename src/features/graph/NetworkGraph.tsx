@@ -47,19 +47,18 @@ const NetworkGraph: React.FC = () => {
         setError('Error crítico: No se pudo cargar el motor gráfico')
       })
 
-    const handleResize = () => {
-      if (containerRef.current) {
-        setDimensions({
-          width: containerRef.current.clientWidth,
-          height: containerRef.current.clientHeight,
-        })
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect
+        setDimensions({ width, height })
       }
+    })
+
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current)
     }
 
-    window.addEventListener('resize', handleResize)
-    handleResize()
-
-    return () => window.removeEventListener('resize', handleResize)
+    return () => resizeObserver.disconnect()
   }, [])
 
   // 2. Peticion al backend

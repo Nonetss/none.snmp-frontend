@@ -69,11 +69,11 @@ const Dashboard: React.FC = () => {
   if (!stats) return null
 
   return (
-    <div className="p-8 bg-black text-white font-mono min-h-screen space-y-8 w-full">
+    <div className="p-4 md:p-8 bg-black text-white font-mono min-h-screen space-y-8 w-full max-w-[2560px] mx-auto">
       <Header currentTime={currentTime} />
 
       {/* Main Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         <StatCard
           title="Total Devices"
           value={stats.devices.totalManaged + stats.devices.totalExternal}

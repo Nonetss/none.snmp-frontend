@@ -285,9 +285,9 @@ const DeviceList: React.FC = () => {
     )
 
   return (
-    <div className="p-8 bg-black text-white font-mono min-h-screen space-y-8 w-full max-w-[1600px]">
+    <div className="p-4 md:p-8 bg-black text-white font-mono min-h-screen space-y-8 w-full max-w-full 2xl:max-w-[2400px] mx-auto">
       {/* Header */}
-      <div className="flex justify-between items-end border-b border-white/10 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-white/10 pb-6">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-4 bg-white" />
@@ -297,7 +297,7 @@ const DeviceList: React.FC = () => {
             Total discovered units: {totalDevices} across {data.length} subnets
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
           {/* Tag Filter */}
           <div className="relative">
             <select
@@ -343,7 +343,7 @@ const DeviceList: React.FC = () => {
               placeholder="SEARCH_DEVICES..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-neutral-900/50 border border-white/10 px-10 py-2 text-xs focus:outline-none focus:border-white/30 w-64 uppercase placeholder:text-neutral-500"
+              className="bg-neutral-900/50 border border-white/10 px-10 py-2 text-xs focus:outline-none focus:border-white/30 w-full sm:w-64 uppercase placeholder:text-neutral-500"
             />
           </div>
           <button
