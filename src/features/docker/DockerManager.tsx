@@ -239,7 +239,7 @@ const DockerManager: React.FC = () => {
             filteredServers.map((server) => (
               <div
                 key={server.id}
-                onClick={() => (window.location.href = `/docker/${server.id}`)}
+                onClick={() => (window.location.href = `/container/${server.id}`)}
                 className="group p-6 bg-neutral-900/20 border border-white/5 hover:border-white/20 hover:bg-white/[0.03] transition-all cursor-pointer relative overflow-hidden"
               >
                 <div className="flex justify-between items-start mb-6">

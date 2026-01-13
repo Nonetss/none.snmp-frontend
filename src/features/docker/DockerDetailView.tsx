@@ -160,7 +160,7 @@ const DockerDetailView: React.FC<Props> = ({ serverId }) => {
             </p>
           </div>
           <button
-            onClick={() => (window.location.href = '/docker')}
+            onClick={() => (window.location.href = '/container')}
             className="w-full py-3 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest"
           >
             Return_To_Base
@@ -177,7 +177,7 @@ const DockerDetailView: React.FC<Props> = ({ serverId }) => {
         <div className="max-w-[1920px] mx-auto p-6 flex flex-col lg:flex-row gap-6 justify-between items-center">
           <div className="flex items-center gap-6 w-full lg:w-auto">
             <a
-              href="/docker"
+              href="/container"
               className="p-2.5 border border-white/10 hover:bg-white hover:text-black transition-colors group"
             >
               <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
