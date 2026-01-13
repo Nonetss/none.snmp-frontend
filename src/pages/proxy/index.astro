@@ -1,0 +1,10 @@
+---
+import Main from '@/layouts/main.astro'
+import ProxyManager from '@/features/proxy/ProxyManager'
+---
+
+<Main title="System.Proxy">
+  <main class="bg-black min-h-screen overflow-x-hidden">
+    <ProxyManager client:only="react" />
+  </main>
+</Main>
