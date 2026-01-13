@@ -10,7 +10,7 @@ export const Header: React.FC<HeaderProps> = ({ currentTime }) => (
       <div className="flex items-center gap-2">
         <div className="w-1.5 h-4 bg-white" />
         <h1 className="text-2xl font-bold tracking-tighter uppercase">
-          Network.Intelligence.Center
+          Network.Intelligence-Center
         </h1>
       </div>
       <p className="text-[11px] text-neutral-400 uppercase tracking-[0.4em]">
