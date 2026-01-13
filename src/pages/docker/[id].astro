@@ -1,0 +1,12 @@
+---
+import Main from '@/layouts/main.astro'
+import DockerDetailView from '@/features/docker/DockerDetailView'
+
+const { id } = Astro.params
+---
+
+<Main title={`Docker.Node #${id}`}>
+  <main class="bg-black min-h-screen overflow-x-hidden">
+    <DockerDetailView client:only="react" serverId={String(id)} />
+  </main>
+</Main>

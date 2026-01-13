@@ -1,0 +1,10 @@
+---
+import Main from '@/layouts/main.astro'
+import DockerManager from '@/features/docker/DockerManager'
+---
+
+<Main title="System.Docker">
+  <main class="bg-black min-h-screen overflow-x-hidden">
+    <DockerManager client:only="react" />
+  </main>
+</Main>
