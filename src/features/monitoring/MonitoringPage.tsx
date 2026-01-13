@@ -1,13 +1,12 @@
 import React, { useState } from 'react'
-import { Activity, LayoutDashboard, Settings2, RefreshCcw, Bell, Zap } from 'lucide-react'
+import { Activity, LayoutDashboard, Settings2, RefreshCcw, Bell } from 'lucide-react'
 import MonitoringGroupManager from './MonitoringGroupManager'
 import PortGroupManager from './PortGroupManager'
 import MonitoringRuleManager from './MonitoringRuleManager'
 import MonitoringStatusView from './MonitoringStatusView'
 import MonitoringNotificationManager from './MonitoringNotificationManager'
-import MonitoringTcpScanner from './MonitoringTcpScanner'
 
-type TabId = 'status' | 'config' | 'notifications' | 'scan'
+type TabId = 'status' | 'config' | 'notifications'
 
 const MonitoringPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabId>('status')
@@ -16,7 +15,7 @@ const MonitoringPage: React.FC = () => {
   // Sync with URL hash for persistence
   React.useEffect(() => {
     const hash = window.location.hash.replace('#', '') as TabId
-    if (hash === 'status' || hash === 'config' || hash === 'notifications' || hash === 'scan') {
+    if (hash === 'status' || hash === 'config' || hash === 'notifications') {
       setActiveTab(hash)
     }
   }, [])
@@ -69,15 +68,6 @@ const MonitoringPage: React.FC = () => {
               Live_Status
             </button>
             <button
-              onClick={() => handleTabChange('scan')}
-              className={`flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
-                activeTab === 'scan' ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'
-              }`}
-            >
-              <Zap className="w-3.5 h-3.5" />
-              Network_Scan
-            </button>
-            <button
               onClick={() => handleTabChange('config')}
               className={`flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
                 activeTab === 'config' ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'
@@ -103,8 +93,6 @@ const MonitoringPage: React.FC = () => {
 
       {activeTab === 'status' ? (
         <MonitoringStatusView autoRefresh={autoRefresh} setAutoRefresh={setAutoRefresh} />
-      ) : activeTab === 'scan' ? (
-        <MonitoringTcpScanner />
       ) : activeTab === 'notifications' ? (
         <MonitoringNotificationManager />
       ) : (
