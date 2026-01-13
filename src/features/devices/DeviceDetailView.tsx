@@ -71,11 +71,11 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
     }
   }
 
-  const handleAssignLocation = async (locationId: number | null) => {
+  const handleAssignLocation = async (locationId: number | null, deviceIds: number[]) => {
     setLocSubmitting(true)
     try {
       await axios.patch('/api/v0/search/device/location', {
-        deviceId: parseInt(deviceId),
+        deviceId: deviceIds[0],
         locationId: locationId,
       })
       setShowLocationModal(false)
@@ -87,7 +87,7 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
     }
   }
 
-  const handleAssignTags = async (id: number, tagIds: number[]) => {
+  const handleAssignTags = async (deviceIds: number[], tagIds: number[]) => {
     setTagSubmitting(true)
     try {
       const currentIds = device?.tags?.map((t) => t.id) || []
@@ -96,14 +96,14 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
 
       if (toAssign.length > 0) {
         await axios.post('/api/v0/tag/assign', {
-          deviceIds: [parseInt(deviceId)],
+          deviceIds: deviceIds,
           tagIds: toAssign,
         })
       }
 
       if (toUnassign.length > 0) {
         await axios.post('/api/v0/tag/unassign', {
-          deviceIds: [parseInt(deviceId)],
+          deviceIds: deviceIds,
           tagIds: toUnassign,
         })
       }
@@ -191,7 +191,7 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
 
       <LocationSelectorModal
         show={showLocationModal}
-        deviceId={device.id}
+        deviceIds={[device.id]}
         deviceName={device.name || device.ipv4}
         currentLocationId={device.location?.id || null}
         submitting={locSubmitting}
@@ -201,14 +201,16 @@ const DeviceDetailView: React.FC<Props> = ({ deviceId }) => {
 
       <TagSelectorModal
         show={showTagModal}
-        deviceId={device.id}
+        deviceIds={[device.id]}
         deviceName={device.name || device.ipv4}
         availableTags={availableTags}
         currentTagIds={device.tags?.map((t) => t.id) || []}
         submitting={tagSubmitting}
         onClose={() => setShowTagModal(false)}
         onAssign={handleAssignTags}
-        onTagCreated={fetchDevice}
+        onTagCreated={async () => {
+          await fetchDevice(true)
+        }}
       />
     </div>
   )
