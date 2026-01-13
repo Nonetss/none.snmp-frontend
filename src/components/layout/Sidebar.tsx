@@ -147,7 +147,7 @@ const Sidebar: React.FC<Props> = ({
     { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
     { name: 'Topology', icon: Share2, path: '/graph' },
     { name: 'Monitoring', icon: Activity, path: '/monitoring' },
-    { name: 'Docker', icon: Box, path: '/docker' },
+    { name: 'Containers', icon: Box, path: '/container' },
     { name: 'Devices', icon: Server, path: '/devices' },
     { name: 'Win-Info', icon: Laptop, path: '/win-info' },
     { name: 'Proxy', icon: Globe, path: '/proxy' },
