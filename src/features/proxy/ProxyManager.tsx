@@ -128,7 +128,7 @@ const ProxyManager: React.FC = () => {
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-3">
             <Globe className="w-5 h-5 text-white" />
-            <h1 className="text-xl font-black tracking-[0.3em] uppercase">System.Proxy_Gateway</h1>
+            <h1 className="text-xl font-black tracking-[0.3em] uppercase">System.Proxy-Gateway</h1>
           </div>
           <p className="text-[10px] text-neutral-500 tracking-widest uppercase">
             Integrated Nginx Proxy Manager & Pangolin Auth Resource Monitoring
