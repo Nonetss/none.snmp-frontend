@@ -1,0 +1,10 @@
+---
+import Main from '@/layouts/main.astro'
+import ToolboxPage from '@/features/toolbox/ToolboxPage'
+---
+
+<Main title="System.Toolbox">
+  <main class="bg-black min-h-screen overflow-x-hidden">
+    <ToolboxPage client:only="react" />
+  </main>
+</Main>
