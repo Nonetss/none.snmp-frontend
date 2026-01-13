@@ -24,67 +24,63 @@ const SearchPage: React.FC = () => {
 
   return (
     <div className="p-8 bg-black text-white font-mono min-h-screen space-y-8 w-full pb-20">
-      {/* Header Page Title */}
-      <div className="max-w-[1400px] mx-auto border-b border-white/10 pb-8 space-y-2 flex flex-col items-center text-center">
-        <div className="flex items-center gap-3">
-          <Search className="w-6 h-6 text-white" />
-          <h1 className="text-3xl font-black uppercase tracking-tighter italic">
-            Network.Search_Engine
-          </h1>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-white/10 pb-6">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-3">
+            <Search className="w-5 h-5 text-white" />
+            <h1 className="text-xl font-black tracking-[0.3em] uppercase">System.Search-Engine</h1>
+          </div>
+          <p className="text-[10px] text-neutral-500 tracking-widest uppercase">
+            Advanced diagnostics and device localization tools
+          </p>
         </div>
-        <p className="text-[11px] text-neutral-400 uppercase tracking-[0.5em]">
-          Advanced diagnostics and device localization tools
-        </p>
-      </div>
 
-      {/* Internal Navigation Tabs */}
-      <div className="flex justify-center gap-1 border-b border-white/10 max-w-[1400px] mx-auto">
-        <button
-          onClick={() => handleTabChange('general')}
-          className={`flex items-center gap-2 px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] transition-all border-b-2 ${
-            activeTab === 'general'
-              ? 'border-white text-white bg-white/5'
-              : 'border-transparent text-neutral-500 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          <Network className="w-4 h-4" />
-          Network_Locator
-        </button>
-        <button
-          onClick={() => handleTabChange('applications')}
-          className={`flex items-center gap-2 px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] transition-all border-b-2 ${
-            activeTab === 'applications'
-              ? 'border-white text-white bg-white/5'
-              : 'border-transparent text-neutral-500 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          <Box className="w-4 h-4" />
-          Applications
-        </button>
-        <button
-          onClick={() => handleTabChange('services')}
-          className={`flex items-center gap-2 px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] transition-all border-b-2 ${
-            activeTab === 'services'
-              ? 'border-white text-white bg-white/5'
-              : 'border-transparent text-neutral-500 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          <Zap className="w-4 h-4" />
-          Services
-        </button>
+        {/* Tabs Control - Industrial Style */}
+        <div className="flex p-1 bg-white/5 border border-white/5">
+          <button
+            onClick={() => handleTabChange('general')}
+            className={`flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
+              activeTab === 'general' ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'
+            }`}
+          >
+            <Network className="w-3.5 h-3.5" />
+            Network_Locator
+          </button>
+          <button
+            onClick={() => handleTabChange('applications')}
+            className={`flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
+              activeTab === 'applications'
+                ? 'bg-white text-black'
+                : 'text-neutral-500 hover:text-white'
+            }`}
+          >
+            <Box className="w-3.5 h-3.5" />
+            Applications
+          </button>
+          <button
+            onClick={() => handleTabChange('services')}
+            className={`flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
+              activeTab === 'services' ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5" />
+            Services
+          </button>
+        </div>
       </div>
 
       <div className="max-w-[1400px] mx-auto">
         {activeTab === 'general' && (
-          <div className="space-y-12">
+          <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
             {/* Tool 1: Trace Origin */}
-
             <section className="space-y-4 max-w-5xl mx-auto">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black text-neutral-500 uppercase tracking-[0.4em]">
-                  Service_01
+              <div className="flex items-center gap-2 opacity-50">
+                <div className="h-[1px] w-8 bg-white/10" />
+                <span className="text-[9px] font-black uppercase tracking-[0.4em]">
+                  01. Path_Trace_&_Origin
                 </span>
-                <div className="h-px flex-1 bg-white/5" />
+                <div className="h-[1px] flex-1 bg-white/10" />
               </div>
               <div className="w-full">
                 <ConnectionSearch />
@@ -93,11 +89,12 @@ const SearchPage: React.FC = () => {
 
             {/* Tool 2: Device Identification */}
             <section className="space-y-4 max-w-5xl mx-auto">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black text-neutral-500 uppercase tracking-[0.4em]">
-                  Service_02
+              <div className="flex items-center gap-2 opacity-50">
+                <div className="h-[1px] w-8 bg-white/10" />
+                <span className="text-[9px] font-black uppercase tracking-[0.4em]">
+                  02. Identity_Resolution
                 </span>
-                <div className="h-px flex-1 bg-white/5" />
+                <div className="h-[1px] flex-1 bg-white/10" />
               </div>
               <div className="w-full">
                 <DeviceIdentify />
