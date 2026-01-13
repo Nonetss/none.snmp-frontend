@@ -9,9 +9,6 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone',
   }),
-  server: {
-    allowedHosts: ['dev.noneweb.online'],
-  },
   vite: {
     envPrefix: 'PUBLIC_',
     plugins: [tailwindcss()],
