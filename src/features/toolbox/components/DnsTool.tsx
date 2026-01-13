@@ -13,7 +13,7 @@ import {
   Globe,
 } from 'lucide-react'
 import { InfoCard } from '@/components/ui/info-card'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
 type RecordType = 'A' | 'AAAA' | 'MX' | 'TXT' | 'NS' | 'CNAME' | 'SOA' | 'PTR'
@@ -41,8 +41,18 @@ const recordTypes: RecordType[] = ['A', 'AAAA', 'MX', 'TXT', 'NS', 'CNAME', 'SOA
 
 const DnsTool: React.FC = () => {
   const [domainInput, setDomainInput] = useState('')
-  const [selectedBaseDomain, setSelectedBaseDomain] = useState<string>('')
-  const [serverInput, setServerInput] = useState('')
+  const [selectedBaseDomain, setSelectedBaseDomain] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('dns_tool_base_domain') || ''
+    }
+    return ''
+  })
+  const [serverInput, setServerInput] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('dns_tool_server') || ''
+    }
+    return ''
+  })
   const [type, setType] = useState<RecordType>('A')
 
   const [registeredServers, setRegisteredServers] = useState<DnsServer[]>([])
@@ -56,6 +66,15 @@ const DnsTool: React.FC = () => {
   const [newServerName, setNewServerName] = useState('')
   const [newServerIp, setNewServerIp] = useState('')
   const [newDomainName, setNewDomainName] = useState('')
+
+  // Persistence Effects
+  useEffect(() => {
+    localStorage.setItem('dns_tool_base_domain', selectedBaseDomain)
+  }, [selectedBaseDomain])
+
+  useEffect(() => {
+    localStorage.setItem('dns_tool_server', serverInput)
+  }, [serverInput])
 
   const fetchSettings = React.useCallback(async () => {
     try {
@@ -202,7 +221,7 @@ const DnsTool: React.FC = () => {
                       onChange={(e) => setSelectedBaseDomain(e.target.value)}
                       className="bg-black border border-white/10 px-3 py-2 text-[10px] font-black uppercase text-neutral-400 focus:text-white transition-colors outline-none max-w-[150px]"
                     >
-                      <option value="">.CUSTOM</option>
+                      <option value=""></option>
                       {registeredDomains.map((d) => (
                         <option key={d.id} value={d.domain}>
                           .{d.domain.toUpperCase()}
@@ -235,7 +254,7 @@ const DnsTool: React.FC = () => {
                       value={registeredServers.find((s) => s.ip === serverInput)?.ip || ''}
                       className="bg-black border border-white/10 px-3 py-2 text-[10px] font-black uppercase text-neutral-400 focus:text-white outline-none max-w-[100px]"
                     >
-                      <option value="">CUSTOM</option>
+                      <option value=""></option>
                       {registeredServers.map((s) => (
                         <option key={s.id} value={s.ip}>
                           {s.name.toUpperCase()}
