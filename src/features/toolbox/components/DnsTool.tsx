@@ -174,9 +174,9 @@ const DnsTool: React.FC = () => {
       >
         <div className="space-y-6">
           <form onSubmit={handleQuery} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Domain Input Area */}
-              <div className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+              {/* Domain Input Area - Proportion 3 */}
+              <div className="space-y-2 md:col-span-3">
                 <label className="text-[9px] font-black text-neutral-600 uppercase tracking-widest ml-1">
                   Target_Identity
                 </label>
@@ -213,59 +213,58 @@ const DnsTool: React.FC = () => {
                 </div>
               </div>
 
-              {/* Server & Type Area */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[9px] font-black text-neutral-600 uppercase tracking-widest ml-1">
-                    Nameserver_Source
-                  </label>
-                  <div className="flex gap-2">
-                    <div className="relative flex-1 group">
-                      <Server className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600 group-focus-within:text-white transition-colors" />
-                      <input
-                        type="text"
-                        value={serverInput}
-                        onChange={(e) => setServerInput(e.target.value)}
-                        placeholder="IP_ADDRESS"
-                        className="w-full bg-black border border-white/10 pl-10 pr-4 py-3 text-[11px] font-black uppercase tracking-widest focus:outline-none focus:border-white/30 transition-all placeholder:text-neutral-800 font-mono"
-                      />
-                    </div>
-                    {registeredServers.length > 0 && (
-                      <select
-                        onChange={(e) => setServerInput(e.target.value)}
-                        value={registeredServers.find((s) => s.ip === serverInput)?.ip || ''}
-                        className="bg-black border border-white/10 px-3 py-2 text-[10px] font-black uppercase text-neutral-400 focus:text-white outline-none max-w-[100px]"
-                      >
-                        <option value="">CUSTOM</option>
-                        {registeredServers.map((s) => (
-                          <option key={s.id} value={s.ip}>
-                            {s.name.toUpperCase()}
-                          </option>
-                        ))}
-                      </select>
-                    )}
+              {/* Nameserver Source - Proportion 2 */}
+              <div className="space-y-2 md:col-span-2">
+                <label className="text-[9px] font-black text-neutral-600 uppercase tracking-widest ml-1">
+                  Nameserver_Source
+                </label>
+                <div className="flex gap-2">
+                  <div className="relative flex-1 group">
+                    <Server className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600 group-focus-within:text-white transition-colors" />
+                    <input
+                      type="text"
+                      value={serverInput}
+                      onChange={(e) => setServerInput(e.target.value)}
+                      placeholder="IP_ADDRESS"
+                      className="w-full bg-black border border-white/10 pl-10 pr-4 py-3 text-[11px] font-black uppercase tracking-widest focus:outline-none focus:border-white/30 transition-all placeholder:text-neutral-800 font-mono"
+                    />
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[9px] font-black text-neutral-600 uppercase tracking-widest ml-1">
-                    Record_Type
-                  </label>
-                  <div className="relative">
+                  {registeredServers.length > 0 && (
                     <select
-                      value={type}
-                      onChange={(e) => setType(e.target.value as RecordType)}
-                      className="bg-black border border-white/10 px-4 py-3 text-[11px] font-black uppercase tracking-widest focus:outline-none focus:border-white/30 appearance-none cursor-pointer"
+                      onChange={(e) => setServerInput(e.target.value)}
+                      value={registeredServers.find((s) => s.ip === serverInput)?.ip || ''}
+                      className="bg-black border border-white/10 px-3 py-2 text-[10px] font-black uppercase text-neutral-400 focus:text-white outline-none max-w-[100px]"
                     >
-                      {recordTypes.map((t) => (
-                        <option key={t} value={t}>
-                          {t}
+                      <option value="">CUSTOM</option>
+                      {registeredServers.map((s) => (
+                        <option key={s.id} value={s.ip}>
+                          {s.name.toUpperCase()}
                         </option>
                       ))}
                     </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-600">
-                      <Terminal className="size-3" />
-                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Record Type - Proportion 1 */}
+              <div className="space-y-2 md:col-span-1">
+                <label className="text-[9px] font-black text-neutral-600 uppercase tracking-widest ml-1">
+                  Record_Type
+                </label>
+                <div className="relative">
+                  <select
+                    value={type}
+                    onChange={(e) => setType(e.target.value as RecordType)}
+                    className="w-full bg-black border border-white/10 px-4 py-3 text-[11px] font-black uppercase tracking-widest focus:outline-none focus:border-white/30 appearance-none cursor-pointer"
+                  >
+                    {recordTypes.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-600">
+                    <Terminal className="size-3" />
                   </div>
                 </div>
               </div>
