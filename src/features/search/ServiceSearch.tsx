@@ -427,7 +427,7 @@ const ServiceSearch: React.FC = () => {
                             {svc.devices.length} Nodes
                           </span>
                         </div>
-                        <span className="text-[9px] text-neutral-500 font-mono font-bold tracking-widest bg-white/[0.02] px-2 py-0.5 border border-white/5">
+                        <span className="text-[9px] text-neutral-400 font-mono font-bold tracking-widest bg-white/[0.02] px-2 py-0.5 border border-white/5">
                           ID_{getTechId(svc.name)}
                         </span>
                       </div>
