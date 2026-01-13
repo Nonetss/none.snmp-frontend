@@ -10,7 +10,6 @@ export default defineConfig({
     mode: 'standalone',
   }),
   vite: {
-    envPrefix: 'PUBLIC_',
     plugins: [tailwindcss()],
   },
   integrations: [react()],
