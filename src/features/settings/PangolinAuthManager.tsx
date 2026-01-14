@@ -74,7 +74,6 @@ const PangolinAuthManager: React.FC = () => {
         await axios.post(`/api/v0/proxy/pangolin/auth`, formData)
       }
       await fetchAuth()
-      alert('Pangolin credentials saved successfully')
     } catch (err: any) {
       alert(err.response?.data?.message || err.message || 'Failed to save configuration')
     } finally {

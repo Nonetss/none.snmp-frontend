@@ -56,7 +56,6 @@ const NpmAuthManager: React.FC = () => {
         await axios.post(`/api/v0/proxy/npm/auth`, formData)
       }
       await fetchAuth()
-      alert('NPM credentials saved successfully')
     } catch (err: any) {
       alert(err.response?.data?.message || err.message || 'Failed to save configuration')
     } finally {

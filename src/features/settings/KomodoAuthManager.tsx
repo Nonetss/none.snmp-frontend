@@ -58,7 +58,6 @@ const KomodoAuthManager: React.FC = () => {
         await axios.post(`/api/v0/komodo/auth`, formData)
       }
       await fetchAuth()
-      alert('Komodo credentials saved successfully')
     } catch (err: any) {
       alert(err.response?.data?.message || err.message || 'Failed to save configuration')
     } finally {
