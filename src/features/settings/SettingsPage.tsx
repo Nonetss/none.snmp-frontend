@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import SnmpAuthManager from '@/features/settings/SnmpAuthManager'
+import AuthManager from '@/features/settings/AuthManager'
 import SubnetManager from '@/features/settings/SubnetManager'
 import TaskScheduler from '@/features/settings/TaskScheduler'
 import TagManager from '@/features/settings/TagManager'
 import NotificationCredentialManager from '@/features/settings/NotificationCredentialManager'
 import NotificationTopicManager from '@/features/settings/NotificationTopicManager'
-import { Shield, Network, Calendar, Tag, Bell } from 'lucide-react'
+import { Shield, Network, Calendar, Tag, Bell, Key } from 'lucide-react'
 
-type TabId = 'snmp' | 'subnets' | 'scheduler' | 'tags' | 'notifications'
+type TabId = 'auth' | 'subnets' | 'scheduler' | 'tags' | 'notifications'
 
 const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabId>('subnets')
@@ -16,7 +16,7 @@ const SettingsPage: React.FC = () => {
   useEffect(() => {
     const hash = window.location.hash.replace('#', '') as TabId
     if (
-      hash === 'snmp' ||
+      hash === 'auth' ||
       hash === 'subnets' ||
       hash === 'scheduler' ||
       hash === 'tags' ||
@@ -69,15 +69,15 @@ const SettingsPage: React.FC = () => {
           Notifications
         </button>
         <button
-          onClick={() => handleTabChange('snmp')}
+          onClick={() => handleTabChange('auth')}
           className={`flex items-center gap-2 px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] transition-all border-b-2 ${
-            activeTab === 'snmp'
+            activeTab === 'auth'
               ? 'border-white text-white bg-white/5'
               : 'border-transparent text-neutral-500 hover:text-white hover:bg-white/5'
           }`}
         >
-          <Shield className="w-4 h-4" />
-          SNMP_Auth
+          <Key className="w-4 h-4" />
+          Auth
         </button>
         <button
           onClick={() => handleTabChange('scheduler')}
@@ -101,7 +101,7 @@ const SettingsPage: React.FC = () => {
             <NotificationTopicManager />
           </div>
         )}
-        {activeTab === 'snmp' && <SnmpAuthManager />}
+        {activeTab === 'auth' && <AuthManager />}
         {activeTab === 'scheduler' && <TaskScheduler />}
       </div>
     </div>

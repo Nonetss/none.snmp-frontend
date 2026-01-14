@@ -7,11 +7,8 @@ import {
   Edit2,
   RefreshCcw,
   AlertCircle,
-  CheckCircle2,
   X,
   Lock,
-  Key,
-  User,
   Hash,
   Eye,
   EyeOff,
@@ -68,30 +65,20 @@ const SnmpAuthManager: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
     setSubmitting(true)
-
     try {
-      // Ensure community is at least an empty string if not provided (required by API schema)
-
       const payload = {
         ...formData,
-
         community: formData.community || '',
       }
-
       if (editingId) {
         await axios.patch(`/api/v0/snmp/auth/${editingId}`, payload)
       } else {
         await axios.post(`/api/v0/snmp/auth`, payload)
       }
-
       setShowForm(false)
-
       setEditingId(null)
-
       setFormData({ version: 'v2c', port: 161, community: 'public' })
-
       await fetchAuths()
     } catch (err: any) {
       alert(err.response?.data?.message || err.message || 'Failed to save configuration')
@@ -118,19 +105,19 @@ const SnmpAuthManager: React.FC = () => {
 
   if (loading && auths.length === 0)
     return (
-      <div className="flex items-center justify-center h-64 bg-black text-white font-mono">
-        <RefreshCcw className="w-8 h-8 animate-spin text-white" />
+      <div className="flex items-center justify-center h-48 bg-black text-white font-mono">
+        <RefreshCcw className="w-6 h-6 animate-spin text-white" />
       </div>
     )
 
   return (
-    <div className="bg-black text-white font-mono space-y-8 w-full animate-in fade-in duration-500">
+    <div className="bg-black text-white font-mono space-y-8 w-full">
       {/* Header */}
       <div className="flex justify-between items-end border-b border-white/10 pb-6">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-4 bg-white" />
-            <h1 className="text-2xl font-bold tracking-tighter uppercase">SNMP.Authentication</h1>
+            <h2 className="text-lg font-bold tracking-tighter uppercase">SNMP_Profiles</h2>
           </div>
           <p className="text-[9px] text-neutral-500 uppercase tracking-[0.4em]">
             Credential profiles management
@@ -248,14 +235,11 @@ const SnmpAuthManager: React.FC = () => {
                     onChange={(e) => {
                       const newVersion = e.target.value as any
                       const newData: Partial<SnmpAuth> = { ...formData, version: newVersion }
-
-                      // Initialize V3 defaults if they don't exist
                       if (newVersion === 'v3') {
                         newData.v3Level = newData.v3Level || 'authPriv'
                         newData.v3AuthProtocol = newData.v3AuthProtocol || 'sha'
                         newData.v3PrivProtocol = newData.v3PrivProtocol || 'aes'
                       }
-
                       setFormData(newData)
                     }}
                     className="w-full bg-black border border-white/10 p-2 text-xs focus:outline-none focus:border-white/40 uppercase font-mono"
@@ -324,7 +308,6 @@ const SnmpAuthManager: React.FC = () => {
                       <option value="authPriv">authPriv</option>
                     </select>
                   </div>
-
                   <div className="space-y-1.5">
                     <label className="text-[10px] text-neutral-500 uppercase font-bold tracking-tighter">
                       Username
@@ -337,7 +320,6 @@ const SnmpAuthManager: React.FC = () => {
                       required
                     />
                   </div>
-
                   {formData.v3Level !== 'noAuthNoPriv' && (
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
@@ -383,7 +365,6 @@ const SnmpAuthManager: React.FC = () => {
                       </div>
                     </div>
                   )}
-
                   {(formData.v3Level === 'authPriv' || !formData.v3Level) && (
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
