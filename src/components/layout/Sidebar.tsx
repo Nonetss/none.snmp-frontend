@@ -424,7 +424,7 @@ const Sidebar: React.FC<Props> = ({
           </div>
 
           <a
-            href="/settings/snmp"
+            href="/settings"
             className={`flex items-center h-11 px-2.5 transition-all relative ${
               currentPath.startsWith('/settings')
                 ? 'bg-white text-black'
