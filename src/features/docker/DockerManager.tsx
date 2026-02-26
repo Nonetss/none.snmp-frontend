@@ -168,7 +168,7 @@ const DockerManager: React.FC = () => {
   }, [containers, search])
 
   return (
-    <div className="p-8 bg-black text-white font-mono min-h-screen space-y-12 w-full animate-in fade-in duration-500">
+    <div className="p-4 md:p-8 bg-black text-white font-mono min-h-screen space-y-12 w-full max-w-full 2xl:max-w-[2400px] mx-auto animate-in fade-in duration-500">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-white/10 pb-6">
         <div className="flex flex-col gap-2">
@@ -181,7 +181,7 @@ const DockerManager: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-6">
+        <div className="flex flex-col sm:flex-row items-center gap-4">
           <div className="flex p-1 bg-white/5 border border-white/5">
             {[
               { id: 'servers', label: 'Nodes', icon: Server },
@@ -213,13 +213,13 @@ const DockerManager: React.FC = () => {
       </div>
 
       {/* Global Filter */}
-      <div className="relative group max-w-2xl">
-        <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1 h-8 bg-white/20 group-focus-within:bg-white transition-colors" />
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600 group-focus-within:text-white transition-colors" />
+      <div className="relative group max-w-2xl bg-white/[0.02] border border-white/5">
+        <div className="absolute -left-[1px] top-0 bottom-0 w-[1px] bg-white/20 group-focus-within:bg-white transition-colors" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-700 group-focus-within:text-white transition-colors" />
         <input
           type="text"
           placeholder={`SEARCH_ACROSS_${activeTab.toUpperCase()}...`}
-          className="w-full bg-black border border-white/10 pl-12 pr-4 py-4 text-xs font-black uppercase tracking-[0.2em] focus:outline-none focus:border-white/30 transition-all placeholder:text-neutral-800"
+          className="w-full bg-transparent pl-12 pr-4 py-4 text-xs font-black uppercase tracking-[0.2em] focus:outline-none focus:border-white/30 transition-all placeholder:text-neutral-800"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -375,13 +375,22 @@ const DockerManager: React.FC = () => {
       {(selectedServer || selectedStack || selectedContainer) && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm p-4 animate-in fade-in duration-300">
           <div
-            className="w-full max-w-2xl bg-black border border-white/20 shadow-[0_0_100px_rgba(0,0,0,1)] animate-in zoom-in-95 duration-300 overflow-hidden flex flex-col max-h-[90vh]"
+            className="w-full max-w-3xl bg-neutral-950 border border-white/20 shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden flex flex-col max-h-[90vh]"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-white/10 bg-white/5 px-8 py-6">
-              <div className="grid gap-1.5">
-                <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-white" />
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-white/5 border border-white/10 flex items-center justify-center">
+                  {selectedStack ? (
+                    <Layers className="w-5 h-5 text-white" />
+                  ) : selectedContainer ? (
+                    <Package className="w-5 h-5 text-white" />
+                  ) : (
+                    <Server className="w-5 h-5 text-white" />
+                  )}
+                </div>
+                <div className="grid gap-1">
                   <h2 className="text-sm font-black uppercase tracking-[0.3em] text-white">
                     {selectedServer
                       ? 'NODE_INSPECTOR'
@@ -389,10 +398,10 @@ const DockerManager: React.FC = () => {
                         ? 'STACK_INSPECTOR'
                         : 'CONTAINER_INSPECTOR'}
                   </h2>
+                  <p className="text-[10px] text-neutral-500 uppercase tracking-widest font-mono">
+                    {selectedServer?.name || selectedStack?.name || selectedContainer?.name}
+                  </p>
                 </div>
-                <p className="text-[10px] text-neutral-500 uppercase tracking-widest font-mono">
-                  {selectedServer?.name || selectedStack?.name || selectedContainer?.name}
-                </p>
               </div>
               <button
                 onClick={() => {
@@ -400,9 +409,9 @@ const DockerManager: React.FC = () => {
                   setSelectedStack(null)
                   setSelectedContainer(null)
                 }}
-                className="p-2 border border-white/10 text-neutral-500 hover:bg-white hover:text-black transition-all"
+                className="p-2 border border-white/10 text-neutral-500 hover:bg-white/10 hover:text-white transition-all"
               >
-                <X className="size-4" />
+                <X className="size-5" />
               </button>
             </div>
 
@@ -411,34 +420,47 @@ const DockerManager: React.FC = () => {
                 {selectedStack && (
                   <>
                     <KeyValueSection title="01. Stack_Control">
-                      <KeyValueRow label="ID" value={selectedStack.id} mono />
-                      <KeyValueRow
-                        label="Status"
-                        value={<StatusBadge state={selectedStack.info.status} />}
-                      />
-                      <KeyValueRow label="Server_Link" value={selectedStack.info.server_id} mono />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                        <KeyValueRow label="ID" value={selectedStack.id} mono />
+                        <KeyValueRow
+                          label="Status"
+                          value={<StatusBadge state={selectedStack.info.status} />}
+                        />
+                        <KeyValueRow
+                          label="Server_Link"
+                          value={selectedStack.info.server_id}
+                          mono
+                        />
+                        <KeyValueRow label="Deployment_State" value={selectedStack.info.state} />
+                      </div>
                     </KeyValueSection>
+
                     <KeyValueSection title="02. Services_Inventory">
-                      {selectedStack.info.services.map((svc, idx) => (
-                        <div
-                          key={svc.service}
-                          className={`space-y-1 ${idx > 0 ? 'pt-4 border-t border-white/5' : ''}`}
-                        >
-                          <div className="flex justify-between items-center">
-                            <span className="text-[10px] text-white font-black uppercase tracking-widest">
-                              {svc.service}
-                            </span>
-                            {svc.update_available && (
-                              <span className="text-[8px] bg-amber-500/20 text-amber-500 px-1 py-0.5 font-black">
-                                UPDATE
-                              </span>
-                            )}
+                      <div className="grid grid-cols-1 gap-3">
+                        {selectedStack.info.services.map((svc, idx) => (
+                          <div
+                            key={svc.service}
+                            className="p-4 bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all flex justify-between items-center group"
+                          >
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-3">
+                                <span className="text-[10px] text-white font-black uppercase tracking-widest">
+                                  {svc.service}
+                                </span>
+                                {svc.update_available && (
+                                  <span className="text-[8px] bg-amber-500/20 text-amber-500 px-2 py-0.5 font-black border border-amber-500/20 animate-pulse">
+                                    UPDATE_PENDING
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-[9px] text-neutral-500 font-mono">
+                                {svc.image}
+                              </div>
+                            </div>
+                            <ExternalLink className="w-3.5 h-3.5 text-neutral-800 group-hover:text-white transition-colors" />
                           </div>
-                          <div className="text-[9px] text-neutral-500 font-mono truncate">
-                            {svc.image}
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </KeyValueSection>
                   </>
                 )}
@@ -446,31 +468,35 @@ const DockerManager: React.FC = () => {
                 {selectedContainer && (
                   <>
                     <KeyValueSection title="01. Runtime_Context">
-                      <KeyValueRow label="ID" value={selectedContainer.id} mono />
-                      <KeyValueRow label="Image" value={selectedContainer.image} />
-                      <KeyValueRow
-                        label="State"
-                        value={<StatusBadge state={selectedContainer.state} />}
-                      />
-                      <KeyValueRow label="Status" value={selectedContainer.status} />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                        <KeyValueRow label="ID" value={selectedContainer.id} mono />
+                        <KeyValueRow label="Image" value={selectedContainer.image} />
+                        <KeyValueRow
+                          label="State"
+                          value={<StatusBadge state={selectedContainer.state} />}
+                        />
+                        <KeyValueRow label="Status" value={selectedContainer.status} />
+                      </div>
                     </KeyValueSection>
                     {selectedContainer.stats && (
                       <KeyValueSection title="02. Resource_Telemetry">
-                        <KeyValueRow
-                          label="CPU_Usage"
-                          value={selectedContainer.stats.cpu_perc}
-                          mono
-                        />
-                        <KeyValueRow
-                          label="Memory_Percentage"
-                          value={selectedContainer.stats.mem_perc}
-                          mono
-                        />
-                        <KeyValueRow
-                          label="Memory_Usage"
-                          value={selectedContainer.stats.mem_usage}
-                          mono
-                        />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                          <KeyValueRow
+                            label="CPU_Usage"
+                            value={selectedContainer.stats.cpu_perc}
+                            mono
+                          />
+                          <KeyValueRow
+                            label="Memory_Percentage"
+                            value={selectedContainer.stats.mem_perc}
+                            mono
+                          />
+                          <KeyValueRow
+                            label="Memory_Usage"
+                            value={selectedContainer.stats.mem_usage}
+                            mono
+                          />
+                        </div>
                       </KeyValueSection>
                     )}
                   </>
@@ -478,13 +504,32 @@ const DockerManager: React.FC = () => {
               </div>
             </ScrollArea>
 
-            <div className="p-8 border-t border-white/10 bg-white/5 flex justify-end">
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-white/10 bg-white/5 flex justify-between items-center">
+              <div className="flex items-center gap-6 pl-2">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black text-white uppercase tracking-widest">
+                    Live_Telemetry
+                  </span>
+                  <span className="text-[8px] text-neutral-500 uppercase font-bold">
+                    System.Stream.Active
+                  </span>
+                </div>
+                <div className="h-8 w-px bg-white/10" />
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[8px] text-neutral-500 font-bold uppercase tracking-tighter">
+                    Sync_OK
+                  </span>
+                </div>
+              </div>
               <button
                 onClick={() => {
+                  setSelectedServer(null)
                   setSelectedStack(null)
                   setSelectedContainer(null)
                 }}
-                className="px-6 py-2.5 text-[10px] font-black uppercase tracking-widest border border-white/10 hover:bg-white hover:text-black transition-all"
+                className="px-8 py-3 text-[10px] font-black uppercase tracking-widest bg-white text-black hover:bg-neutral-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]"
               >
                 Dismiss_Inspector
               </button>
